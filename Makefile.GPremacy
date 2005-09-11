@@ -2,7 +2,7 @@
 # Do not modify this file
 
 SOURCES = \
-./Main.cs \
+./GpremacyGUI.cs \
 ./MyWindow.cs \
 ./AssemblyInfo.cs \
 ./GpremacyMap.cs \
@@ -17,7 +17,13 @@ SOURCES = \
 ./Units/Navy.cs \
 ./Units/Nuke.cs \
 ./Units/LSat.cs \
-./GraphicsStorage.cs
+./GraphicsStorage.cs \
+./Game.cs \
+./ResourceCard.cs \
+./Resource/Resource.cs \
+./Resource/Grain.cs \
+./Resource/Minerals.cs \
+./Resource/Oil.cs
 
 PKG_REFERENCES = \
 gtk-sharp \

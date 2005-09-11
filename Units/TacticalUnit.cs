@@ -6,12 +6,12 @@ class TacticalUnit : Unit {
 	public TacticalUnit (Player lord, Territory home) : base(lord)
 	{
 		CurrentLocation = home;
-		System.Console.WriteLine("New unit created in " + CurrentLocation.getName());
+		System.Console.WriteLine("New unit created in " + CurrentLocation.toString());
 	}	
 	
 	public bool canMoveTo ( Territory dest )
 	{		
-		return !this.getMovedThisTurn();
+		return !this.MovedThisTurn;
 	}
 	
 	public bool moveTo ( Territory dest)
@@ -19,7 +19,7 @@ class TacticalUnit : Unit {
 		if (canMoveTo(dest)) 
 		{
 			CurrentLocation = dest;
-			this.setMovedThisTurn(true);
+			this.MovedThisTurn = true;
 			return true;
 		}
 		return false;

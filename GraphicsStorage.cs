@@ -8,7 +8,7 @@ class  GraphicsStorage
 	private Gdk.Pixbuf navy;
 	private Gdk.Pixbuf map;
 	
-	protected string file_path = "/home/pug/src/gpremacy/Graphics/";
+	protected string file_path = "/home/pug/src/gpremacy-mono/Graphics/";
 
 
 	private GraphicsStorage()

@@ -8,23 +8,24 @@ using Gdk;
 namespace Gpremacy {
 class GpremacyGUI {
 	GpremacyMap MapArea;
+	Game game;
 
 	[Glade.Widget] Gtk.Viewport MapViewport;
 	[Glade.Widget] Gtk.Window MainWindow;
 	[Glade.Widget] Gtk.ScrolledWindow MapScrolledWindow2;
-
-	public static void Main(string[] args)
+	
+	public GpremacyGUI(Game i)
 	{
-		GpremacyGUI mainGUI = new GpremacyGUI();
-		mainGUI.init();
+		game = i;
 	}
 	
-	public void init() {
+	public void init() 
+	{
 		Application.Init ();
-		MapArea = new GpremacyMap();
+		MapArea = new GpremacyMap(game);
 		System.Console.WriteLine("Got Maparea:" + MapArea + ".");		
 		
-		Glade.XML gxml = new Glade.XML ("/home/pug/src/gpremacy/gpremacy_gui/gpremacy_gui.glade", "MainWindow", null);
+		Glade.XML gxml = new Glade.XML ("/home/pug/src/gpremacy-mono/gpremacy_gui/gpremacy_gui.glade", "MainWindow", null);
 		gxml.Autoconnect (this);
 		
 		System.Console.WriteLine("Adding..." + MapArea + " to " + MapViewport + "!");
@@ -68,13 +69,17 @@ class GpremacyGUI {
 	   	if (target == null)
 	   		return;
 	   	
-   		System.Console.WriteLine("Clicked " + target.getName());
+   		System.Console.WriteLine("Clicked " + target.toString());
+   		
+   		
+   		
+   		
    		if (args.Event.Button == 3)
    		{
    			if (target.getMapTerritory().isLand)
-   				target.addUnit(new Army(new Player(), target));
+   				target.addUnit(new Army(game.PlayerNobody, target));
    			else
-   				target.addUnit(new Navy(new Player(), target));   			
+   				target.addUnit(new Navy(game.PlayerNobody, target));   			
    		}
    		
    		/* Redraw that region */

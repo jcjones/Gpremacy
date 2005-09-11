@@ -13,13 +13,16 @@ class GpremacyMap : DrawingArea
         ArrayList Territories;
         Gdk.Pixbuf bgimagePixbuf;
         GraphicsStorage store;
+        Game game;
  
-        public GpremacyMap ()
+        public GpremacyMap (Game igame)
         {
+        	game = igame;
 			Territories = new ArrayList();
 			this.Realized += OnRealized;
 			this.ExposeEvent += OnExposed;
-			LoadCountryBoundaries();      
+			LoadCountryBoundaries();
+			game.LoadResourceCards(Territories);      
             
             store = GraphicsStorage.GetInstance();    
                         
@@ -113,7 +116,7 @@ class GpremacyMap : DrawingArea
 	        				i++;
 	        			}
 	        			
-	        			Territories.Add(new Territory(name, id, land, points, this.PangoContext));
+	        			Territories.Add(new Territory(name, id, game.PlayerNobody, land, points, this.PangoContext));
                         points.Clear();
 	        		}
 	        		        		

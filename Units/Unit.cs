@@ -3,28 +3,36 @@ using Gdk;
 namespace Gpremacy {
 class Unit {
 
-	Player Owner;
-	bool MovedThisTurn;
+	Player owner;
+	bool movedThisTurn;
 	
 	public Unit(Player lord)
 	{
-		Owner = lord;
-		MovedThisTurn = true;		
+		owner = lord;
+		movedThisTurn = true;		
+	}
+	
+	public Player Owner
+	{
+		get { return owner; }
 	}
 	
 	public virtual void draw(Gdk.Window win, int offset)
 	{
 	}
 	
-	public bool getMovedThisTurn()
+	public virtual string toString()
 	{
-		return MovedThisTurn;
+		string ret;
+		ret = "Unknown Unit of " + owner.toString() + ".\n";
+		return ret;
 	}
 	
-	public void setMovedThisTurn(bool ans)
+	public bool MovedThisTurn
 	{
-		MovedThisTurn = ans;
-	} 
+		get { return movedThisTurn; }
+		set { movedThisTurn = value; }
+	}
 
 }
 }

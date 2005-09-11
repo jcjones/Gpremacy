@@ -1,6 +1,6 @@
 <Project name="GPremacy" description="" newfilesearch="None" enableviewstate="True" version="1.1" projecttype="C#">
   <Contents>
-    <File name="./Main.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name="./GpremacyGUI.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./MyWindow.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./AssemblyInfo.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./GpremacyMap.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
@@ -17,6 +17,13 @@
     <File name="./Units/Nuke.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./Units/LSat.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
     <File name="./GraphicsStorage.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name="./Game.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name="./ResourceCard.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name="./Resource" subtype="Directory" buildaction="Compile" dependson="" data="" />
+    <File name="./Resource/Resource.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name="./Resource/Grain.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name="./Resource/Minerals.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
+    <File name="./Resource/Oil.cs" subtype="Code" buildaction="Compile" dependson="" data="" />
   </Contents>
   <References>
     <Reference type="Gac" refto="gtk-sharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" localcopy="True" />

@@ -10,42 +10,59 @@ namespace Gpremacy{
 
 class Territory
 {
-	String Name;
-	Player Owner;
-	int ID;
-	ArrayList Units;
-	ArrayList Resources;
-	bool Destroyed;	
+	String name;
+	Player owner;
+	int id;
+	ArrayList units;
+	ArrayList resources;
+	bool destroyed;	
 	MapTerritory ourMapTerritory;
 	
-	public Territory(String name_i, int ID_i, bool land_i, ArrayList borders_i, Pango.Context pango_context) 
+	public Territory(String name_i, int ID_i, Player lord, bool land_i, ArrayList borders_i, Pango.Context pango_context) 
 	{
-		Name = name_i;
-		ID = ID_i;
+		name = name_i;
+		id = ID_i;
+		owner = lord;
 		ourMapTerritory = new MapTerritory(name_i, land_i, borders_i, pango_context);
-		Destroyed = false;
-		Units = new ArrayList();
-		Resources = new ArrayList();		
+		destroyed = false;
+		units = new ArrayList();
+		resources = new ArrayList();		
 	}
 	
-	public void setOwner(Player inPlayer)
+	public string toString() 
 	{
-		Owner = inPlayer;
-	}
-
-	public void setDestroyed(bool stat)
-	{
-		Destroyed = stat;
+		string ret;
+		ret = "\nTerritory " + name + ", owned by " + owner.toString() + ".\n";
+		ret += "Unit List:\n";
+		foreach (Unit u in units)
+		{
+			ret +="\t" + u.toString() + "\n";
+		}
+		ret += "Resource List:\n";
+		foreach (Resource r in resources)
+		{
+			ret +="\t" + r.toString() + "\n";		
+		}
+		ret += "\n";
+		
+		return ret;
 	}
 	
-	public Player getOwner()
+	public Player Owner
 	{
-		return Owner;
+		get { return owner; }
+		set { owner = value; }
 	}
 	
-	public bool getDestroyed()
+	public bool Destroyed
 	{
-		return Destroyed;
+		get { return destroyed; }
+		set { destroyed = value; }
+	}
+	
+	public int ID
+	{
+		get { return id ; }
 	}
 	
 	public MapTerritory getMapTerritory()
@@ -53,35 +70,35 @@ class Territory
 		return ourMapTerritory;
 	}
 	
-	public int getID()
+	public String Name
 	{
-		return ID;
-	}
-	
-	public String getName()
-	{
-		return Name;
+		get { return name; }
 	}
 	
 	public void addUnit(Unit joe)
 	{
-		Units.Add(joe);		
+		units.Add(joe);		
 	}
 	
 	public void removeUnit(Unit joe)
 	{
-		Units.Remove(joe);
+		units.Remove(joe);
+	}
+	
+	public void addResource(Resource a)
+	{
+		resources.Add(a);
 	}
 	
 	public void draw(Gdk.Window win, Gdk.Color terr, Gdk.Color textcolor, Pango.Context pango_context)
 	{
 	   	ourMapTerritory.draw(win, terr, textcolor);
 
-	   	for (int offset=0; offset < Units.Count && offset < 3; offset++)
+	   	for (int offset=0; offset < units.Count && offset < 3; offset++)
 	   	{
-	   		((TacticalUnit)Units[offset]).draw(win, offset*5);
+	   		((TacticalUnit)units[offset]).draw(win, offset*5);
 	   	}
-	   	if (Units.Count > 1)
+	   	if (units.Count > 1)
 	   	{
 	   		Gdk.GC textcoloring = new Gdk.GC(win);
 	   		textcoloring.RgbFgColor = textcolor;
@@ -89,7 +106,7 @@ class Territory
    	        Pango.Layout label = new Pango.Layout (pango_context);
 			label.Wrap = Pango.WrapMode.Word;
 			label.FontDescription = FontDescription.FromString ("Tahoma 8");
-			label.SetMarkup ( Units.Count.ToString() );
+			label.SetMarkup ( units.Count.ToString() );
 			
 			int szX, szY;
 			label.GetPixelSize(out szX, out szY);
