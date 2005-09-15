@@ -1,4 +1,9 @@
 // created on 08/28/2005 at 10:36
+// This is a singleton object which holds all of the
+// pixbufs used by the game, so as to ensure that Gpremacy
+// does not waste cycles or memory loading these things 
+// multiple times.
+
 namespace Gpremacy {
 class  GraphicsStorage
 {

@@ -14,6 +14,13 @@ class GpremacyGUI {
 	[Glade.Widget] Gtk.Window MainWindow;
 	[Glade.Widget] Gtk.ScrolledWindow MapScrolledWindow2;
 	
+	[Glade.Widget] Gtk.TextView OrderOfPlayTextBox;	
+	[Glade.Widget] Gtk.TextView ResourcesTextBox;
+	[Glade.Widget] Gtk.TextView WorldMarketTextBox;
+	[Glade.Widget] Gtk.TextView LogTextBox;
+	[Glade.Widget] Gtk.TextView StatsTextBox;
+	[Glade.Widget] Gtk.TextView MiscTextBox;
+	
 	public GpremacyGUI(Game i)
 	{
 		game = i;
@@ -68,19 +75,8 @@ class GpremacyGUI {
 	   	/* Do nothing if no target */
 	   	if (target == null)
 	   		return;
-	   	
-   		System.Console.WriteLine("Clicked " + target.toString());
-   		
-   		
-   		
-   		
-   		if (args.Event.Button == 3)
-   		{
-   			if (target.getMapTerritory().isLand)
-   				target.addUnit(new Army(game.PlayerNobody, target));
-   			else
-   				target.addUnit(new Navy(game.PlayerNobody, target));   			
-   		}
+	   		
+	   	game.State.mouseClick(target, args.Event.Button);
    		
    		/* Redraw that region */
 	   	MapArea.GdkWindow.InvalidateRegion(target.getMapTerritory().region,true);
@@ -126,6 +122,16 @@ class GpremacyGUI {
 		Application.Quit();
 		args.RetVal = true;
 	}
+	
+	public void writeToOrderOfPlayTextBox(String a) 
+	{
+		OrderOfPlayTextBox.Buffer.Text = a;
+	}
+	
+	public void writeToLog(String a) 
+	{			
+		LogTextBox.Buffer.Text += a;
+	}	
 	
 }
 }

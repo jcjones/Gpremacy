@@ -23,7 +23,8 @@ SOURCES = \
 ./Resource/Resource.cs \
 ./Resource/Grain.cs \
 ./Resource/Minerals.cs \
-./Resource/Oil.cs
+./Resource/Oil.cs \
+./GameState.cs
 
 PKG_REFERENCES = \
 gtk-sharp \
