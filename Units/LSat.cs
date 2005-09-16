@@ -6,5 +6,10 @@ class LSat : StrategicUnit {
 	{
 	}	
 
+	public override string Name()
+	{
+		return "L-Sat";
+	}
+
 }
 }

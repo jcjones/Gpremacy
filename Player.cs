@@ -1,5 +1,6 @@
 // created on 08/27/2005 at 21:42
 using System.Collections;
+using System;
 
 namespace Gpremacy {
 class Player {
@@ -26,7 +27,7 @@ class Player {
 	{
 		return name;
 	}
-	
+		
 	public long Money
 	{
 		get { return money; }
@@ -57,22 +58,65 @@ class Player {
 		get { return resourceCards; }
 	}
 
-	public void printResources()
+	public string toStringResources()
 	{
-		int m=0,o=0,g=0;
+		// This function uses Gpremacy's custom Dictionary class
+		Dictionary rTypes = new Dictionary(); 
 		
+		int m=0,o=0,g=0;
+		string ret;
+
+		Console.WriteLine("AU: " + activeUnits.Count + " RC: " + resourceCards.Count + " SP: " + stockpile.Count);
+
+		ret = "Resources Produced Per Turn:\n";
 		foreach (ResourceCard card in resourceCards)
 		{
-			if (card.Good is Minerals) {
-				m+= card.Good.Value;
-			} else if (card.Good is Oil) {
-				o+= card.Good.Value;
-			} else if (card.Good is Grain) {
-				g+= card.Good.Value;
+			if (!rTypes.Exists(card.Good.Name()))
+			{
+				rTypes.Add(card.Good.Name(), (Int32)1);
 			} else {
-			}			
+				rTypes.IncValue(card.Good.Name());
+			}
 		}
-		System.Console.WriteLine("Grain: " + g + " Oil: " + o + " Minerals: " + m);
+		ret += rTypes.toString();
+		
+		ret += " [" + rTypes.Data.Count + "] ";
+		
+		rTypes.Clear();
+		
+		ret += "Resource Stockpile:\n";
+		foreach (ResourceCard card in stockpile)
+		{
+			if (!rTypes.Exists(card.Good.Name()))
+			{
+				rTypes.Add(card.Good.Name(), (Int32)1);
+			} else {
+				rTypes.IncValue(card.Good.Name());
+			}
+		}
+		ret += rTypes.toString();
+		
+		ret += " [" + rTypes.Data.Count + "] ";
+		
+		rTypes.Clear();		
+		
+		ret += "Active Units:\n";
+		foreach (Unit unit in activeUnits)
+		{
+			if (!rTypes.Exists(unit.Name()))
+			{
+				rTypes.Add(unit.Name(), (Int32)1);
+			} else {
+				rTypes.IncValue(unit.Name());
+			}
+		}
+		ret += rTypes.toString();
+		
+		ret += " [" + rTypes.Data.Count + "] ";
+		
+		rTypes.Clear();		
+		
+		return ret;
 	}
 	
 	public void addResourceCard(ResourceCard i)

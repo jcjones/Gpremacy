@@ -29,6 +29,16 @@ class Territory
 		resources = new ArrayList();		
 	}
 	
+	public ArrayList Units
+	{
+		get { return units; }
+	}
+	
+	public ArrayList Resources
+	{
+		get { return resources; }
+	}
+	
 	public string toString() 
 	{
 		string ret;

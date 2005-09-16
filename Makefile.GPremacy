@@ -24,7 +24,9 @@ SOURCES = \
 ./Resource/Grain.cs \
 ./Resource/Minerals.cs \
 ./Resource/Oil.cs \
-./GameState.cs
+./GameState.cs \
+./GpremacyMarket.cs \
+./Support/Dictionary.cs
 
 PKG_REFERENCES = \
 gtk-sharp \

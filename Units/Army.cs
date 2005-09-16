@@ -18,11 +18,10 @@ class Army : TacticalUnit {
 		win.DrawPixbuf(context, store.Army, 0, 0, X, Y, store.Army.Width, store.Army.Height, RgbDither.Normal, 1, 1);
 	}
 	
-	override public string toString()
+	public override string Name()
 	{
-		string ret;
-		ret = "Army of " + Owner.toString() + ".\n";
-		return ret;
+		return "Army";
 	}
+		
 }
 }

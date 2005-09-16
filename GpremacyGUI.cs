@@ -123,14 +123,30 @@ class GpremacyGUI {
 		args.RetVal = true;
 	}
 	
+	public void on_endTurnButton_pressed(System.Object obj, EventArgs e)
+	{
+		game.State.nextPlayer();
+	}
+	
 	public void writeToOrderOfPlayTextBox(String a) 
 	{
 		OrderOfPlayTextBox.Buffer.Text = a;
 	}
 	
+	public void writeToResourcesTextBox(String a) 
+	{
+		ResourcesTextBox.Buffer.Text = a;
+	}
+	
+	public void writeToWorldMarketTextBox(String a) 
+	{
+		WorldMarketTextBox.Buffer.Text = a;
+	}
+	
 	public void writeToLog(String a) 
 	{			
-		LogTextBox.Buffer.Text += a;
+		// Write such that newest entries are on top
+		LogTextBox.Buffer.Text = a + "\n" + LogTextBox.Buffer.Text;
 	}	
 	
 }

@@ -4,6 +4,9 @@ class Nuke : StrategicUnit {
 	public Nuke (Player lord) : base(lord)
 	{
 	}	
-
+	public override string Name()
+	{
+		return "Nuke";
+	}
 }
 }

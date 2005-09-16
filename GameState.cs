@@ -56,12 +56,17 @@ class GameState {
 	stateNames stateID;
 	IEnumerator playerList;
 	Player currentPlayer;
+	Territory previousTerritory;
 	
 	public GameState (Game game_i)
 	{
 		game = game_i;
 		playerList = game.Players.GetEnumerator();
-		nextPlayer();
+		
+		previousTerritory = null;
+		
+		//nextPlayer();
+		nextState();
 	}
 	
 	public int StateID
@@ -86,14 +91,20 @@ class GameState {
 		
 		currentPlayer = (Gpremacy.Player)playerList.Current;
 		
-		if (game.GUI != null)
-			game.GUI.writeToOrderOfPlayTextBox("Current Player: " + currentPlayer.toString() + "\nCurrent State: " + stateID);		
+		if (game.GUI != null) 
+		{
+			game.GUI.writeToOrderOfPlayTextBox("Current Player:\n" + currentPlayer.toString() + "\nCurrent State:\n" + stateID);								
+			game.GUI.writeToResourcesTextBox(currentPlayer.toStringResources());			
+		}		
 		
 		return currentPlayer;		
 	}
 	
 	public int nextState ()
 	{
+		if (game.GUI != null)
+			game.GUI.writeToWorldMarketTextBox(game.Market.toString());
+	
 		if (stateID == stateNames.Play6Prospect) {
 			return (int)(stateID = stateNames.Play1Upkeep);
 		}
@@ -111,18 +122,38 @@ class GameState {
 		
 		if (Button == 3)
    		{
-   			if (target.getMapTerritory().isLand)
-   				target.addUnit(new Army(game.PlayerNobody, target));
-   			else
-   				target.addUnit(new Navy(game.PlayerNobody, target));   			
+   			if (stateID == stateNames.Play4Move) {
+   				if (previousTerritory == null)
+   				{
+   					previousTerritory = target;
+   				} else {
+   					// move units from previousTerritory to target.
+   					foreach (TacticalUnit unit in previousTerritory.Units)
+   					{
+   						// Print diagnostics
+   						unit.moveTo(target);
+   					}
+   					previousTerritory = null;   					
+   				}
+   				
+   			} else if ( stateID == stateNames.Play5Build) {
+   				Unit nu;
+   				if (target.getMapTerritory().isLand)
+	   				nu = new Army(CurrentPlayer, target);
+   				else
+	   				nu = new Navy(CurrentPlayer, target);
+   				
+   				target.addUnit(nu);   			
+   				CurrentPlayer.ActiveUnits.Add(nu);
+   			}
+   			
+   							
    		}
 		else
-		{
-			nextPlayer();
-			game.GUI.writeToLog("=============================");
-			game.GUI.writeToLog("Clicked " + target.toString());
-			game.GUI.writeToLog("State: " + stateID + " Current Player: " + currentPlayer.toString());
-			game.GUI.writeToLog("=============================");
+		{			
+			game.GUI.writeToLog("=============================\n" +
+						"Clicked " + target.toString() + "\n" +						
+						"=============================");
 		}			
 		
 	}

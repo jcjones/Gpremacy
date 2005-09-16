@@ -18,11 +18,18 @@ class TacticalUnit : Unit {
 	{
 		if (canMoveTo(dest)) 
 		{
+			CurrentLocation.removeUnit(this);
 			CurrentLocation = dest;
+			CurrentLocation.addUnit(this);
 			this.MovedThisTurn = true;
 			return true;
 		}
 		return false;
+	}
+	
+	public override string Name()
+	{
+		return "Generic Tactical Unit";
 	}
 
 }

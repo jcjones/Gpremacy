@@ -24,8 +24,13 @@ class Unit {
 	public virtual string toString()
 	{
 		string ret;
-		ret = "Unknown Unit of " + owner.toString() + ".\n";
+		ret = Name() + " " + owner.toString() + ".\n";
 		return ret;
+	}
+	
+	public virtual string Name()
+	{
+		return "Generic Unit";
 	}
 	
 	public bool MovedThisTurn
