@@ -133,13 +133,6 @@ class GpremacyMap : DrawingArea
         	return Territories;
         }
         
-        public void drawArrow(Territory a, Territory b)
-        {
-        	Point aa = new Point(a.getMapTerritory().centerX, a.getMapTerritory().centerY);
-        	Point bb = new Point(b.getMapTerritory().centerX, b.getMapTerritory().centerY); 
-        	drawArrow(aa, bb);
-        }
-        
         public void drawArrow(Point a, Point b)
         {
         	this.GdkWindow.DrawLine (this.Style.BlackGC, a.X, a.Y, b.X, b.Y);

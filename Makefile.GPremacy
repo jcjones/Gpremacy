@@ -26,7 +26,8 @@ SOURCES = \
 ./Resource/Oil.cs \
 ./GameState.cs \
 ./GpremacyMarket.cs \
-./Support/Dictionary.cs
+./Support/Dictionary.cs \
+./Support/SupportFileLoader.cs
 
 PKG_REFERENCES = \
 gtk-sharp \

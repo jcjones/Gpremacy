@@ -24,7 +24,7 @@ class Unit {
 	public virtual string toString()
 	{
 		string ret;
-		ret = Name() + " " + owner.toString() + ".\n";
+		ret = Name() + " of " + owner.toString() + "." + ((movedThisTurn)?"(MOVED)":"") + "\n";
 		return ret;
 	}
 	

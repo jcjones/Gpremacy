@@ -57,18 +57,28 @@ class GameState {
 	IEnumerator playerList;
 	Player currentPlayer;
 	Territory previousTerritory;
+	bool arrowOn;
 	
 	public GameState (Game game_i)
 	{
 		game = game_i;
 		playerList = game.Players.GetEnumerator();
 		
+		playerList.MoveNext();
+		currentPlayer = (Gpremacy.Player)playerList.Current;
+		
 		previousTerritory = null;
+		arrowOn = false;
 		
 		//nextPlayer();
 		nextState();
 	}
-	
+
+	public stateNames StateIDName
+	{
+		get { return stateID; }
+	}
+			
 	public int StateID
 	{
 		get { return (int)stateID; }
@@ -89,22 +99,22 @@ class GameState {
 			nextState();
 		}
 		
-		currentPlayer = (Gpremacy.Player)playerList.Current;
+		arrowOn = false;
+		game.GUI.clearArrow();
 		
-		if (game.GUI != null) 
-		{
-			game.GUI.writeToOrderOfPlayTextBox("Current Player:\n" + currentPlayer.toString() + "\nCurrent State:\n" + stateID);								
-			game.GUI.writeToResourcesTextBox(currentPlayer.toStringResources());			
-		}		
+		currentPlayer = (Gpremacy.Player)playerList.Current;
 		
 		return currentPlayer;		
 	}
 	
 	public int nextState ()
-	{
-		if (game.GUI != null)
-			game.GUI.writeToWorldMarketTextBox(game.Market.toString());
-	
+	{	
+		if (stateID == stateNames.Play4Move) {
+			foreach (Player a in game.Players)
+				foreach (Unit b in a.ActiveUnits)
+					b.MovedThisTurn = false;
+		}
+
 		if (stateID == stateNames.Play6Prospect) {
 			return (int)(stateID = stateNames.Play1Upkeep);
 		}
@@ -117,23 +127,48 @@ class GameState {
 		return (int)stateID++;				
 	}
 	
+	public void mouseMotion(double x, double y, Territory curTerr)
+	{
+		if (arrowOn && previousTerritory != null && curTerr != null)
+		{
+			System.Console.WriteLine("Arrow from " + previousTerritory.Name + " to " + curTerr.Name);
+			game.GUI.drawArrow(previousTerritory, curTerr);
+		}		 	
+		
+	}
+	
 	public void mouseClick(Territory target, uint Button)
 	{
 		
 		if (Button == 3)
    		{
-   			if (stateID == stateNames.Play4Move) {
-   				if (previousTerritory == null)
+   			if (stateID != stateNames.Play5Build) {
+   			//if (stateID == stateNames.Play4Move) {
+   			
+   				if (previousTerritory == null && target.occupiedBy(currentPlayer))
    				{
+   					System.Console.WriteLine("Arrow On");
+   					arrowOn = true;
    					previousTerritory = target;
-   				} else {
+  				} else if (previousTerritory != null) {
+   					System.Console.WriteLine("Arrow Off");
+   					arrowOn = false;
+   					
+   					// Clone the list since otherwise modifying the presently used list is bad   					
+   					ArrayList tmp = (ArrayList)previousTerritory.Units.Clone();   					
+   					
    					// move units from previousTerritory to target.
-   					foreach (TacticalUnit unit in previousTerritory.Units)
+   					foreach (TacticalUnit unit in tmp)
    					{
    						// Print diagnostics
-   						unit.moveTo(target);
+   						if (unit.Owner == currentPlayer)   						
+   							unit.moveTo(target);
    					}
-   					previousTerritory = null;   					
+   					
+   					game.GUI.redrawTerritory(previousTerritory);
+   					game.GUI.redrawTerritory(target);
+   					
+   					previousTerritory = null;   						   				
    				}
    				
    			} else if ( stateID == stateNames.Play5Build) {

@@ -11,16 +11,19 @@ class TacticalUnit : Unit {
 	
 	public bool canMoveTo ( Territory dest )
 	{		
-		return !this.MovedThisTurn;
+		return !MovedThisTurn;
 	}
 	
 	public bool moveTo ( Territory dest)
 	{
+		System.Console.WriteLine("trying to move to " + dest.toString());
 		if (canMoveTo(dest)) 
 		{
 			CurrentLocation.removeUnit(this);
-			CurrentLocation = dest;
-			CurrentLocation.addUnit(this);
+			dest.addUnit(this);
+			
+			CurrentLocation = dest;			
+			System.Console.WriteLine("Moving to " + CurrentLocation.toString());
 			this.MovedThisTurn = true;
 			return true;
 		}

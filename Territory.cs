@@ -39,6 +39,18 @@ class Territory
 		get { return resources; }
 	}
 	
+	public bool occupiedBy (Player IFF)
+	{
+		// Could just check owner and units.Count, but this is 
+		// more generic, if we add allied occupation
+		foreach (Unit troop in units)
+		{
+			if (troop.Owner == IFF)
+				return true;
+		}
+		return false;
+	}
+	
 	public string toString() 
 	{
 		string ret;

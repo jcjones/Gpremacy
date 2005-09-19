@@ -9,6 +9,7 @@ namespace Gpremacy {
 class GpremacyGUI {
 	GpremacyMap MapArea;
 	Game game;
+	Gdk.Region invalRegion;
 
 	[Glade.Widget] Gtk.Viewport MapViewport;
 	[Glade.Widget] Gtk.Window MainWindow;
@@ -24,6 +25,7 @@ class GpremacyGUI {
 	public GpremacyGUI(Game i)
 	{
 		game = i;
+		
 	}
 	
 	public void init() 
@@ -31,8 +33,8 @@ class GpremacyGUI {
 		Application.Init ();
 		MapArea = new GpremacyMap(game);
 		System.Console.WriteLine("Got Maparea:" + MapArea + ".");		
-		
-		Glade.XML gxml = new Glade.XML ("/home/pug/src/gpremacy-mono/gpremacy_gui/gpremacy_gui.glade", "MainWindow", null);
+				
+		Glade.XML gxml = new Glade.XML (SupportFileLoader.locateGameFile("gpremacy_gui/gpremacy_gui.glade"), "MainWindow", null);
 		gxml.Autoconnect (this);
 		
 		System.Console.WriteLine("Adding..." + MapArea + " to " + MapViewport + "!");
@@ -42,12 +44,40 @@ class GpremacyGUI {
 		MainWindow.Resize(800,600);
 		MapArea.ShowAll();
 						
-		MainWindow.ButtonPressEvent += OnButtonPress;
 		
-				
+		// Configure Mouse events
+		MapArea.AddEvents((int)EventMask.PointerMotionMask);
+		MapArea.AddEvents((int)EventMask.ButtonPressMask);
+		
+		MapArea.ButtonPressEvent += OnButtonPress;
+		MapArea.MotionNotifyEvent += OnMotion;		
+
+		updateGUIStatusBoxes();				
+												
 		Application.Run ();
 	}
 	
+   public void OnMotion (object o, MotionNotifyEventArgs args)
+   {
+      	double x = args.Event.X;//+MapScrolledWindow2.Hadjustment.Value;
+   		double y = args.Event.Y;//+MapScrolledWindow2.Vadjustment.Value;
+
+   		/* Find territory */
+	   	Territory target = null;   	
+	   	
+	   	foreach (Territory here in MapArea.getTerritories())
+	   	{
+	   		if ( here.getMapTerritory().checkClick(x,y) )
+	   		{
+	   			target = here;
+	   			break;
+	   		}
+	   	}
+	   	//System.Console.WriteLine("(X,Y)=" + x + "," + y + " = (x,y)+(xo,yo) = " + args.Event.X + "," + args.Event.Y + " + " + MapScrolledWindow2.Hadjustment.Value + ","  + MapScrolledWindow2.Vadjustment.Value);	   
+   			   		   	
+   		game.State.mouseMotion(x, y, target);   		
+   }
+   
    public void OnButtonPress (object o, ButtonPressEventArgs args)
    {
 	   /* Print Coordinates in countries.csv form*/
@@ -61,8 +91,8 @@ class GpremacyGUI {
 
 	   	/* Find territory */
 	   	Territory target = null;
-   		double x = args.Event.X+MapScrolledWindow2.Hadjustment.Value;
-   		double y = args.Event.Y+MapScrolledWindow2.Vadjustment.Value;	   	
+      	double x = args.Event.X;//+MapScrolledWindow2.Hadjustment.Value;
+   		double y = args.Event.Y;//+MapScrolledWindow2.Vadjustment.Value;
 	   	
 	   	foreach (Territory here in MapArea.getTerritories())
 	   	{
@@ -79,8 +109,13 @@ class GpremacyGUI {
 	   	game.State.mouseClick(target, args.Event.Button);
    		
    		/* Redraw that region */
-	   	MapArea.GdkWindow.InvalidateRegion(target.getMapTerritory().region,true);
+	   	redrawTerritory(target);
 	   	
+	}
+	
+	public void redrawTerritory(Territory target)
+	{
+		MapArea.GdkWindow.InvalidateRegion(target.getMapTerritory().region,true);	
 	}
 	
 	public void on_new1_activate(System.Object obj, EventArgs e) 
@@ -125,7 +160,16 @@ class GpremacyGUI {
 	
 	public void on_endTurnButton_pressed(System.Object obj, EventArgs e)
 	{
-		game.State.nextPlayer();
+		//game.State.nextPlayer();
+		game.State.nextState();
+		updateGUIStatusBoxes();	
+	}
+	
+	public void updateGUIStatusBoxes()
+	{
+		writeToOrderOfPlayTextBox("Current Player:\n" + game.State.CurrentPlayer.toString() + "\nCurrent State:\n" + game.State.StateIDName);								
+		writeToResourcesTextBox(game.State.CurrentPlayer.toStringResources());
+		writeToWorldMarketTextBox(game.Market.toString());	
 	}
 	
 	public void writeToOrderOfPlayTextBox(String a) 
@@ -148,6 +192,44 @@ class GpremacyGUI {
 		// Write such that newest entries are on top
 		LogTextBox.Buffer.Text = a + "\n" + LogTextBox.Buffer.Text;
 	}	
+	
+	public void clearArrow()
+	{
+		if (invalRegion != null)
+		{
+			System.Console.WriteLine("Invalidating..." + invalRegion.Clipbox.X + " " + invalRegion.Clipbox.Y + " " + invalRegion.Clipbox.Height +  " " + invalRegion.Clipbox.Width);
+    		MapArea.GdkWindow.InvalidateRegion(invalRegion,true);
+    		invalRegion.Destroy();
+    	}    		
+	}
+	
+	public void drawArrow(Territory a, Territory b)
+    {
+		clearArrow();
+
+		int x = a.getMapTerritory().centerX;
+		int y = a.getMapTerritory().centerY;
+		int w = b.getMapTerritory().centerX - x;
+		int h = b.getMapTerritory().centerY - y;
+
+		Point[] arrow = new Point[2];
+		arrow[0]=new Point(a.getMapTerritory().centerX, a.getMapTerritory().centerY);
+		arrow[1]=new Point(b.getMapTerritory().centerX, b.getMapTerritory().centerY);
+						
+       	MapArea.drawArrow(arrow[0], arrow[1]);
+	       	
+	   	invalRegion = Gdk.Region.Polygon(arrow, FillRule.WindingRule);
+       	
+       	System.Console.WriteLine("xywh " + x + " "+ y + " " + w + " " + h + " " + a.Name + " " + b.Name);   
+		System.Console.WriteLine("xywh2..." + invalRegion.Clipbox.X + " " + invalRegion.Clipbox.Y + " " + invalRegion.Clipbox.Height +  " " + invalRegion.Clipbox.Width);       	
+    }
+    
+	public void drawArrow(Territory a, double x, double y)
+    {		
+      	Point aa = new Point(a.getMapTerritory().centerX, a.getMapTerritory().centerY);
+       	Point bb = new Point((int)x, (int)y); 
+       	MapArea.drawArrow(aa, bb);
+    }    
 	
 }
 }

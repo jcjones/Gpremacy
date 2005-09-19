@@ -13,22 +13,20 @@ class  GraphicsStorage
 	private Gdk.Pixbuf navy;
 	private Gdk.Pixbuf map;
 	
-	protected string file_path = "/home/pug/src/gpremacy-mono/Graphics/";
-
 
 	private GraphicsStorage()
 	{
 		numOfReference = 0;
-		army = PixbufUtils.LoadFromPath(file_path + "army.png");
-		navy = PixbufUtils.LoadFromPath(file_path + "navy.png");
-		map = PixbufUtils.LoadFromPath(file_path + "classic_map.jpg");
+		army = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/army.png"));
+		navy = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/navy.png"));
+		map = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/classic_map.jpg"));
 		
 		if (army == null)
-			throw ( new System.IO.FileNotFoundException("Couldn't find army.png image in " + file_path) );
+			throw ( new System.IO.FileNotFoundException("Couldn't find army.png image") );
 		if (navy == null)
-			throw ( new System.IO.FileNotFoundException("Couldn't find navy.png image in " + file_path) );
+			throw ( new System.IO.FileNotFoundException("Couldn't find navy.png image") );
 		if (map == null)
-			throw ( new System.IO.FileNotFoundException("Couldn't find classic_map.jpg image in " + file_path) );
+			throw ( new System.IO.FileNotFoundException("Couldn't find classic_map.jpg image") );
 			
 	} 
 

@@ -146,8 +146,8 @@ class Game {
 	      		
     	} catch ( System.IO.FileNotFoundException e ) {
        		System.Console.WriteLine("Couldn't open resource_cards.csv.");        		       			
-      		}
-        }
+    	}
+	}
 
 }
 }
