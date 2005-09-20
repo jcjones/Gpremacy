@@ -32,31 +32,16 @@ Strategic:
 using System;
 using System.Collections;
  
-enum stateNames : int {
-	Base,
-	Play1Upkeep,
-	Play2Sell,
-	Play3Attack,
-	Play4Move,
-	Play5Build,
-	Play6Prospect,
-	Conv1Supplies,
-	Conv2Roll,
-	Conv3Reinforce,
-	Conv4CounterAttack,
-	Strat1Tactics,
-	Strat2LStar,
-	Strat3Detonation,
-	Strat4CounterAttack		
-}
- 
 namespace Gpremacy {
 class GameState {
 	Game game;
-	stateNames stateID;
+	ArrayList states; // of State
+	IEnumerator stateList; // of State
 	IEnumerator playerList;
+	State currentState;
 	Player currentPlayer;
 	Territory previousTerritory;
+	Territory currentTerritory;
 	bool arrowOn;
 	
 	public GameState (Game game_i)
@@ -70,18 +55,33 @@ class GameState {
 		previousTerritory = null;
 		arrowOn = false;
 		
+		states = new ArrayList();
+		states.Add(new Orig_Play1Upkeep(game));
+		states.Add(new Orig_Play2Sell(game));
+		states.Add(new Orig_Play3Attack(game));
+		states.Add(new Orig_Play4Move(game));
+		states.Add(new Orig_Play5Build(game));
+		states.Add(new Orig_Play6Prospect(game));
+		states.Add(new Orig_Conv1Supplies(game));
+		states.Add(new Orig_Conv2Roll(game));
+		states.Add(new Orig_Conv3Reinforce(game));
+		states.Add(new Orig_Conv4CounterAttack(game));
+		states.Add(new Orig_Strat1Tactics(game));
+		states.Add(new Orig_Strat2LStar(game));
+		states.Add(new Orig_Strat3Detonation(game));
+		states.Add(new Orig_Strat4CounterAttack(game));
+
+  		stateList = states.GetEnumerator();
+  		stateList.MoveNext();
+  		currentState = (Gpremacy.State)stateList.Current; 
+				
 		//nextPlayer();
 		nextState();
 	}
 
-	public stateNames StateIDName
+	public string StateIDName
 	{
-		get { return stateID; }
-	}
-			
-	public int StateID
-	{
-		get { return (int)stateID; }
+		get { return currentState.Name(); }
 	}
 	
 	public Player CurrentPlayer
@@ -109,82 +109,39 @@ class GameState {
 	
 	public int nextState ()
 	{	
-		if (stateID == stateNames.Play4Move) {
-			foreach (Player a in game.Players)
-				foreach (Unit b in a.ActiveUnits)
-					b.MovedThisTurn = false;
+		int next = currentState.NextOrder;
+		stateList.MoveNext();
+		if ( ((State)stateList.Current).MyOrder == next )
+		{
+			currentState = (Gpremacy.State)stateList.Current;
+			return next;
 		}
-
-		if (stateID == stateNames.Play6Prospect) {
-			return (int)(stateID = stateNames.Play1Upkeep);
+		/* Next state in list is not the next state, so search for it. */
+		
+		stateList.Reset();
+		stateList.MoveNext();
+		while ( ((State)stateList.Current).MyOrder != next )
+		{
+			System.Console.WriteLine("Searching for " + next + " @ " + ((State)stateList.Current).MyOrder);
+			stateList.MoveNext();
 		}
-		if (stateID == stateNames.Conv4CounterAttack) {
-			return (int)(stateID = stateNames.Play3Attack);
-		}		
-		if (stateID == stateNames.Strat4CounterAttack) {
-			return (int)(stateID = stateNames.Play3Attack);
-		}
-		return (int)stateID++;				
+			
+		currentState = (Gpremacy.State)stateList.Current;
+		return next;						
 	}
 	
 	public void mouseMotion(double x, double y, Territory curTerr)
-	{
-		if (arrowOn && previousTerritory != null && curTerr != null)
-		{
-			System.Console.WriteLine("Arrow from " + previousTerritory.Name + " to " + curTerr.Name);
-			game.GUI.drawArrow(previousTerritory, curTerr);
-		}		 	
-		
+	{		
+		uint button = 0;
+		currentState.mouseMotion(x, y, curTerr, button);
 	}
 	
 	public void mouseClick(Territory target, uint Button)
 	{
-		
-		if (Button == 3)
-   		{
-   			if (stateID != stateNames.Play5Build) {
-   			//if (stateID == stateNames.Play4Move) {
-   			
-   				if (previousTerritory == null && target.occupiedBy(currentPlayer))
-   				{
-   					System.Console.WriteLine("Arrow On");
-   					arrowOn = true;
-   					previousTerritory = target;
-  				} else if (previousTerritory != null) {
-   					System.Console.WriteLine("Arrow Off");
-   					arrowOn = false;
-   					
-   					// Clone the list since otherwise modifying the presently used list is bad   					
-   					ArrayList tmp = (ArrayList)previousTerritory.Units.Clone();   					
-   					
-   					// move units from previousTerritory to target.
-   					foreach (TacticalUnit unit in tmp)
-   					{
-   						// Print diagnostics
-   						if (unit.Owner == currentPlayer)   						
-   							unit.moveTo(target);
-   					}
-   					
-   					game.GUI.redrawTerritory(previousTerritory);
-   					game.GUI.redrawTerritory(target);
-   					
-   					previousTerritory = null;   						   				
-   				}
-   				
-   			} else if ( stateID == stateNames.Play5Build) {
-   				Unit nu;
-   				if (target.getMapTerritory().isLand)
-	   				nu = new Army(CurrentPlayer, target);
-   				else
-	   				nu = new Navy(CurrentPlayer, target);
-   				
-   				target.addUnit(nu);   			
-   				CurrentPlayer.ActiveUnits.Add(nu);
-   			}
-   			
+
+		currentState.mouseClick(target, Button);
    							
-   		}
-		else
+   		if (Button == 3)
 		{			
 			game.GUI.writeToLog("=============================\n" +
 						"Clicked " + target.toString() + "\n" +						

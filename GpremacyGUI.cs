@@ -152,6 +152,9 @@ class GpremacyGUI {
 			about.Show ();
 */
 	}
+	public void on_always_march1_activate(System.Object obj, EventArgs e)
+	{
+	}
 	public void on_MainWindow_delete_event(System.Object o, DeleteEventArgs args)
 	{
 		Application.Quit();
@@ -212,24 +215,20 @@ class GpremacyGUI {
 		int w = b.getMapTerritory().centerX - x;
 		int h = b.getMapTerritory().centerY - y;
 
-		Point[] arrow = new Point[2];
+		/* This point stuff is necessary since Gdk.Region.Rectangle() doesn't work! */
+		Point[] arrow = new Point[4];
 		arrow[0]=new Point(a.getMapTerritory().centerX, a.getMapTerritory().centerY);
-		arrow[1]=new Point(b.getMapTerritory().centerX, b.getMapTerritory().centerY);
+		arrow[1]=new Point(a.getMapTerritory().centerX, b.getMapTerritory().centerY);
+		arrow[2]=new Point(b.getMapTerritory().centerX, b.getMapTerritory().centerY);
+		arrow[3]=new Point(b.getMapTerritory().centerX, a.getMapTerritory().centerY);
+
 						
-       	MapArea.drawArrow(arrow[0], arrow[1]);
+		/* Uncool arrow */						
+       	MapArea.drawArrow(arrow[0], arrow[2]);
+       	/* Cool arrow */
 	       	
 	   	invalRegion = Gdk.Region.Polygon(arrow, FillRule.WindingRule);
-       	
-       	System.Console.WriteLine("xywh " + x + " "+ y + " " + w + " " + h + " " + a.Name + " " + b.Name);   
-		System.Console.WriteLine("xywh2..." + invalRegion.Clipbox.X + " " + invalRegion.Clipbox.Y + " " + invalRegion.Clipbox.Height +  " " + invalRegion.Clipbox.Width);       	
     }
-    
-	public void drawArrow(Territory a, double x, double y)
-    {		
-      	Point aa = new Point(a.getMapTerritory().centerX, a.getMapTerritory().centerY);
-       	Point bb = new Point((int)x, (int)y); 
-       	MapArea.drawArrow(aa, bb);
-    }    
 	
 }
 }

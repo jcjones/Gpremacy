@@ -4,12 +4,10 @@ namespace Gpremacy {
 class Unit {
 
 	Player owner;
-	bool movedThisTurn;
 	
 	public Unit(Player lord)
 	{
-		owner = lord;
-		movedThisTurn = true;		
+		owner = lord;	
 	}
 	
 	public Player Owner
@@ -24,19 +22,13 @@ class Unit {
 	public virtual string toString()
 	{
 		string ret;
-		ret = Name() + " of " + owner.toString() + "." + ((movedThisTurn)?"(MOVED)":"") + "\n";
+		ret = Name() + " of " + owner.toString() + ".\n";
 		return ret;
 	}
 	
 	public virtual string Name()
 	{
 		return "Generic Unit";
-	}
-	
-	public bool MovedThisTurn
-	{
-		get { return movedThisTurn; }
-		set { movedThisTurn = value; }
 	}
 
 }

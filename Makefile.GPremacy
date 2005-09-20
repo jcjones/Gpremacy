@@ -27,7 +27,22 @@ SOURCES = \
 ./GameState.cs \
 ./GpremacyMarket.cs \
 ./Support/Dictionary.cs \
-./Support/SupportFileLoader.cs
+./Support/SupportFileLoader.cs \
+./States/State.cs \
+./States/Orig_Play4Move.cs \
+./States/Orig_Play1Upkeep.cs \
+./States/Orig_Conv1Supplies.cs \
+./States/Orig_Conv2Roll.cs \
+./States/Orig_Conv3Reinforce.cs \
+./States/Orig_Conv4CounterAttack.cs \
+./States/Orig_Play2Sell.cs \
+./States/Orig_Play3Attack.cs \
+./States/Orig_Play5Build.cs \
+./States/Orig_Play6Prospect.cs \
+./States/Orig_Strat1Tactics.cs \
+./States/Orig_Strat2LStar.cs \
+./States/Orig_Strat3Detonation.cs \
+./States/Orig_Strat4CounterAttack.cs
 
 PKG_REFERENCES = \
 gtk-sharp \

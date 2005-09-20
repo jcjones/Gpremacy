@@ -11,7 +11,7 @@ class TacticalUnit : Unit {
 	
 	public bool canMoveTo ( Territory dest )
 	{		
-		return !MovedThisTurn;
+		return true;
 	}
 	
 	public bool moveTo ( Territory dest)
@@ -24,7 +24,6 @@ class TacticalUnit : Unit {
 			
 			CurrentLocation = dest;			
 			System.Console.WriteLine("Moving to " + CurrentLocation.toString());
-			this.MovedThisTurn = true;
 			return true;
 		}
 		return false;
