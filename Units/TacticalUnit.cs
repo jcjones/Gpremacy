@@ -29,9 +29,9 @@ class TacticalUnit : Unit {
 		return false;
 	}
 	
-	public override string Name()
+	public override string Name
 	{
-		return "Generic Tactical Unit";
+		get { return "Generic Tactical Unit"; }
 	}
 
 }

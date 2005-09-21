@@ -16,11 +16,15 @@ class Player {
 	{
 		countryID = id;
 		name = n;
-		money = 0;
-		stockpile = new ArrayList();
-		availableUnits = new ArrayList();
-		activeUnits = new ArrayList();
-		resourceCards = new ArrayList();
+		money = 5000; // In Millions
+		stockpile = new ArrayList(); // of Resource
+		availableUnits = new ArrayList(); // of Unit
+		activeUnits = new ArrayList(); // of Unit
+		resourceCards = new ArrayList(); // of ResourceCard
+		
+		stockpile.Add(new Minerals(this, 6));
+		stockpile.Add(new Grain(this, 6));
+		stockpile.Add(new Oil(this, 6));
 	}
 	
 	public string toString ()
@@ -71,48 +75,48 @@ class Player {
 		ret = "Resources Produced Per Turn:\n";
 		foreach (ResourceCard card in resourceCards)
 		{
-			if (!rTypes.Exists(card.Good.Name()))
+			if (!rTypes.Exists(card.Good.Name))
 			{
-				rTypes.Add(card.Good.Name(), (Int32)1);
+				rTypes.Add(card.Good.Name, (Int32)1);
 			} else {
-				rTypes.IncValue(card.Good.Name());
+				rTypes.IncValue(card.Good.Name);
 			}
 		}
 		ret += rTypes.toString();
 		
-		ret += " [" + rTypes.Data.Count + "] ";
+		ret += " [" + rTypes.Data.Count + "]\n ";
 		
 		rTypes.Clear();
 		
 		ret += "Resource Stockpile:\n";
-		foreach (ResourceCard card in stockpile)
+		foreach (Resource good in stockpile)
 		{
-			if (!rTypes.Exists(card.Good.Name()))
+			if (!rTypes.Exists(good.Name))
 			{
-				rTypes.Add(card.Good.Name(), (Int32)1);
+				rTypes.Add(good.Name, (Int32)good.Value);
 			} else {
-				rTypes.IncValue(card.Good.Name());
+				rTypes.IncValue(good.Name);
 			}
 		}
 		ret += rTypes.toString();
 		
-		ret += " [" + rTypes.Data.Count + "] ";
+		ret += " [" + rTypes.Data.Count + "]\n ";
 		
 		rTypes.Clear();		
 		
 		ret += "Active Units:\n";
 		foreach (Unit unit in activeUnits)
 		{
-			if (!rTypes.Exists(unit.Name()))
+			if (!rTypes.Exists(unit.Name))
 			{
-				rTypes.Add(unit.Name(), (Int32)1);
+				rTypes.Add(unit.Name, (Int32)1);
 			} else {
-				rTypes.IncValue(unit.Name());
+				rTypes.IncValue(unit.Name);
 			}
 		}
 		ret += rTypes.toString();
 		
-		ret += " [" + rTypes.Data.Count + "] ";
+		ret += " [" + rTypes.Data.Count + "]\n ";
 		
 		rTypes.Clear();		
 		

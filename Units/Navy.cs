@@ -17,9 +17,9 @@ class Navy : TacticalUnit {
 		win.DrawPixbuf(context, store.Navy, 0, 0, X, Y, store.Navy.Width, store.Navy.Height, RgbDither.Normal, 1, 1);
 	}
 	
-	public override string Name()
+	public override string Name
 	{
-		return "Navy";
+		get { return "Navy"; }
 	}
 }
 }

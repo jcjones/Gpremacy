@@ -20,7 +20,7 @@ class GpremacyMarket {
 		string ret = "";
 		foreach (Commodity c in commodities)
 		{
-			ret += c.Good.Name() + " market price at " + c.Value + "\n";
+			ret += c.Good.Name + " market price at " + c.Value + "\n";
 		}
 		
 		return ret;

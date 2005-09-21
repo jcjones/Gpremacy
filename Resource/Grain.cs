@@ -5,9 +5,9 @@ class Grain : Resource {
 	{
 	}	
 
-	override public string Name()
+	override public string Name
 	{
-		return "Grain";
+		get { return "Grain"; }
 	}
 }
 }

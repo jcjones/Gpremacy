@@ -79,10 +79,11 @@ class GpremacyMap : DrawingArea
         	bool land;
         	int id, cur, next, i, n = 10;
         	ArrayList points = new ArrayList();
+        	Player owner;
         	
         	try {
         		
-	       		System.IO.StreamReader input = new System.IO.StreamReader("../../countries.csv");
+	       		System.IO.StreamReader input = new System.IO.StreamReader(SupportFileLoader.locateGameFile("countries.csv"));
 	        	do {
 	        		n=n+30;
 	        		line = input.ReadLine();
@@ -115,8 +116,15 @@ class GpremacyMap : DrawingArea
 	        				points.Add(Int16.Parse(line.Substring(cur, (next-cur))));
 	        				i++;
 	        			}
-	        			
-	        			Territories.Add(new Territory(name, id, game.PlayerNobody, land, points, this.PangoContext));
+
+	        			if (id > 0 && id <= game.Players.Count)
+	        				owner = (Player)(game.Players[id-1]);
+	        			else
+	        				owner = game.PlayerNobody;
+	        				
+	        			System.Console.WriteLine("id: " + id + " " + game.Players.Count + " " + owner.Name);
+	        				
+	        			Territories.Add(new Territory(name, id, owner, land, points, this.PangoContext));
                         points.Clear();
 	        		}
 	        		        		

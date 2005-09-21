@@ -22,9 +22,9 @@ class Game {
 		mainGUI = new GpremacyGUI(this);
 						
 		playerNobody = new Player(-1, "Nobody");
-		market.initResource(new Oil(playerNobody, 1), 1);
-		market.initResource(new Minerals(playerNobody, 1), 1);
-		market.initResource(new Grain(playerNobody, 1), 1); 
+		market.initResource(new Oil(playerNobody, 1), 500);
+		market.initResource(new Minerals(playerNobody, 1), 500);
+		market.initResource(new Grain(playerNobody, 1), 500); 
 		
 		mainGUI.init();		
 		
@@ -70,10 +70,10 @@ class Game {
 	void setupPlayers()
 	{
 		players.Add(new Player(1, "United States of America"));
-		players.Add(new Player(2, "Union of Soviet Sovereign Republics"));
-		players.Add(new Player(3, "Confederacy of South America"));
-		players.Add(new Player(4, "Federation of African States"));
-		players.Add(new Player(5, "League of European Nations"));
+		players.Add(new Player(2, "Confederacy of South America"));
+		players.Add(new Player(3, "Federation of African States"));
+		players.Add(new Player(4, "League of European Nations"));
+		players.Add(new Player(5, "Union of Soviet Sovereign Republics"));
 		players.Add(new Player(6, "People's Republic of China"));
 	}
 	
@@ -87,7 +87,7 @@ class Game {
         	
        	try {
        		
-	  		System.IO.StreamReader input = new System.IO.StreamReader("../../resource_cards.csv");
+	  		System.IO.StreamReader input = new System.IO.StreamReader(SupportFileLoader.locateGameFile("resource_cards.csv"));
 	       	do {
 	       		line = input.ReadLine();
 	       		if ((line == null) || (line.Length > 0 && line[0]=='#')) continue;

@@ -4,9 +4,9 @@ class StrategicUnit : Unit {
 	public StrategicUnit (Player lord) : base(lord)
 	{
 	}	
-	public override string Name()
+	public override string Name
 	{
-		return "Generic Strategic Unit";
+		get { return "Generic Strategic Unit"; }
 	}
 }
 }

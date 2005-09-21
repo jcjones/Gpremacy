@@ -22,13 +22,13 @@ class Resource {
 	
 	virtual public string toString()
 	{
-		string ret = Value + " " + Name() + "\n";
+		string ret = Value + " " + Name + "\n";
 		return ret;
 	}
 	
-	virtual public string Name()
+	virtual public string Name
 	{		
-		return "Unknown";
+		get { return "Unknown"; }
 	}	
 	
 }

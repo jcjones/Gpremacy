@@ -5,9 +5,9 @@ class Minerals : Resource {
 	{
 	}	
 
-	override public string Name()
+	override public string Name
 	{
-		return "Minerals";
+		get { return "Minerals"; }
 	}	
 }
 }

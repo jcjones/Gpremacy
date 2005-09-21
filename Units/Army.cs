@@ -18,9 +18,9 @@ class Army : TacticalUnit {
 		win.DrawPixbuf(context, store.Army, 0, 0, X, Y, store.Army.Width, store.Army.Height, RgbDither.Normal, 1, 1);
 	}
 	
-	public override string Name()
+	public override string Name
 	{
-		return "Army";
+		get { return "Army"; }
 	}
 		
 }

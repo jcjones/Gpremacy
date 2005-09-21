@@ -43,7 +43,7 @@ class Orig_Play4Move : State {
 			Game.GUI.redrawTerritory(previousTerritory);
 			Game.GUI.redrawTerritory(target);
 
-			previousTerritory = null;					   			
+			previousTerritory = null;
 		}
 		return true;   			
 	}

@@ -22,13 +22,13 @@ class Unit {
 	public virtual string toString()
 	{
 		string ret;
-		ret = Name() + " of " + owner.toString() + ".\n";
+		ret = Name + " of " + owner.toString() + ".\n";
 		return ret;
 	}
 	
-	public virtual string Name()
+	public virtual string Name
 	{
-		return "Generic Unit";
+		get { return "Generic Unit"; }
 	}
 
 }

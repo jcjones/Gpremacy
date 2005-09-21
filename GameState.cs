@@ -76,9 +76,9 @@ class GameState {
   		currentState = (Gpremacy.State)stateList.Current; 
 				
 		//nextPlayer();
-		nextState();
+		//nextState();
 	}
-
+	
 	public string StateIDName
 	{
 		get { return currentState.Name(); }

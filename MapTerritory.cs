@@ -39,7 +39,7 @@ class MapTerritory
 	   	
         label = new Pango.Layout (pango_context);
 		label.Wrap = Pango.WrapMode.Word;
-		label.FontDescription = FontDescription.FromString ("Tahoma 12");
+		label.FontDescription = FontDescription.FromString ("Tahoma 9");
 		label.SetMarkup (name);
 		
 		/* Find the center of the border for label & overall center */
