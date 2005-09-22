@@ -32,5 +32,10 @@ class ResourceCard {
 		return ret;
 	}
 	
+	public virtual int Upkeep
+	{
+		get { return 50; }
+	}
+	
 }
 }

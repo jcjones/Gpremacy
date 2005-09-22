@@ -30,6 +30,10 @@ class Unit {
 	{
 		get { return "Generic Unit"; }
 	}
-
+	
+	public virtual int Upkeep
+	{
+		get { return 0; }
+	}
 }
 }

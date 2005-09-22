@@ -33,6 +33,10 @@ class TacticalUnit : Unit {
 	{
 		get { return "Generic Tactical Unit"; }
 	}
-
+	
+	public override int Upkeep
+	{
+		get { return 10; }
+	}
 }
 }

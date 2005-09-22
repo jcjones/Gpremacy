@@ -10,17 +10,24 @@ class GpremacyGUI {
 	GpremacyMap MapArea;
 	Game game;
 	Gdk.Region invalRegion;
+	Territory MoveScreenTarget;
 
+	/* Main Window*/
 	[Glade.Widget] Gtk.Viewport MapViewport;
 	[Glade.Widget] Gtk.Window MainWindow;
 	[Glade.Widget] Gtk.ScrolledWindow MapScrolledWindow2;
-	
+		
 	[Glade.Widget] Gtk.TextView OrderOfPlayTextBox;	
 	[Glade.Widget] Gtk.TextView ResourcesTextBox;
 	[Glade.Widget] Gtk.TextView WorldMarketTextBox;
 	[Glade.Widget] Gtk.TextView LogTextBox;
 	[Glade.Widget] Gtk.TextView StatsTextBox;
 	[Glade.Widget] Gtk.TextView MiscTextBox;
+
+	/* Naval Options */	
+	[Glade.Widget] Gtk.Window LoadNavalOptions;
+	[Glade.Widget] Gtk.DrawingArea UnitLegendNaval;
+
 	
 	public GpremacyGUI(Game i)
 	{
@@ -34,7 +41,7 @@ class GpremacyGUI {
 		MapArea = new GpremacyMap(game);
 		System.Console.WriteLine("Got Maparea:" + MapArea + ".");		
 				
-		Glade.XML gxml = new Glade.XML (SupportFileLoader.locateGameFile("gpremacy_gui/gpremacy_gui.glade"), "MainWindow", null);
+		Glade.XML gxml = new Glade.XML (SupportFileLoader.locateGameFile("gpremacy_gui/gpremacy_gui.glade"), null, null);
 		gxml.Autoconnect (this);
 		
 		System.Console.WriteLine("Adding..." + MapArea + " to " + MapViewport + "!");
@@ -43,7 +50,6 @@ class GpremacyGUI {
 		System.Console.WriteLine("Added.");
 		MainWindow.Resize(800,600);
 		MapArea.ShowAll();
-						
 		
 		// Configure Mouse events
 		MapArea.AddEvents((int)EventMask.PointerMotionMask);
@@ -67,7 +73,7 @@ class GpremacyGUI {
 	   	
 	   	foreach (Territory here in MapArea.getTerritories())
 	   	{
-	   		if ( here.getMapTerritory().checkClick(x,y) )
+	   		if ( here.MapTerritory.checkClick(x,y) )
 	   		{
 	   			target = here;
 	   			break;
@@ -96,7 +102,7 @@ class GpremacyGUI {
 	   	
 	   	foreach (Territory here in MapArea.getTerritories())
 	   	{
-	   		if ( here.getMapTerritory().checkClick(x,y) )
+	   		if ( here.MapTerritory.checkClick(x,y) )
 	   		{
 	   			target = here;
 	   			break;
@@ -115,7 +121,7 @@ class GpremacyGUI {
 	
 	public void redrawTerritory(Territory target)
 	{
-		MapArea.GdkWindow.InvalidateRegion(target.getMapTerritory().region,true);	
+		MapArea.GdkWindow.InvalidateRegion(target.MapTerritory.region,true);	
 	}
 	
 	public void on_new1_activate(System.Object obj, EventArgs e) 
@@ -130,8 +136,14 @@ class GpremacyGUI {
 	{
 		Application.Quit();
 	}
-	public void on_research1_activate(System.Object obj, EventArgs e) 
-	{}
+	public void on_undo_activate(System.Object obj, EventArgs e) 
+	{
+		if (!game.State.Unexecute())
+		{
+			// TODO: Disable the menu item
+			// figure out how to renable it first, doofus!
+		}
+	}
 	public void on_about1_activate(System.Object obj, EventArgs e) 
 	{
 			string[] authors = new string[]{
@@ -210,25 +222,112 @@ class GpremacyGUI {
     {
 		clearArrow();
 
-		int x = a.getMapTerritory().centerX;
-		int y = a.getMapTerritory().centerY;
-		int w = b.getMapTerritory().centerX - x;
-		int h = b.getMapTerritory().centerY - y;
+		int x = a.MapTerritory.centerX;
+		int y = a.MapTerritory.centerY;
+		int w = b.MapTerritory.centerX - x;
+		int h = b.MapTerritory.centerY - y;
 
 		/* This point stuff is necessary since Gdk.Region.Rectangle() doesn't work! */
 		Point[] arrow = new Point[4];
-		arrow[0]=new Point(a.getMapTerritory().centerX, a.getMapTerritory().centerY);
-		arrow[1]=new Point(a.getMapTerritory().centerX, b.getMapTerritory().centerY);
-		arrow[2]=new Point(b.getMapTerritory().centerX, b.getMapTerritory().centerY);
-		arrow[3]=new Point(b.getMapTerritory().centerX, a.getMapTerritory().centerY);
+		arrow[0]=new Point(a.MapTerritory.centerX, a.MapTerritory.centerY);
+		arrow[1]=new Point(a.MapTerritory.centerX, b.MapTerritory.centerY);
+		arrow[2]=new Point(b.MapTerritory.centerX, b.MapTerritory.centerY);
+		arrow[3]=new Point(b.MapTerritory.centerX, a.MapTerritory.centerY);
 
 						
 		/* Uncool arrow */						
        	MapArea.drawArrow(arrow[0], arrow[2]);
        	/* Cool arrow */
+       	//Art.Bpath topPath = new Art.Bpath();
+       	//topPath.X1 = x;
+       	//topPath.Y1 = y;
+       	
 	       	
 	   	invalRegion = Gdk.Region.Polygon(arrow, FillRule.WindingRule);
     }
+
+    public void ShowError(string error)
+    {    
+		MessageDialog dlg = new MessageDialog
+     	(MainWindow, Gtk.DialogFlags.Modal,
+     	Gtk.MessageType.Error, Gtk.ButtonsType.Ok,  error);     
+        dlg.Run();
+        dlg.Destroy();
+    }
+
+	/* Naval Options */
+
+	public void showLoadNavalOptions(Territory target)
+	{
+		UnitLegendNaval.ExposeEvent += LoadNavalOptionsOnExposed;
+		MoveScreenTarget = target;
+		LoadNavalOptions.ShowAll();
+		        								
+	}
+	void LoadNavalOptionsOnExposed (object o, ExposeEventArgs args)
+    {
+		System.Console.WriteLine("In NavalOptions:OnExposed");
+		
+	   	Gdk.GC textcoloring = new Gdk.GC(UnitLegendNaval.GdkWindow);
+	    textcoloring.RgbFgColor = new Gdk.Color(30,30,30);		
+		UnitLegendNaval.GdkWindow.DrawLine(textcoloring, 5,5,10,10);
+		
+		//MoveScreenTarget.MapTerritory.draw(UnitLegendNaval.GdkWindow, 1, 1, 60, 60, new Gdk.Color(255,25,25));
+	}
+	public void on_NavalOkay_activate(System.Object obj, EventArgs e)
+	{
+		LoadNavalOptions.HideAll();		
+	}
+	public void on_NavalCancel_activate(System.Object obj, EventArgs e)
+	{
+		LoadNavalOptions.HideAll();	
+	}
+	public void on_LoadNavalOptions_delete_event(System.Object obj, EventArgs e)
+	{	
+		LoadNavalOptions.HideAll();	
+	}	
 	
+	/* Ground Movement Options */
+	public void on_MoveAccept_activate(System.Object obj, EventArgs e)
+	{
+	}
+	public void on_MoveCancel_activate(System.Object obj, EventArgs e)
+	{
+	}
+	public void on_MoveGroundOptions_delete_event(System.Object obj, EventArgs e)
+	{
+	}	
+	
+	/* Strategic Target Selection Options */
+	public void on_StrategicTargetSelection_delete_event(System.Object obj, EventArgs e)
+	{
+	}	
+	public void on_StratTargetOkay_activate(System.Object obj, EventArgs e)
+	{
+	}
+	public void on_StratTargetCancel_activate(System.Object obj, EventArgs e)
+	{
+	}
+	
+	/* Strategic Battle Selection Options */
+	public void on_StrategicBattle_delete_event(System.Object obj, EventArgs e)
+	{
+	}	
+	public void on_StratBattle_activate(System.Object obj, EventArgs e)
+	{
+	}
+	
+	/* Conventional Battle Selection Options*/
+	public void on_ConventionalBattle_delete_event(System.Object obj, EventArgs e)
+	{
+	}	
+	public void on_ConvBattleOkay_activate(System.Object obj, EventArgs e)
+	{
+	}	
+	public void on_ConvBattleCancel_activate(System.Object obj, EventArgs e)
+	{
+	}	
+	
+			
 }
 }

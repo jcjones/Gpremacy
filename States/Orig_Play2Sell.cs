@@ -18,10 +18,6 @@ class Orig_Play2Sell : State {
 	{
 	return false;
 	}
-	
-	public override void done()
-	{
-	}
 
 }
 }

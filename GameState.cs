@@ -40,6 +40,7 @@ class GameState {
 	IEnumerator playerList;
 	State currentState;
 	Player currentPlayer;
+	ArrayList commandList; // of Command, for undo/redo
 	Territory previousTerritory;
 	Territory currentTerritory;
 	bool arrowOn;
@@ -54,6 +55,8 @@ class GameState {
 		
 		previousTerritory = null;
 		arrowOn = false;
+		
+		commandList = new ArrayList();
 		
 		states = new ArrayList();
 		states.Add(new Orig_Play1Upkeep(game));
@@ -73,8 +76,8 @@ class GameState {
 
   		stateList = states.GetEnumerator();
   		stateList.MoveNext();
-  		currentState = (Gpremacy.State)stateList.Current; 
-				
+  		currentState = (Gpremacy.State)stateList.Current; 		
+		
 		//nextPlayer();
 		//nextState();
 	}
@@ -87,6 +90,11 @@ class GameState {
 	public Player CurrentPlayer
 	{
 		get { return currentPlayer; }
+	}
+	
+	public ArrayList CommandList
+	{
+		get { return commandList; }
 	}
 	
 	public Player nextPlayer() 
@@ -102,7 +110,9 @@ class GameState {
 		arrowOn = false;
 		game.GUI.clearArrow();
 		
+		currentState.donePlayer(currentPlayer);
 		currentPlayer = (Gpremacy.Player)playerList.Current;
+		currentState.beginPlayer(currentPlayer);
 		
 		return currentPlayer;		
 	}
@@ -126,7 +136,11 @@ class GameState {
 			stateList.MoveNext();
 		}
 			
+		currentState.donePlayer(currentPlayer); //TODO: See if these are needed.
+		currentState.doneState();
 		currentState = (Gpremacy.State)stateList.Current;
+		currentState.beginState();
+		currentState.beginPlayer(currentPlayer); //TODO: See if these are needed.
 		return next;						
 	}
 	
@@ -150,6 +164,27 @@ class GameState {
 		
 	}
 
+	public void Execute(Command cmd)
+	{
+		if (cmd.Undoable)
+			commandList.Add(cmd);
+		cmd.Execute(game);
+		System.Console.WriteLine("Executed - CL:" + commandList.Count);
+	}
+	
+	public bool Unexecute()
+	{
+		int pt = commandList.Count-1;
+		if (pt < 0)
+			return false;
+			
+		((Command)commandList[pt]).Unexecute(game);
+		commandList.RemoveAt(pt);
+		
+		if (pt < 1)
+			return false; // disable the menu item
+		return true;
+	}
 
 }
 }

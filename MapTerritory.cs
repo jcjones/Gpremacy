@@ -59,6 +59,61 @@ class MapTerritory
 		labelY = centerY - (szY/2);						
 	}
 	
+	public void draw(Gdk.Window win, int ox, int oy, int szx, int szy, Gdk.Color terr)
+	{
+		/* This function allows drawing the territory at a
+		 * predefined x,y coordinate, which requires we
+		 * translate the entirety of the polygon to begin at
+		 * that coordinate, an O(3n) operation (could be O(2n)) 
+		*/
+	   	Gdk.GC field = new Gdk.GC(win);
+	   	field.RgbFgColor = terr;
+	   	
+	   	int minx = borders[0].X , miny = borders[0].Y, maxx = 0, maxy = 0, x, y;	   	
+	   	Point[] translated_borders = new Point[borders.Length];
+	   	
+	   	/* Determine bounds */
+	   	for(int i=0; i<borders.Length; i++)
+	   	{
+	   		if (minx > borders[i].X) minx = borders[i].X;
+	   		if (miny > borders[i].Y) miny = borders[i].Y;	   		
+	   		System.Console.WriteLine("(x,y)=("+borders[i].X+","+borders[i].Y+")");
+	   	}
+
+	   	/* Translate */ 	   	
+	   	int tx = minx-ox, ty = miny-oy;
+	   	System.Console.WriteLine("Tx, ty="+tx+","+ty);	 
+	   		   	
+	   	for(int i=0; i<borders.Length; i++)
+	   	{
+	   		x = translated_borders[i].X-tx;
+	   		y = translated_borders[i].Y-ty;
+	   			   		
+	   		System.Console.WriteLine("(x,y)=("+x+","+y+")");
+	   		translated_borders[i] = new Point(x,y);
+	   		
+	   		if (x > maxx) maxx = x;
+	   		if (y > maxy) maxy = y;	   			   		   		
+	   	}	   	
+
+	   	/* Scale */
+	   	double scaleX = (double)(szx)/maxx;
+	   	double scaleY = (double)(szy)/maxy;
+	   	System.Console.WriteLine("Sx, Sy="+scaleX+","+scaleY+" MaxX,MaxY="+maxx+","+maxy);	 
+	   	
+	   	for(int i=0; i<borders.Length; i++)
+	   	{
+	   		x = (int)(translated_borders[i].X*scaleX);
+	   		y = (int)(translated_borders[i].Y*scaleY);
+	   			   		
+	   		System.Console.WriteLine("(x,y)=("+x+","+y+")");
+	   		translated_borders[i] = new Point(x,y);
+
+	   	}
+	   	  	
+		System.Console.WriteLine("Drawing: ");
+	}	
+	
 	public void draw(Gdk.Window win, Gdk.Color terr, Gdk.Color textcolor) 
 	{   
 		
@@ -75,6 +130,11 @@ class MapTerritory
 	public bool checkClick(double x, double y) 
 	{		
 		return region.PointIn((int)x,(int)y);
+	}
+	
+	public bool IsLand
+	{
+		get { return isLand; }
 	}
 	
 }

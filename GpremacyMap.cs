@@ -22,7 +22,8 @@ class GpremacyMap : DrawingArea
 			this.Realized += OnRealized;
 			this.ExposeEvent += OnExposed;
 			LoadCountryBoundaries();
-			game.LoadResourceCards(Territories);      
+			game.LoadResourceCards(Territories);
+			game.DistributeResourceCards(); // Should not be in this file..      
             
             store = GraphicsStorage.GetInstance();    
                         
@@ -45,7 +46,7 @@ class GpremacyMap : DrawingArea
 				Gdk.Color owner = new Gdk.Color ((byte)255, (byte)64, (byte)64);
 				Gdk.Color text;
 				
-				if (item.getMapTerritory().isLand)
+				if (item.MapTerritory.isLand)
 					text = new Gdk.Color ((byte)255, (byte)255, (byte)255);
 				else
 					text = new Gdk.Color ((byte)32, (byte)32, (byte)32);
@@ -122,7 +123,7 @@ class GpremacyMap : DrawingArea
 	        			else
 	        				owner = game.PlayerNobody;
 	        				
-	        			System.Console.WriteLine("id: " + id + " " + game.Players.Count + " " + owner.Name);
+	        			//System.Console.WriteLine("id: " + id + " " + game.Players.Count + " " + owner.Name);
 	        				
 	        			Territories.Add(new Territory(name, id, owner, land, points, this.PangoContext));
                         points.Clear();

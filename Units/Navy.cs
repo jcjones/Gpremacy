@@ -11,8 +11,8 @@ class Navy : TacticalUnit {
 		Gdk.GC context = new Gdk.GC(win);
  		GraphicsStorage store = GraphicsStorage.GetInstance();
 	   	
-		int X = CurrentLocation.getMapTerritory().centerX+offset;
-		int Y = CurrentLocation.getMapTerritory().centerY+offset;
+		int X = CurrentLocation.MapTerritory.centerX+offset;
+		int Y = CurrentLocation.MapTerritory.centerY+offset;
 		
 		win.DrawPixbuf(context, store.Navy, 0, 0, X, Y, store.Navy.Width, store.Navy.Height, RgbDither.Normal, 1, 1);
 	}

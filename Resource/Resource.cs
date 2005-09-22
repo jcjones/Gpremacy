@@ -18,6 +18,7 @@ class Resource {
 	public int Value
 	{
 		get { return val; }
+		set { val = value; }
 	}
 	
 	virtual public string toString()

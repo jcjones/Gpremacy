@@ -64,6 +64,13 @@ class Dictionary {
 		UpdateValue(key, val);
 		return val;
 	}
+	public int IncValue(object key, int inc)
+	{
+		// Support Routine for Player.cs -- assumes object "Value" to be Int32.
+		int val = (Int32)(GetValue(key)) + inc ;		
+		UpdateValue(key, val);
+		return val;
+	}	
 	
 	public object Remove(object key)
 	{

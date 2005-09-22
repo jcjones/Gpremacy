@@ -12,7 +12,7 @@ class Orig_Play5Build : State {
 	public override bool mouseClick(Territory target, uint Button)
 	{
 		Unit nu;
-		if (target.getMapTerritory().isLand)
+		if (target.MapTerritory.isLand)
 			nu = new Army(Game.State.CurrentPlayer, target);
 		else
 			nu = new Navy(Game.State.CurrentPlayer, target);
@@ -24,11 +24,7 @@ class Orig_Play5Build : State {
 	
 	public override bool mouseMotion(double x, double y, Territory curTerr, uint Button)
 	{
-	return false;
-	}
-	
-	public override void done()
-	{
+		return false;
 	}
 
 }

@@ -9,19 +9,6 @@ class Orig_Conv2Roll : State {
 		return "Conventional Step 2: Gather and Roll Dice";
 	} 		
 	
-	public override bool mouseClick(Territory target, uint Button)
-	{
-	return false;
-	}
-	
-	public override bool mouseMotion(double x, double y, Territory curTerr, uint Button)
-	{
-	return false;
-	}
-	
-	public override void done()
-	{
-	}
 
 }
 }

@@ -7,21 +7,7 @@ class Orig_Conv4CounterAttack : State {
 	public override string Name()
 	{
 		return "Conventional Step 4: Counter-Attack";
-	} 		
-	
-	public override bool mouseClick(Territory target, uint Button)
-	{
-	return false;
-	}
-	
-	public override bool mouseMotion(double x, double y, Territory curTerr, uint Button)
-	{
-	return false;
-	}
-	
-	public override void done()
-	{
-	}
+	} 
 
 }
 }

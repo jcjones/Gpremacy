@@ -9,19 +9,5 @@ class Orig_Conv1Supplies : State {
 		return "Conventional Step 1: Delete Supplies";
 	} 		
 	
-	public override bool mouseClick(Territory target, uint Button)
-	{
-	return false;
-	}
-	
-	public override bool mouseMotion(double x, double y, Territory curTerr, uint Button)
-	{
-	return false;
-	}
-	
-	public override void done()
-	{
-	}
-
 }
 }

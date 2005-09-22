@@ -70,16 +70,18 @@ class Player {
 		int m=0,o=0,g=0;
 		string ret;
 
-		Console.WriteLine("AU: " + activeUnits.Count + " RC: " + resourceCards.Count + " SP: " + stockpile.Count);
+		//Console.WriteLine("AU: " + activeUnits.Count + " RC: " + resourceCards.Count + " SP: " + stockpile.Count);
+		ret = "Available Capital:\n";
+		ret += money + "\n";
 
-		ret = "Resources Produced Per Turn:\n";
+		ret += "Resources Produced Per Turn:\n";
 		foreach (ResourceCard card in resourceCards)
 		{
 			if (!rTypes.Exists(card.Good.Name))
 			{
-				rTypes.Add(card.Good.Name, (Int32)1);
+				rTypes.Add(card.Good.Name, card.Good.Value);
 			} else {
-				rTypes.IncValue(card.Good.Name);
+				rTypes.IncValue(card.Good.Name, card.Good.Value);
 			}
 		}
 		ret += rTypes.toString();

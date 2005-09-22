@@ -18,10 +18,6 @@ class Orig_Play3Attack : State {
 	{
 	return false;
 	}
-	
-	public override void done()
-	{
-	}
 
 }
 }

@@ -6,6 +6,7 @@ namespace Gpremacy {
 class Game {
 	ArrayList players; // of Player
 	ArrayList cards; // of ResourceCard
+	ArrayList allcards; // of ResourceCard
 	Player playerNobody;
 	GameState state;
 	GpremacyMarket market;
@@ -16,6 +17,7 @@ class Game {
 		setupPlayers();
 						
 		cards = new ArrayList();
+		allcards = new ArrayList();
 		
 		market = new GpremacyMarket();		
 		state = new GameState(this);
@@ -61,6 +63,12 @@ class Game {
 		get { return state; }
 	}	
 			
+	public ArrayList AllCards
+	{
+		get { return allcards; }
+	//	set { cards = value; }
+	}
+	
 	public ArrayList Cards
 	{
 		get { return cards; }
@@ -75,6 +83,22 @@ class Game {
 		players.Add(new Player(4, "League of European Nations"));
 		players.Add(new Player(5, "Union of Soviet Sovereign Republics"));
 		players.Add(new Player(6, "People's Republic of China"));
+	}
+	
+	public void DistributeResourceCards()
+	{
+		foreach(ResourceCard card in allcards)
+		{
+			foreach(Player player in players)
+			{
+				if (card.Place.Owner == player)
+				{
+					player.addResourceCard(card);
+					cards.Remove(card); // take it from the normal deck
+					break;
+				}
+			}
+		}
 	}
 	
     public void LoadResourceCards (ArrayList Territories)
@@ -135,7 +159,7 @@ class Game {
 	       				}
 	       				
 	       				// Create Card
-	       				cards.Add(new ResourceCard(r, t, name));
+	       				allcards.Add(new ResourceCard(r, t, name));
 	       				t.addResource(r);
 	       			
 	       			}

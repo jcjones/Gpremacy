@@ -18,30 +18,52 @@ class Orig_Play4Move : State {
 	
 	public override bool mouseClick(Territory target, uint Button)
 	{
-		if (Button != 1) return false;
+		if (Button != 1) 
+		{
+			/* Cancelling */
+			arrowOn = false;
+			
+			if (previousTerritory != null)
+				Game.GUI.redrawTerritory(previousTerritory);
+
+			Game.GUI.redrawTerritory(target);			
+			previousTerritory = null;			
+			return false;
+		}
 		
 		if (previousTerritory == null && target.occupiedBy(Game.State.CurrentPlayer))
 		{
+			/* Picking first selection */
+			
 			System.Console.WriteLine("Arrow On");
 			arrowOn = true;
 			previousTerritory = target;
 		} else if (previousTerritory != null) {
+			/* Picking target selection */
+			
 			System.Console.WriteLine("Arrow Off");
 			arrowOn = false;
 
 			// Clone the list since otherwise modifying the presently used list is bad   					
 			ArrayList tmp = (ArrayList)previousTerritory.Units.Clone();   					
 
-			// move units from previousTerritory to target.
-			foreach (TacticalUnit unit in tmp)
+			if (target.IsLand == previousTerritory.IsLand)
 			{
-				// Print diagnostics
-				if (unit.Owner == Game.State.CurrentPlayer)   						
-					unit.moveTo(target);
+				// move units from previousTerritory to target.
+				foreach (TacticalUnit unit in tmp)
+				{
+					// Print diagnostics
+					if (unit.Owner == Game.State.CurrentPlayer)
+					{
+						Orig_MoveUnit cmd = new Orig_MoveUnit(unit, target, previousTerritory);
+						Game.State.Execute(cmd);												   						
+						break;
+					}
+				}
+			} else {
+				/* Diseperate land/sea areas, so we should load! */
+				Game.GUI.showLoadNavalOptions(target);
 			}
-
-			Game.GUI.redrawTerritory(previousTerritory);
-			Game.GUI.redrawTerritory(target);
 
 			previousTerritory = null;
 		}
@@ -60,9 +82,25 @@ class Orig_Play4Move : State {
 		return false;		
 	}
 
-	public override void done()
-	{
-	}
+}
+class Orig_MoveUnit : Command {
+	TacticalUnit unit;
+	Territory next, previous;
 
+	public Orig_MoveUnit(TacticalUnit aunit, Territory anext, Territory aprevious) {
+		unit = aunit; next = anext; previous = aprevious;
+		undoable = true;
+	}
+	
+	public override void Execute(Game game) {
+		unit.moveTo(next);
+		game.GUI.redrawTerritory(next);
+		game.GUI.redrawTerritory(previous);
+	}
+	public override void Unexecute(Game game) {
+		unit.moveTo(previous);
+		game.GUI.redrawTerritory(next);
+		game.GUI.redrawTerritory(previous);
+	}
 }
 }

@@ -35,10 +35,23 @@ class State {
 	{
 		return false;
 	}
-	
-	public virtual void done()
+
+	public virtual void beginState()
 	{
 	}
+	
+	public virtual void doneState()
+	{
+	}
+	
+	public virtual void beginPlayer(Player player)
+	{
+	}
+	
+	public virtual void donePlayer(Player player)
+	{
+	}
+
 	
 	public virtual string Name()
 	{

@@ -16,14 +16,14 @@ class Territory
 	ArrayList units;
 	ArrayList resources;
 	bool destroyed;	
-	MapTerritory ourMapTerritory;
+	MapTerritory mapTerritory;
 	
 	public Territory(String name_i, int ID_i, Player lord, bool land_i, ArrayList borders_i, Pango.Context pango_context) 
 	{
 		name = name_i;
 		id = ID_i;
 		owner = lord;
-		ourMapTerritory = new MapTerritory(name_i, land_i, borders_i, pango_context);
+		mapTerritory = new MapTerritory(name_i, land_i, borders_i, pango_context);
 		destroyed = false;
 		units = new ArrayList();
 		resources = new ArrayList();		
@@ -87,9 +87,9 @@ class Territory
 		get { return id ; }
 	}
 	
-	public MapTerritory getMapTerritory()
+	public MapTerritory MapTerritory
 	{
-		return ourMapTerritory;
+		get { return mapTerritory; }
 	}
 	
 	public String Name
@@ -112,9 +112,14 @@ class Territory
 		resources.Add(a);
 	}
 	
+	public bool IsLand
+	{
+		get { return mapTerritory.isLand; }
+	}
+	
 	public void draw(Gdk.Window win, Gdk.Color terr, Gdk.Color textcolor, Pango.Context pango_context)
 	{
-	   	ourMapTerritory.draw(win, terr, textcolor);
+	   	mapTerritory.draw(win, terr, textcolor);
 
 	   	for (int offset=0; offset < units.Count && offset < 3; offset++)
 	   	{
@@ -134,9 +139,9 @@ class Territory
 			label.GetPixelSize(out szX, out szY);
 
 			/*Redraw*/			
-//			win.InvalidateRect(new Gdk.Rectangle(ourMapTerritory.centerX, ourMapTerritory.centerY, szX, szY), true);
+//			win.InvalidateRect(new Gdk.Rectangle(mapTerritory.centerX, mapTerritory.centerY, szX, szY), true);
 			
-			win.DrawLayout (textcoloring, ourMapTerritory.centerX, ourMapTerritory.centerY, label);
+			win.DrawLayout (textcoloring, mapTerritory.centerX, mapTerritory.centerY, label);
 	   	}
 
 	}
