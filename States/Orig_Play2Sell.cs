@@ -1,3 +1,5 @@
+using System.Collections;
+
 namespace Gpremacy {
 class Orig_Play2Sell : State {
 	public Orig_Play2Sell (Game game_i) : base(game_i,2,3)
@@ -9,14 +11,28 @@ class Orig_Play2Sell : State {
 		return "Phase 2: Sell Resources";
 	} 		
 	
-	public override bool mouseClick(Territory target, uint Button)
+	public override void beginPlayer(Player aplayer)
 	{
-	return false;
+		Game.GUI.showMarketBuySell(1);
 	}
-	
-	public override bool mouseMotion(double x, double y, Territory curTerr, uint Button)
+
+}
+
+class Orig_Sell : Command {
+	ArrayList stocks; // of Stock
+	public Orig_Sell(ArrayList res)
 	{
-	return false;
+		stocks = res;
+	}
+
+	public override void Execute(Game game) 
+	{
+		foreach (Stock stuff in stocks) 
+		{
+			game.State.CurrentPlayer.changeResourceStockpile(stuff);
+			game.State.CurrentPlayer.Money += -1*stuff.Number*game.Market.getCommodityCost(stuff.Good);
+			game.Market.changeCommodityValue(stuff.Good, -1*stuff.Number);
+		}
 	}
 
 }

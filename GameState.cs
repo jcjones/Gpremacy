@@ -123,7 +123,11 @@ class GameState {
 		stateList.MoveNext();
 		if ( ((State)stateList.Current).MyOrder == next )
 		{
+			currentState.donePlayer(currentPlayer); //TODO: See if these are needed.
+			currentState.doneState();
 			currentState = (Gpremacy.State)stateList.Current;
+			currentState.beginState();
+			currentState.beginPlayer(currentPlayer); //TODO: See if these are needed.
 			return next;
 		}
 		/* Next state in list is not the next state, so search for it. */
@@ -169,7 +173,8 @@ class GameState {
 		if (cmd.Undoable)
 			commandList.Add(cmd);
 		cmd.Execute(game);
-		System.Console.WriteLine("Executed - CL:" + commandList.Count);
+		game.GUI.updateGUIStatusBoxes();
+		//System.Console.WriteLine("Executed - CL:" + commandList.Count);
 	}
 	
 	public bool Unexecute()
@@ -181,9 +186,9 @@ class GameState {
 		((Command)commandList[pt]).Unexecute(game);
 		commandList.RemoveAt(pt);
 		
-		if (pt < 1)
-			return false; // disable the menu item
-		return true;
+		game.GUI.updateGUIStatusBoxes();
+		
+		return (pt >= 1); // disable the menu item
 	}
 
 }

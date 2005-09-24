@@ -24,9 +24,9 @@ class Game {
 		mainGUI = new GpremacyGUI(this);
 						
 		playerNobody = new Player(-1, "Nobody");
-		market.initResource(new Oil(playerNobody, 1), 500);
-		market.initResource(new Minerals(playerNobody, 1), 500);
-		market.initResource(new Grain(playerNobody, 1), 500); 
+		market.initResource(new Oil(), 12);
+		market.initResource(new Minerals(), 12);
+		market.initResource(new Grain(), 12); 
 		
 		mainGUI.init();		
 		

@@ -1,5 +1,6 @@
 // project created on 07/05/2005 at 20:05
 using System;
+using System.Collections;
 using Gtk;
 using Glade;
 using Pango;
@@ -10,7 +11,6 @@ class GpremacyGUI {
 	GpremacyMap MapArea;
 	Game game;
 	Gdk.Region invalRegion;
-	Territory MoveScreenTarget;
 
 	/* Main Window*/
 	[Glade.Widget] Gtk.Viewport MapViewport;
@@ -27,7 +27,20 @@ class GpremacyGUI {
 	/* Naval Options */	
 	[Glade.Widget] Gtk.Window LoadNavalOptions;
 	[Glade.Widget] Gtk.DrawingArea UnitLegendNaval;
-
+	
+	/* Buy/Sell Options */
+	[Glade.Widget] Gtk.Window MarketBuySell;
+	[Glade.Widget] Gtk.Label MineralsStock;
+	[Glade.Widget] Gtk.Label MineralsCost;
+	[Glade.Widget] Gtk.Label OilStock;
+	[Glade.Widget] Gtk.Label OilCost;
+	[Glade.Widget] Gtk.Label GrainStock;
+	[Glade.Widget] Gtk.Label GrainCost;
+	[Glade.Widget] Gtk.Label MarketTotalBox;
+	[Glade.Widget] Gtk.HScrollbar MineralsScroll;
+	[Glade.Widget] Gtk.HScrollbar OilScroll;
+	[Glade.Widget] Gtk.HScrollbar GrainScroll;
+	[Glade.Widget] Gtk.Button MarketBuySellOkay;
 	
 	public GpremacyGUI(Game i)
 	{
@@ -96,6 +109,9 @@ class GpremacyGUI {
 	   */
 
 	   	/* Find territory */
+	   	if ((args.Event.Type == EventType.TwoButtonPress) || (args.Event.Type == EventType.ThreeButtonPress))
+	   		return;   	
+	   	
 	   	Territory target = null;
       	double x = args.Event.X;//+MapScrolledWindow2.Hadjustment.Value;
    		double y = args.Event.Y;//+MapScrolledWindow2.Vadjustment.Value;
@@ -254,44 +270,136 @@ class GpremacyGUI {
         dlg.Run();
         dlg.Destroy();
     }
+    
+    /* Market Buy/Sell Options */
+    public void showMarketBuySell(int sell)
+    {
+    	if (sell > 0) { /* Sell Stage */
+	    	MineralsScroll.SetRange(0.0, (double)game.State.CurrentPlayer.getStockpileAmount(new Minerals()));
+	    	OilScroll.SetRange(0.0, (double)game.State.CurrentPlayer.getStockpileAmount(new Oil()));
+	    	GrainScroll.SetRange(0.0, (double)game.State.CurrentPlayer.getStockpileAmount(new Grain()));
+    		
+    		MineralsScroll.ValueChanged -= MarketBuyProfitCalculation;
+    		GrainScroll.ValueChanged -= MarketBuyProfitCalculation;
+    		OilScroll.ValueChanged -= MarketBuyProfitCalculation;    		
+    		MineralsScroll.ValueChanged += MarketSellProfitCalculation;
+    		GrainScroll.ValueChanged += MarketSellProfitCalculation;
+    		OilScroll.ValueChanged += MarketSellProfitCalculation;
+    		
+    		MarketSellProfitCalculation(null, null);
+    		
+    		MarketBuySellOkay.Clicked -= on_MarketBuyOkay_clicked;
+    		MarketBuySellOkay.Clicked += on_MarketSellOkay_clicked;
+    	} else {  /* Buy Stage */
+	    	MineralsScroll.SetRange(0.0, 99.0);
+	    	OilScroll.SetRange(0.0, 99.0);
+	    	GrainScroll.SetRange(0.0, 99.0);
 
+    		MineralsScroll.ValueChanged -= MarketSellProfitCalculation;
+    		GrainScroll.ValueChanged -= MarketSellProfitCalculation;
+    		OilScroll.ValueChanged -= MarketSellProfitCalculation;
+    		MineralsScroll.ValueChanged += MarketBuyProfitCalculation;
+    		GrainScroll.ValueChanged += MarketBuyProfitCalculation;
+    		OilScroll.ValueChanged += MarketBuyProfitCalculation;
+    		
+    		MarketBuyProfitCalculation(null, null);
+    		MarketBuySellOkay.Clicked -= on_MarketSellOkay_clicked;
+    		MarketBuySellOkay.Clicked += on_MarketBuyOkay_clicked;
+    	}
+    	
+    	MineralsScroll.Value = 0;
+   		OilScroll.Value = 0;
+   		GrainScroll.Value = 0;
+    		
+    	MineralsCost.Text = game.Market.getCommodityCost(new Minerals()).ToString();
+    	OilCost.Text = game.Market.getCommodityCost(new Oil()).ToString();
+    	GrainCost.Text =  game.Market.getCommodityCost(new Grain()).ToString();
+    	
+    	MarketBuySell.ShowAll();
+    }
+    
+    public void MarketSellProfitCalculation(System.Object obj, EventArgs e)
+    {
+    	int profit = 0;
+    	profit += ((int)OilScroll.Value)*game.Market.getCommodityCost(new Oil());
+    	profit += ((int)GrainScroll.Value)*game.Market.getCommodityCost(new Grain());
+    	profit += ((int)MineralsScroll.Value)*game.Market.getCommodityCost(new Minerals());
+    	MarketTotalBox.Text = "$"+profit.ToString()+" M";
+    	
+    	MineralsStock.Text = (game.State.CurrentPlayer.getStockpileAmount(new Minerals())-((int)MineralsScroll.Value)).ToString();
+    	OilStock.Text = (game.State.CurrentPlayer.getStockpileAmount(new Oil())-((int)OilScroll.Value)).ToString();
+    	GrainStock.Text = (game.State.CurrentPlayer.getStockpileAmount(new Grain())-((int)GrainScroll.Value)).ToString();    	
+    }
+    
+    public void MarketBuyProfitCalculation(System.Object obj, EventArgs e)
+    {
+    	int cost = 0;
+    	cost += ((int)OilScroll.Value)*game.Market.getCommodityCost(new Oil());
+    	cost += ((int)GrainScroll.Value)*game.Market.getCommodityCost(new Grain());
+    	cost += ((int)MineralsScroll.Value)*game.Market.getCommodityCost(new Minerals());
+    	MarketTotalBox.Text = "$"+cost.ToString()+" M";
+    	
+    	MineralsStock.Text = (game.State.CurrentPlayer.getStockpileAmount(new Minerals())+((int)MineralsScroll.Value)).ToString();
+    	OilStock.Text = (game.State.CurrentPlayer.getStockpileAmount(new Oil())+((int)OilScroll.Value)).ToString();
+    	GrainStock.Text = (game.State.CurrentPlayer.getStockpileAmount(new Grain())+((int)GrainScroll.Value)).ToString();    	
+    }    
+    
+    public void on_MarketSellOkay_clicked(System.Object obj, EventArgs e)
+	{
+		ArrayList forSale = new ArrayList(); // of Stock
+							
+		forSale.Add(new Stock(new Oil(), -1*((int)OilScroll.Value)));
+		forSale.Add(new Stock(new Minerals(), -1*((int)MineralsScroll.Value)));
+		forSale.Add(new Stock(new Grain(), -1*((int)GrainScroll.Value)));
+		
+		Orig_Sell cmd = new Orig_Sell(forSale);
+		game.State.Execute(cmd);			
+
+		MarketBuySell.Hide();
+	}
+	
+    public void on_MarketBuyOkay_clicked(System.Object obj, EventArgs e)
+	{
+		ArrayList ticket = new ArrayList(); // of Stock
+							
+		ticket.Add(new Stock(new Oil(), ((int)OilScroll.Value)));
+		ticket.Add(new Stock(new Minerals(), ((int)MineralsScroll.Value)));
+		ticket.Add(new Stock(new Grain(), ((int)GrainScroll.Value)));
+		
+		Orig_Buy cmd = new Orig_Buy(ticket);
+		game.State.Execute(cmd);			
+
+		MarketBuySell.Hide();
+	}
+		
+	public void on_MarketBuySell_delete_event(System.Object obj, EventArgs e)
+	{	
+		MarketBuySell.Hide();
+	}	
 	/* Naval Options */
 
 	public void showLoadNavalOptions(Territory target)
 	{
-		UnitLegendNaval.ExposeEvent += LoadNavalOptionsOnExposed;
-		MoveScreenTarget = target;
 		LoadNavalOptions.ShowAll();
-		        								
 	}
-	void LoadNavalOptionsOnExposed (object o, ExposeEventArgs args)
-    {
-		System.Console.WriteLine("In NavalOptions:OnExposed");
-		
-	   	Gdk.GC textcoloring = new Gdk.GC(UnitLegendNaval.GdkWindow);
-	    textcoloring.RgbFgColor = new Gdk.Color(30,30,30);		
-		UnitLegendNaval.GdkWindow.DrawLine(textcoloring, 5,5,10,10);
-		
-		//MoveScreenTarget.MapTerritory.draw(UnitLegendNaval.GdkWindow, 1, 1, 60, 60, new Gdk.Color(255,25,25));
-	}
-	public void on_NavalOkay_activate(System.Object obj, EventArgs e)
+	public void on_NavalOkay_clicked(System.Object obj, EventArgs e)
 	{
-		LoadNavalOptions.HideAll();		
+		LoadNavalOptions.Hide();		
 	}
-	public void on_NavalCancel_activate(System.Object obj, EventArgs e)
+	public void on_NavalCancel_clicked(System.Object obj, EventArgs e)
 	{
-		LoadNavalOptions.HideAll();	
+		LoadNavalOptions.Hide();	
 	}
 	public void on_LoadNavalOptions_delete_event(System.Object obj, EventArgs e)
 	{	
-		LoadNavalOptions.HideAll();	
+		LoadNavalOptions.Hide();	
 	}	
 	
 	/* Ground Movement Options */
-	public void on_MoveAccept_activate(System.Object obj, EventArgs e)
+	public void on_MoveAccept_clicked(System.Object obj, EventArgs e)
 	{
 	}
-	public void on_MoveCancel_activate(System.Object obj, EventArgs e)
+	public void on_MoveCancel_clicked(System.Object obj, EventArgs e)
 	{
 	}
 	public void on_MoveGroundOptions_delete_event(System.Object obj, EventArgs e)
@@ -302,10 +410,10 @@ class GpremacyGUI {
 	public void on_StrategicTargetSelection_delete_event(System.Object obj, EventArgs e)
 	{
 	}	
-	public void on_StratTargetOkay_activate(System.Object obj, EventArgs e)
+	public void on_StratTargetOkay_clicked(System.Object obj, EventArgs e)
 	{
 	}
-	public void on_StratTargetCancel_activate(System.Object obj, EventArgs e)
+	public void on_StratTargetCancel_clicked(System.Object obj, EventArgs e)
 	{
 	}
 	
@@ -313,7 +421,7 @@ class GpremacyGUI {
 	public void on_StrategicBattle_delete_event(System.Object obj, EventArgs e)
 	{
 	}	
-	public void on_StratBattle_activate(System.Object obj, EventArgs e)
+	public void on_StratBattle_clicked(System.Object obj, EventArgs e)
 	{
 	}
 	
@@ -321,13 +429,14 @@ class GpremacyGUI {
 	public void on_ConventionalBattle_delete_event(System.Object obj, EventArgs e)
 	{
 	}	
-	public void on_ConvBattleOkay_activate(System.Object obj, EventArgs e)
+	public void on_ConvBattleOkay_clicked(System.Object obj, EventArgs e)
 	{
 	}	
-	public void on_ConvBattleCancel_activate(System.Object obj, EventArgs e)
+	public void on_ConvBattleCancel_clicked(System.Object obj, EventArgs e)
 	{
 	}	
 	
 			
 }
 }
+

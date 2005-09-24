@@ -27,14 +27,7 @@ class Orig_Play1Upkeep : State {
 		
 		foreach (ResourceCard card in Game.State.CurrentPlayer.ResourceCards)
 		{
-			foreach (Resource good in Game.State.CurrentPlayer.Stockpile)
-			{
-				if (card.Good.Name == good.Name)
-				{
-					good.Value += card.Good.Value;
-					break;
-				}
-			}
+			player.changeResourceStockpile(card.Good, card.Good.Value);			
 		}
 		
 	}	

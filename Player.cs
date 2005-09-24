@@ -6,7 +6,7 @@ namespace Gpremacy {
 class Player {
 	int countryID;
 	string name;
-	ArrayList stockpile; // of Resources
+	ArrayList stockpile; // of Stock
 	ArrayList availableUnits; // of Units
 	ArrayList activeUnits; // of Units
 	long money;
@@ -22,9 +22,9 @@ class Player {
 		activeUnits = new ArrayList(); // of Unit
 		resourceCards = new ArrayList(); // of ResourceCard
 		
-		stockpile.Add(new Minerals(this, 6));
-		stockpile.Add(new Grain(this, 6));
-		stockpile.Add(new Oil(this, 6));
+		stockpile.Add(new Stock(new Minerals(), 6));
+		stockpile.Add(new Stock(new Oil(), 6));
+		stockpile.Add(new Stock(new Grain(), 6));
 	}
 	
 	public string toString ()
@@ -61,6 +61,10 @@ class Player {
 	{
 		get { return resourceCards; }
 	}
+	public int MaximumStockpile
+	{
+		get { return 12; }
+	}
 
 	public string toStringResources()
 	{
@@ -72,7 +76,7 @@ class Player {
 
 		//Console.WriteLine("AU: " + activeUnits.Count + " RC: " + resourceCards.Count + " SP: " + stockpile.Count);
 		ret = "Available Capital:\n";
-		ret += money + "\n";
+		ret += "$" + money + "M\n";
 
 		ret += "Resources Produced Per Turn:\n";
 		foreach (ResourceCard card in resourceCards)
@@ -86,23 +90,18 @@ class Player {
 		}
 		ret += rTypes.toString();
 		
-		ret += " [" + rTypes.Data.Count + "]\n ";
+		//ret += " [" + rTypes.Data.Count + "]\n ";
 		
 		rTypes.Clear();
 		
 		ret += "Resource Stockpile:\n";
-		foreach (Resource good in stockpile)
+		foreach (Stock goods in stockpile)
 		{
-			if (!rTypes.Exists(good.Name))
-			{
-				rTypes.Add(good.Name, (Int32)good.Value);
-			} else {
-				rTypes.IncValue(good.Name);
-			}
+			rTypes.Add(goods.Good.Name, (Int32)goods.Number);
 		}
 		ret += rTypes.toString();
 		
-		ret += " [" + rTypes.Data.Count + "]\n ";
+		//ret += " [" + rTypes.Data.Count + "]\n ";
 		
 		rTypes.Clear();		
 		
@@ -118,7 +117,7 @@ class Player {
 		}
 		ret += rTypes.toString();
 		
-		ret += " [" + rTypes.Data.Count + "]\n ";
+		//ret += " [" + rTypes.Data.Count + "]\n ";
 		
 		rTypes.Clear();		
 		
@@ -154,6 +153,37 @@ class Player {
 		}
 		return false;
 	}
+	
+	public int getStockpileAmount(Resource r)
+	{
+		foreach (Stock goods in stockpile)
+		{
+			if (goods.Good.Name == r.Name)
+			{
+				return goods.Number;
+			}
+		}
+		return 0;
+	}
+	
+	public int changeResourceStockpile(Stock a)
+	{
+		foreach (Stock stockgood in stockpile)
+		{
+			if (stockgood.Good.Name == a.Good.Name)
+			{
+				stockgood.Number += a.Number;
+				if (stockgood.Number > MaximumStockpile) stockgood.Number = MaximumStockpile;
+				return stockgood.Number;
+			}
+		}
+		return -1;
+	}
 
+	public int changeResourceStockpile(Resource good, int val)
+	{
+		return changeResourceStockpile(new Stock(good, val));
+	}
+	
 }
 }

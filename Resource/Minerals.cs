@@ -4,6 +4,9 @@ class Minerals : Resource {
 	public Minerals (Player Owner, int Value) : base(Owner, Value)
 	{
 	}	
+	public Minerals() : base(null, 0) 
+	{
+	}
 
 	override public string Name
 	{
