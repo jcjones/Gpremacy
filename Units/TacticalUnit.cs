@@ -1,4 +1,6 @@
 // created on 08/28/2005 at 09:32
+using System.Collections;
+
 namespace Gpremacy {
 class TacticalUnit : Unit {
 	protected Territory CurrentLocation;
@@ -14,19 +16,25 @@ class TacticalUnit : Unit {
 		return true;
 	}
 	
-	public bool moveTo ( Territory dest)
+	public bool moveTo ( Territory dest )
 	{
-		System.Console.WriteLine("trying to move to " + dest.toString());
-		if (canMoveTo(dest)) 
-		{
-			CurrentLocation.removeUnit(this);
-			dest.addUnit(this);
-			
-			CurrentLocation = dest;			
-			System.Console.WriteLine("Moving to " + CurrentLocation.toString());
-			return true;
-		}
-		return false;
+		CurrentLocation = dest;
+		return true;
+	}
+	
+	public virtual bool CanHoldTroops
+	{
+		get { return false; }
+	}
+	
+	public virtual int UnitsAboardCount
+	{
+		get { return 0; }
+	}
+	
+	public virtual ArrayList UnitsAboard
+	{
+		get { return new ArrayList(); }
 	}
 	
 	public override string Name

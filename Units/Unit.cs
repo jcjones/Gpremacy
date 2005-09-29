@@ -3,7 +3,7 @@ using Gdk;
 namespace Gpremacy {
 class Unit {
 
-	Player owner;
+	protected Player owner;
 	
 	public Unit(Player lord)
 	{

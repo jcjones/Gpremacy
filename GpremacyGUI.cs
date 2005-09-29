@@ -27,7 +27,10 @@ class GpremacyGUI {
 	/* Naval Options */	
 	[Glade.Widget] Gtk.Window LoadNavalOptions;
 	[Glade.Widget] Gtk.DrawingArea UnitLegendNaval;
-	
+	[Glade.Widget] Gtk.Label LoadNavalOptionsCounter;
+	[Glade.Widget] Gtk.Label LoadNavalOptionsTitle;
+	[Glade.Widget] Gtk.Table LoadNavalOptionsTable;
+		
 	/* Buy/Sell Options */
 	[Glade.Widget] Gtk.Window MarketBuySell;
 	[Glade.Widget] Gtk.Label MineralsStock;
@@ -311,9 +314,9 @@ class GpremacyGUI {
    		OilScroll.Value = 0;
    		GrainScroll.Value = 0;
     		
-    	MineralsCost.Text = game.Market.getCommodityCost(new Minerals()).ToString();
-    	OilCost.Text = game.Market.getCommodityCost(new Oil()).ToString();
-    	GrainCost.Text =  game.Market.getCommodityCost(new Grain()).ToString();
+    	MineralsCost.Text = "@ $"+game.Market.getCommodityCost(new Minerals()).ToString()+" M";
+    	OilCost.Text = "@ $"+game.Market.getCommodityCost(new Oil()).ToString()+" M";
+    	GrainCost.Text =  "@ $"+game.Market.getCommodityCost(new Grain()).ToString()+" M";
     	
     	MarketBuySell.ShowAll();
     }
@@ -324,7 +327,7 @@ class GpremacyGUI {
     	profit += ((int)OilScroll.Value)*game.Market.getCommodityCost(new Oil());
     	profit += ((int)GrainScroll.Value)*game.Market.getCommodityCost(new Grain());
     	profit += ((int)MineralsScroll.Value)*game.Market.getCommodityCost(new Minerals());
-    	MarketTotalBox.Text = "$"+profit.ToString()+" M";
+    	MarketTotalBox.Text = "Profit: $"+profit.ToString()+" M";
     	
     	MineralsStock.Text = (game.State.CurrentPlayer.getStockpileAmount(new Minerals())-((int)MineralsScroll.Value)).ToString();
     	OilStock.Text = (game.State.CurrentPlayer.getStockpileAmount(new Oil())-((int)OilScroll.Value)).ToString();
@@ -337,7 +340,7 @@ class GpremacyGUI {
     	cost += ((int)OilScroll.Value)*game.Market.getCommodityCost(new Oil());
     	cost += ((int)GrainScroll.Value)*game.Market.getCommodityCost(new Grain());
     	cost += ((int)MineralsScroll.Value)*game.Market.getCommodityCost(new Minerals());
-    	MarketTotalBox.Text = "$"+cost.ToString()+" M";
+    	MarketTotalBox.Text = "Cost: $"+cost.ToString()+" M";
     	
     	MineralsStock.Text = (game.State.CurrentPlayer.getStockpileAmount(new Minerals())+((int)MineralsScroll.Value)).ToString();
     	OilStock.Text = (game.State.CurrentPlayer.getStockpileAmount(new Oil())+((int)OilScroll.Value)).ToString();
@@ -375,16 +378,127 @@ class GpremacyGUI {
 	public void on_MarketBuySell_delete_event(System.Object obj, EventArgs e)
 	{	
 		MarketBuySell.Hide();
-	}	
+	}
+	
 	/* Naval Options */
 
-	public void showLoadNavalOptions(Territory target)
+	public void showLoadNavalOptions(Territory land, Territory sea)
 	{
+		uint n = 1;
+		LoadNavalOptionsTitle.Text = "Land: " + land.Name + " Sea: " + sea.Name;
+		LoadNavalOptionsCounter.Text = "Friendlies on shore: " + land.Friendlies(game.State.CurrentPlayer).Count.ToString();
+
+		foreach (Gtk.Widget wid in LoadNavalOptionsTable)
+		{
+			/* Clean house */
+			LoadNavalOptionsTable.Remove(wid);
+		}
+		
+		foreach (Navy ship in sea.Friendlies(game.State.CurrentPlayer))
+		{
+			if (!ship.CanHoldTroops) continue;
+			Gtk.Label label = new Gtk.Label("Ship " + n.ToString());
+			Gtk.SpinButton spinbox = new Gtk.SpinButton(0.0,4.0,1.0);
+			spinbox.SetIncrements(1.0,1.0);
+			spinbox.Value = (double)ship.UnitsAboardCount;
+			spinbox.ValueChanged += on_NavalSpinbuttonSpun;
+			
+			LoadNavalOptionsTable.Attach(label, 0, 1, n, n+1);
+			LoadNavalOptionsTable.Attach(spinbox, 1, 2, n, n+1);
+			n++;
+		}
+		
 		LoadNavalOptions.ShowAll();
 	}
+	public void on_NavalSpinbuttonSpun(System.Object obj, EventArgs e)
+	{
+		ArrayList data = (ArrayList)game.State.CurrentState.Data;
+		Territory port = ((Territory)data[0]);
+		Territory sea = ((Territory)data[1]);		
+				
+		int sumOfUnitsAboard = 0;
+		int sumOfSpinBoxes = 0;
+		int unitsOnLand = port.Units.Count;
+		int resultOnShore = 0;		
+		
+		foreach (Navy ship in sea.Units)
+		{
+			sumOfUnitsAboard += ship.UnitsAboardCount;
+		}
+		foreach (Gtk.Widget wid in LoadNavalOptionsTable)
+		{
+			if (wid is Gtk.SpinButton)
+			{
+				sumOfSpinBoxes += ((int)((Gtk.SpinButton)wid).Value);
+				System.Console.WriteLine("SpinNow: " + sumOfSpinBoxes + " wid is " + wid);
+			}
+		}
+		resultOnShore = (unitsOnLand + sumOfUnitsAboard) - sumOfSpinBoxes;
+		System.Console.WriteLine("resOnShore:"+resultOnShore+" unOnLand:"+unitsOnLand+" sumAboard:"+sumOfUnitsAboard+" sumSpin:"+sumOfSpinBoxes);
+		
+		LoadNavalOptionsCounter.Text = "Friendlies on shore: " + resultOnShore;
+	}	
 	public void on_NavalOkay_clicked(System.Object obj, EventArgs e)
 	{
-		LoadNavalOptions.Hide();		
+		/* Resolve the reorderings needed to end
+ 		 * up with the appropriate number of 
+		 * units on each ship and in port. */		 
+		LoadNavalOptions.Hide();
+			
+		ArrayList troops = new ArrayList();
+		ArrayList data = (ArrayList)game.State.CurrentState.Data;		
+		Territory port = ((Territory)data[0]);
+		Territory sea = ((Territory)data[1]);		
+		ArrayList landUnits;
+		ArrayList seaUnits = sea.Units;
+
+		IEnumerator shipIt = seaUnits.GetEnumerator();
+		shipIt.MoveNext();
+		Navy ship = (Navy)shipIt.Current;
+		
+		int diff;		
+		
+		foreach (Widget wid in LoadNavalOptionsTable)
+		{		
+			if (! (wid is Gtk.SpinButton)) continue;
+			/* Reload ground unit list */
+			landUnits = port.Units;
+			troops.Clear();
+
+			while (!ship.CanHoldTroops) 
+			{
+				if (!shipIt.MoveNext())
+					break; // should not happen, we'd be running out of ships
+				ship = (Navy)shipIt.Current;
+			}
+
+			/* Determine what we're doing to this particular ship */			
+			diff = ((int)((Gtk.SpinButton)wid).Value) - ship.UnitsAboardCount;
+			
+			/* Move units onto ship in accordance with this spinButton*/
+			if (diff > 0)
+			{
+				System.Console.WriteLine("Moving " + diff + " units aboard from col of " + landUnits.Count);
+				for(int i=0; i<diff; i++)
+					troops.Add(landUnits[i]);
+				Orig_LoadUnits loadcmd = new Orig_LoadUnits(ship, troops, port, sea);
+				game.State.Execute(loadcmd);
+			} else if (diff < 0) {
+			 	System.Console.WriteLine("Moving " + (-1*diff) + " units ashore from col of " + ship.UnitsAboard.Count);
+			 	/* Walk through each ship, moving appropriate people to the troops structure for
+			 	 * execution. */
+			 	 
+			 	for(int i=0; i<(-1*diff); i++)
+					troops.Add(ship.UnitsAboard[i]);
+			 	Orig_UnloadUnits unloadcmd = new Orig_UnloadUnits(ship, troops, port, sea);
+			 	game.State.Execute(unloadcmd);
+			}			
+			
+			if (!shipIt.MoveNext())
+				break; // will happen at the end of our ship list
+			ship = (Navy)shipIt.Current;
+		}
+		
 	}
 	public void on_NavalCancel_clicked(System.Object obj, EventArgs e)
 	{

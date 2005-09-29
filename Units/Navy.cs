@@ -1,10 +1,14 @@
 // created on 08/28/2005 at 09:33
 using Gdk;
+using System.Collections;
 
 namespace Gpremacy {
 class Navy : TacticalUnit {
+	Territory hold; // for armiesAboard;
+
 	public Navy (Player lord, Territory home) : base (lord, home)
 	{
+		hold = new Territory("Ship hold", lord.CountryID, lord, false, null, null);
 	}	
 	override public void draw(Gdk.Window win, int offset)
 	{	
@@ -21,5 +25,44 @@ class Navy : TacticalUnit {
 	{
 		get { return "Navy"; }
 	}
+	
+	public override string toString()
+	{
+		string ret;
+		ret = Name + " of " + owner.toString() + " with " + UnitsAboardCount + " units aboard.\n";
+		return ret;
+	}
+	
+	public override bool CanHoldTroops
+	{
+		get { return true; }
+	}
+	
+	public override int UnitsAboardCount
+	{
+		get { return hold.Units.Count; }
+	}
+	
+	public Territory Hold 
+	{
+		get { return hold; }
+	}
+	
+	public override ArrayList UnitsAboard
+	{
+		get { return hold.Units; }
+	}
+	
+	public void loadUnit(TacticalUnit joe)
+	{
+		hold.addUnit(joe);
+	}
+	
+	public TacticalUnit unloadUnit(TacticalUnit joe)
+	{
+		hold.removeUnit(joe);
+		return joe;
+	}	
+	
 }
 }

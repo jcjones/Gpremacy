@@ -5,6 +5,7 @@ class State {
 	Game game;
 	int myOrder;
 	int nextOrder;
+	protected object data;
 
 	public State(Game game_i, int myOrder_i, int nextOrder_i)
 	{
@@ -24,6 +25,11 @@ class State {
 	public int NextOrder
 	{
 		get { return nextOrder; }
+	}
+
+	public object Data
+	{
+		get { return data; }
 	}
 	
 	public virtual bool mouseClick(Territory target, uint Button)

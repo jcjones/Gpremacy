@@ -76,7 +76,7 @@ class Player {
 
 		//Console.WriteLine("AU: " + activeUnits.Count + " RC: " + resourceCards.Count + " SP: " + stockpile.Count);
 		ret = "Available Capital:\n";
-		ret += "$" + money + "M\n";
+		ret += "$" + money + " M\n";
 
 		ret += "Resources Produced Per Turn:\n";
 		foreach (ResourceCard card in resourceCards)

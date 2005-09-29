@@ -35,13 +35,11 @@ class Orig_Play4Move : State {
 		{
 			/* Picking first selection */
 			
-			System.Console.WriteLine("Arrow On");
 			arrowOn = true;
 			previousTerritory = target;
 		} else if (previousTerritory != null) {
 			/* Picking target selection */
 			
-			System.Console.WriteLine("Arrow Off");
 			arrowOn = false;
 
 			// Clone the list since otherwise modifying the presently used list is bad   					
@@ -61,8 +59,36 @@ class Orig_Play4Move : State {
 					}
 				}
 			} else {
-				/* Diseperate land/sea areas, so we should load! */
-				Game.GUI.showLoadNavalOptions(target);
+				/* Diseperate land/sea areas, so we should load/unload! */
+				Territory land, sea;
+				
+				if (target.IsLand) { /* Order options properly */
+					land = target; sea = previousTerritory;
+				} else {
+					sea = target; land = previousTerritory;
+				}
+				
+				/* Confirm that there is a friendly ship in sea */
+				if (!sea.occupiedBy(Game.State.CurrentPlayer))
+				{
+					System.Console.WriteLine("No Ship Here in " + sea.Name + "!" + sea.Units.Count);
+					foreach(TacticalUnit u in sea.Units)
+					{
+						System.Console.Write("[T" + u.Name + " O: " + u.Owner.Name + "] ");
+					} 
+					/* No ships! */
+					return false;
+				}				
+				
+				ArrayList b = new ArrayList();				 
+				b.Insert(0,sea.Friendlies(Game.State.CurrentPlayer));
+				b.Insert(1,land.Friendlies(Game.State.CurrentPlayer));
+				b.Insert(0,land);
+				b.Insert(1,sea);
+				data = b;
+				
+				Game.GUI.showLoadNavalOptions(land, sea);
+				
 			}
 
 			previousTerritory = null;
@@ -94,13 +120,101 @@ class Orig_MoveUnit : Command {
 	
 	public override void Execute(Game game) {
 		unit.moveTo(next);
+		
+		/* Confirm we can move here ... don't bother for unexecute */
+		if (unit.canMoveTo(next)) 
+		{
+			previous.removeUnit(unit);
+			next.addUnit(unit);			
+			unit.moveTo(next);
+		}	
+		
 		game.GUI.redrawTerritory(next);
 		game.GUI.redrawTerritory(previous);
 	}
 	public override void Unexecute(Game game) {
+		next.removeUnit(unit);
+		previous.addUnit(unit);			
 		unit.moveTo(previous);
+	
 		game.GUI.redrawTerritory(next);
 		game.GUI.redrawTerritory(previous);
+	}
+}
+class Orig_LoadUnits : Command {
+	Navy ship;
+	ArrayList troops;
+	Territory port;
+	Territory sea;
+	public Orig_LoadUnits(Navy aship, ArrayList atroops, Territory aport, Territory asea)
+	{
+		ship = aship;
+		troops = atroops;
+		port = aport;
+		sea = asea;
+		undoable = true;
+	}
+	
+	public override void Execute(Game game)
+	{
+		foreach(TacticalUnit joe in troops)
+		{
+			ship.loadUnit(joe);
+			port.removeUnit(joe);
+			joe.moveTo(ship.Hold);
+			game.GUI.redrawTerritory(sea);
+			game.GUI.redrawTerritory(port);
+		}
+	}
+	
+	public override void Unexecute(Game game)
+	{
+		foreach(TacticalUnit joe in troops)
+		{
+			ship.unloadUnit(joe);
+			port.addUnit(joe);
+			joe.moveTo(port);
+			game.GUI.redrawTerritory(sea);
+			game.GUI.redrawTerritory(port);
+		}
+	}
+}
+class Orig_UnloadUnits : Command {
+	Navy ship;
+	ArrayList troops;
+	Territory port;
+	Territory sea;
+	public Orig_UnloadUnits(Navy aship, ArrayList atroops, Territory aport, Territory asea)
+	{
+		ship = aship;
+		troops = atroops;
+		port = aport;
+		sea = asea;
+		undoable = true;
+	}
+	
+	public override void Execute(Game game)
+	{
+		foreach(TacticalUnit joe in troops)
+		{
+			ship.unloadUnit(joe);
+			port.addUnit(joe);
+			joe.moveTo(port);
+			game.GUI.redrawTerritory(sea);
+			game.GUI.redrawTerritory(port);			
+		}
+	}
+	
+	public override void Unexecute(Game game)
+	{
+		foreach(TacticalUnit joe in troops)
+		{
+			ship.loadUnit(joe);
+			port.removeUnit(joe);
+			joe.moveTo(ship.Hold);
+			game.GUI.redrawTerritory(sea);
+			game.GUI.redrawTerritory(port);			
+		}
 	}
 }
 }

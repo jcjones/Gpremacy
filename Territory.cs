@@ -23,7 +23,10 @@ class Territory
 		name = name_i;
 		id = ID_i;
 		owner = lord;
-		mapTerritory = new MapTerritory(name_i, land_i, borders_i, pango_context);
+		if (borders_i != null)
+			mapTerritory = new MapTerritory(name_i, land_i, borders_i, pango_context);
+		else
+			mapTerritory = new MapTerritory();
 		destroyed = false;
 		units = new ArrayList();
 		resources = new ArrayList();		
@@ -38,17 +41,26 @@ class Territory
 	{
 		get { return resources; }
 	}
+
+	public ArrayList Friendlies(Player bob)
+	{
+		ArrayList friends = new ArrayList();
+		foreach (TacticalUnit joe in units)
+		{
+			if (joe.Owner == bob)
+			{
+				Console.WriteLine("Added unit " + joe.Name + " to friendlies list.");
+				friends.Add(joe);
+			}
+		}
+		return friends;
+	}
 	
 	public bool occupiedBy (Player IFF)
 	{
 		// Could just check owner and units.Count, but this is 
 		// more generic, if we add allied occupation
-		foreach (Unit troop in units)
-		{
-			if (troop.Owner == IFF)
-				return true;
-		}
-		return false;
+		return (Friendlies(IFF).Count > 0);
 	}
 	
 	public string toString() 
@@ -104,6 +116,8 @@ class Territory
 	
 	public void removeUnit(Unit joe)
 	{
+		if (!units.Contains(joe))
+			throw new Exception("Removing unit which isn't here!");
 		units.Remove(joe);
 	}
 	
@@ -116,16 +130,28 @@ class Territory
 	{
 		get { return mapTerritory.isLand; }
 	}
-	
+		
 	public void draw(Gdk.Window win, Gdk.Color terr, Gdk.Color textcolor, Pango.Context pango_context)
 	{
+	   	int carriedUnits = 0;
+	   	string extraLabel = "";
+	   	
+		/* Draw the map */ 
 	   	mapTerritory.draw(win, terr, textcolor);
-
+	   	
+	   	/* Show personnel carrier status */
+	   	foreach(TacticalUnit joe in units)
+	   		carriedUnits += joe.UnitsAboardCount;	   		
+	   	if (carriedUnits > 0)
+	   		extraLabel = "(" + carriedUnits + ")";
+	   		
+		/* Draw the first N units staggered, then use a label to show further #'s */
 	   	for (int offset=0; offset < units.Count && offset < 3; offset++)
 	   	{
 	   		((TacticalUnit)units[offset]).draw(win, offset*5);
 	   	}
-	   	if (units.Count > 1)
+	   	/* Label */
+	   	if (units.Count > 1 || carriedUnits > 0)
 	   	{
 	   		Gdk.GC textcoloring = new Gdk.GC(win);
 	   		textcoloring.RgbFgColor = textcolor;
@@ -133,7 +159,7 @@ class Territory
    	        Pango.Layout label = new Pango.Layout (pango_context);
 			label.Wrap = Pango.WrapMode.Word;
 			label.FontDescription = FontDescription.FromString ("Tahoma 8");
-			label.SetMarkup ( units.Count.ToString() );
+			label.SetMarkup ( units.Count.ToString() + extraLabel );
 			
 			int szX, szY;
 			label.GetPixelSize(out szX, out szY);

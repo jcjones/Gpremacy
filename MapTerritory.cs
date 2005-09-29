@@ -17,6 +17,10 @@ class MapTerritory
 	public int centerX, centerY;
 	int labelX, labelY;
 
+	public MapTerritory () 
+	{
+	}
+
 	public MapTerritory (String name, bool land_i, ArrayList borders_i, Pango.Context pango_context)
 	{
 		int count = borders_i.Count/2;

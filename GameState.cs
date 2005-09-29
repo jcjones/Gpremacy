@@ -92,6 +92,11 @@ class GameState {
 		get { return currentPlayer; }
 	}
 	
+	public State CurrentState
+	{
+		get { return currentState; }
+	}	
+	
 	public ArrayList CommandList
 	{
 		get { return commandList; }
