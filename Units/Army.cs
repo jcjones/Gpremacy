@@ -1,5 +1,6 @@
 // created on 08/28/2005 at 09:33
 using Gdk;
+using System.Collections;
 
 namespace Gpremacy {
 class Army : TacticalUnit {
@@ -22,6 +23,32 @@ class Army : TacticalUnit {
 	{
 		get { return "Army"; }
 	}
+	
+		
+	public override bool canMoveTo ( Territory dest )
+	{		
+		return true;
+	}
+
+	public override ArrayList calculateMovementCost(Territory b)
+	{
+		ArrayList r = new ArrayList();
+
+		/*@TODO: Do distance calculations between here CurrentLocation and b. */
+		int dist = Game.GetInstance().GUI.Map.distanceBetween(CurrentLocation, b);
+		System.Console.WriteLine("Distance: " + dist);
+		
+		if (dist < 2) {
+			/* If the distance is 1, we can march */
+			r.Add(new Stock(new Grain(), -1));
+		}
+
+		/* Can always airlift */
+		r.Add(new Stock(new Oil(), -2));
+				
+		return r;  		
+	}
+
 		
 }
 }

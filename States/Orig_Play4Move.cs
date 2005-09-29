@@ -37,24 +37,41 @@ class Orig_Play4Move : State {
 			
 			arrowOn = true;
 			previousTerritory = target;
-		} else if (previousTerritory != null) {
-			/* Picking target selection */
-			
+		} else if (previousTerritory != null && previousTerritory != target) {
+			/* Picking target selection */			
 			arrowOn = false;
-
+						
 			// Clone the list since otherwise modifying the presently used list is bad   					
-			ArrayList tmp = (ArrayList)previousTerritory.Units.Clone();   					
+			ArrayList tmp = (ArrayList)previousTerritory.Units.Clone();
 
 			if (target.IsLand == previousTerritory.IsLand)
 			{
+				ArrayList moveCost;								
+				
 				// move units from previousTerritory to target.
 				foreach (TacticalUnit unit in tmp)
 				{
 					// Print diagnostics
-					if (unit.Owner == Game.State.CurrentPlayer)
+					if (unit.Owner == Game.State.CurrentPlayer && unit.canMoveTo(target))
 					{
-						Orig_MoveUnit cmd = new Orig_MoveUnit(unit, target, previousTerritory);
-						Game.State.Execute(cmd);												   						
+						/* If the unit returns an ArrayList with 
+				 		* more than one element, let the user pick */
+						moveCost = unit.calculateMovementCost(target);						
+						
+						Orig_MoveUnit cmd = new Orig_MoveUnit(unit, target, previousTerritory, moveCost);												
+												
+						if (moveCost.Count > 1)
+						{							
+							/* Data packet for the GUI to use */
+							ArrayList t = new ArrayList();
+							t.Insert(0, moveCost);
+							t.Insert(1, cmd);
+							data=t;
+
+							Game.GUI.showMoveOptions(previousTerritory, target);
+						} else {
+							Game.State.Execute(cmd);
+						}												   						
 						break;
 					}
 				}
@@ -112,21 +129,26 @@ class Orig_Play4Move : State {
 class Orig_MoveUnit : Command {
 	TacticalUnit unit;
 	Territory next, previous;
+	public ArrayList moveCost; // allow GUI to set this value.
 
-	public Orig_MoveUnit(TacticalUnit aunit, Territory anext, Territory aprevious) {
+	public Orig_MoveUnit(TacticalUnit aunit, Territory anext, Territory aprevious, ArrayList acost) {
 		unit = aunit; next = anext; previous = aprevious;
+		moveCost = acost;
 		undoable = true;
 	}
 	
-	public override void Execute(Game game) {
-		unit.moveTo(next);
-		
+	public override void Execute(Game game) {		
 		/* Confirm we can move here ... don't bother for unexecute */
 		if (unit.canMoveTo(next)) 
 		{
 			previous.removeUnit(unit);
 			next.addUnit(unit);			
 			unit.moveTo(next);
+			
+			/* Charge Movement Cost */
+			foreach (Stock s in moveCost)
+				game.State.CurrentPlayer.changeResourceStockpile(s);
+				
 		}	
 		
 		game.GUI.redrawTerritory(next);
@@ -136,6 +158,8 @@ class Orig_MoveUnit : Command {
 		next.removeUnit(unit);
 		previous.addUnit(unit);			
 		unit.moveTo(previous);
+		
+		/* Refund Movement Cost */
 	
 		game.GUI.redrawTerritory(next);
 		game.GUI.redrawTerritory(previous);

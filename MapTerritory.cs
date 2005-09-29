@@ -16,6 +16,9 @@ class MapTerritory
 	Pango.Layout label;
 	public int centerX, centerY;
 	int labelX, labelY;
+	ArrayList connectedTerritories;
+	int[] connectionDistances;
+	int[] connectionWayPoints;
 
 	public MapTerritory () 
 	{
@@ -23,39 +26,34 @@ class MapTerritory
 
 	public MapTerritory (String name, bool land_i, ArrayList borders_i, Pango.Context pango_context)
 	{
-		int count = borders_i.Count/2;
 		isLand = land_i;
-		borders = new Point[count];
+		borders = new Point[borders_i.Count];
+		connectedTerritories = new ArrayList();
 		
 	   	int x1,y1,x2=-1,y2=-1; 
-	   	int j=0;
-	   	for (int i=0; j < count*2; i++) 
+		int totalX = 0, totalY = 0;
+	   	
+	   	for (int i=0; i < borders_i.Count; i++) 
 		{
-  			borders[i]=new Gdk.Point();
-  			borders[i].X=(Int16)borders_i[j++];
-  			borders[i].Y=(Int16)borders_i[j++];
-  			//System.Console.WriteLine(i + ":"+ count +  " - " + borders[i].X + "," + borders[i].Y);
-	   	}
+  			borders[i]=(Gdk.Point)borders_i[i];
+	   		totalX += borders[i].X;
+			totalY += borders[i].Y;
+  			//System.Console.WriteLine(i + ":"+ borders_i.Count +  " - " + borders[i].X + "," + borders[i].Y + "RT:("+totalX+","+totalY+")");
+		}
+		
+		/* Find the center of the border */		
+		centerX = (totalX / borders_i.Count);
+		centerY = (totalY / borders_i.Count);
+		//System.Console.WriteLine("Center of " + name + " is " + centerX+","+centerY);
+		
 	   	/* Make region */
 	   	region = Gdk.Region.Polygon(borders, FillRule.WindingRule);
 	   	
-	   	/* Make label */
-	   	
+	   	/* Make label */	   	
         label = new Pango.Layout (pango_context);
 		label.Wrap = Pango.WrapMode.Word;
 		label.FontDescription = FontDescription.FromString ("Tahoma 9");
-		label.SetMarkup (name);
-		
-		/* Find the center of the border for label & overall center */
-		int totalX = 0, totalY = 0;
-
-		foreach (Point pt in borders) 
-		{
-			totalX += pt.X;
-			totalY += pt.Y;
-		}
-		centerX = (totalX / count);
-		centerY = (totalY / count);
+		label.SetMarkup (name);		
 		
 		int szX, szY;
 		label.GetPixelSize(out szX, out szY);
@@ -140,6 +138,29 @@ class MapTerritory
 	{
 		get { return isLand; }
 	}
+	
+	public void addConnection(Territory a)
+	{
+		connectedTerritories.Add(a);
+	}
+	
+	public int[] ConnectionDistances
+	{ 
+		get { return connectionDistances; }
+		set { connectionDistances = value; }
+	}
+	
+	public int[] ConnectionWayPoints
+	{ 
+		get { return connectionWayPoints; }
+		set { connectionWayPoints = value; }
+	}	
+	
+	public ArrayList ConnectedTerritories
+	{
+		get { return connectedTerritories; }
+	}
+
 	
 }
 }

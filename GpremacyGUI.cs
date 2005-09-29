@@ -45,6 +45,11 @@ class GpremacyGUI {
 	[Glade.Widget] Gtk.HScrollbar GrainScroll;
 	[Glade.Widget] Gtk.Button MarketBuySellOkay;
 	
+	/* Move Ground Options */
+	[Glade.Widget] Gtk.Window MoveGroundOptions;
+	[Glade.Widget] Gtk.Label MoveGroundLabel;
+	[Glade.Widget] Gtk.Table MoveGroundTable;
+	
 	public GpremacyGUI(Game i)
 	{
 		game = i;
@@ -79,6 +84,11 @@ class GpremacyGUI {
 		Application.Run ();
 	}
 	
+	public GpremacyMap Map
+	{
+		get { return MapArea; }
+	}
+	
    public void OnMotion (object o, MotionNotifyEventArgs args)
    {
       	double x = args.Event.X;//+MapScrolledWindow2.Hadjustment.Value;
@@ -111,10 +121,11 @@ class GpremacyGUI {
 	   		System.Console.Write((args.Event.X-4) + "," + (args.Event.Y-4) + ",");
 	   */
 
-	   	/* Find territory */
+		/* Double-clicks are meaningless to Gpremacy */
 	   	if ((args.Event.Type == EventType.TwoButtonPress) || (args.Event.Type == EventType.ThreeButtonPress))
-	   		return;   	
-	   	
+	   		return;
+	   		   	
+	   	/* Find territory */	   	
 	   	Territory target = null;
       	double x = args.Event.X;//+MapScrolledWindow2.Hadjustment.Value;
    		double y = args.Event.Y;//+MapScrolledWindow2.Vadjustment.Value;
@@ -510,14 +521,67 @@ class GpremacyGUI {
 	}	
 	
 	/* Ground Movement Options */
+	public void showMoveOptions(Territory previous, Territory next)
+	{
+		ArrayList data = (ArrayList)game.State.CurrentState.Data;
+		ArrayList moveCost = (ArrayList)data[0];
+	
+		MoveGroundLabel.Text = "Moving from " + previous.Name + " to " + next.Name;
+		foreach(Widget wid in MoveGroundTable)
+			MoveGroundTable.Remove(wid);
+		
+		RadioButton btn = null;
+		uint row = 1;
+		foreach(Stock s in moveCost) 
+		{
+			String label = "Use " + (-1*s.Number) + " " + s.Good.Name;
+			if (btn == null) {
+				btn = new RadioButton(label);
+				data.Insert(2, btn); /* Initialize this value */
+			} else
+				btn = new RadioButton(btn, label);
+			btn.Toggled += on_MoveGroundRadio;
+			MoveGroundTable.Attach(btn, 0, 1, row, row+1);
+			row++;
+		}
+		
+		MoveGroundOptions.ShowAll();		
+	}
+
 	public void on_MoveAccept_clicked(System.Object obj, EventArgs e)
 	{
+		ArrayList data = (ArrayList)game.State.CurrentState.Data;
+		ArrayList moveCost = (ArrayList)data[0];
+		Orig_MoveUnit cmd = (Orig_MoveUnit)data[1];
+		Gtk.RadioButton sel = (Gtk.RadioButton)data[2];
+		
+		int i=0;
+		foreach(Gtk.Widget wid in MoveGroundTable) {
+			if (wid == sel)
+				break;
+			if (! (wid is Gtk.RadioButton) )
+				continue;
+			i++;
+		}
+		
+		/* i is the REVERSE number in the arraylist, since 
+		 * we read from the table in reverse order to how
+		 * we put things in, so we need to swap a bit */
+		cmd.moveCost = moveCost.GetRange((moveCost.Count-1-i),1);
+		game.State.Execute(cmd);
+		MoveGroundOptions.Hide();
+	}
+	public void on_MoveGroundRadio(System.Object obj, EventArgs e)
+	{
+		((ArrayList)game.State.CurrentState.Data).Insert(2, obj);
 	}
 	public void on_MoveCancel_clicked(System.Object obj, EventArgs e)
 	{
+		MoveGroundOptions.Hide();
 	}
 	public void on_MoveGroundOptions_delete_event(System.Object obj, EventArgs e)
 	{
+		MoveGroundOptions.Hide();
 	}	
 	
 	/* Strategic Target Selection Options */

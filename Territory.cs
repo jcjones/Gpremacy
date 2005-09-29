@@ -12,16 +12,17 @@ class Territory
 {
 	String name;
 	Player owner;
-	int id;
+	int id, originalOwner;
 	ArrayList units;
 	ArrayList resources;
 	bool destroyed;	
 	MapTerritory mapTerritory;
 	
-	public Territory(String name_i, int ID_i, Player lord, bool land_i, ArrayList borders_i, Pango.Context pango_context) 
+	public Territory(int ID_i, String name_i, int originalOwner_i, Player lord, bool land_i, ArrayList borders_i, Pango.Context pango_context) 
 	{
 		name = name_i;
 		id = ID_i;
+		originalOwner = originalOwner_i;
 		owner = lord;
 		if (borders_i != null)
 			mapTerritory = new MapTerritory(name_i, land_i, borders_i, pango_context);
@@ -66,7 +67,7 @@ class Territory
 	public string toString() 
 	{
 		string ret;
-		ret = "\nTerritory " + name + ", owned by " + owner.toString() + ".\n";
+		ret = "\nTerritory " + name + " [#"+ID+"], owned by " + owner.toString() + ".\n";
 		ret += "Unit List:\n";
 		foreach (Unit u in units)
 		{
@@ -94,6 +95,12 @@ class Territory
 		set { destroyed = value; }
 	}
 	
+	public int OriginalOwner
+	{
+		get { return originalOwner; }
+	}
+	
+	/* Unique ID for this territory, if it's on the map. Naval units have ID -1 */
 	public int ID
 	{
 		get { return id ; }

@@ -8,7 +8,7 @@ class Navy : TacticalUnit {
 
 	public Navy (Player lord, Territory home) : base (lord, home)
 	{
-		hold = new Territory("Ship hold", lord.CountryID, lord, false, null, null);
+		hold = new Territory(-1, "Ship hold", lord.CountryID, lord, false, null, null);
 	}	
 	override public void draw(Gdk.Window win, int offset)
 	{	
@@ -31,6 +31,11 @@ class Navy : TacticalUnit {
 		string ret;
 		ret = Name + " of " + owner.toString() + " with " + UnitsAboardCount + " units aboard.\n";
 		return ret;
+	}
+	
+	public override bool canMoveTo ( Territory dest )
+	{		
+		return (1 == Game.GetInstance().GUI.Map.distanceBetween(CurrentLocation, dest));
 	}
 	
 	public override bool CanHoldTroops
@@ -62,7 +67,14 @@ class Navy : TacticalUnit {
 	{
 		hold.removeUnit(joe);
 		return joe;
-	}	
+	}
+	
+	public override ArrayList calculateMovementCost(Territory b)
+	{
+		ArrayList r = new ArrayList(1);		
+		r.Add(new Stock(new Oil(), -1));
+		return r; 		
+	}
 	
 }
 }

@@ -31,7 +31,16 @@ class Game {
 	GpremacyMarket market;
 	GpremacyGUI mainGUI;
 	
-	public Game () {	
+	private static Game instance;
+	private static int numOfReference;	
+	
+	private Game()
+	{
+		numOfReference = 0;		
+	}
+	
+	public void init()
+	{
 		players = new ArrayList();		
 		setupPlayers();
 						
@@ -48,12 +57,28 @@ class Game {
 		market.initResource(new Grain(), 12); 
 		
 		mainGUI.init();		
-		
 	}
+	
+	public static Game GetInstance()
+	{
+		if(instance == null)
+		{
+			instance = new Game();
+		}
+		numOfReference++;
+		return instance;
+	}           
+
+	public static int Reference
+	{
+		get { return numOfReference; }
+	} 
+	
 	
 	public static void Main(string[] args)
 	{
-		Game gameObject = new Game();				
+		Game gameObject = Game.GetInstance();	
+		gameObject.init();			
 	}
 	
 	public Player PlayerNobody
@@ -102,6 +127,11 @@ class Game {
 		players.Add(new Player(4, "League of European Nations"));
 		players.Add(new Player(5, "Union of Soviet Sovereign Republics"));
 		players.Add(new Player(6, "People's Republic of China"));
+	}
+	
+	public void HaltGame(String a)
+	{
+		throw new Exception("Game halting because of " + a);
 	}
 	
 	public void DistributeResourceCards()
@@ -188,7 +218,8 @@ class Game {
 	      		input.Close();
 	      		
     	} catch ( System.IO.FileNotFoundException e ) {
-       		System.Console.WriteLine("Couldn't open resource_cards.csv.");        		       			
+       		System.Console.WriteLine("Couldn't open resource_cards.csv. Game halts.");
+       		HaltGame("Couldn't open resource_cards.csv. Game halts.");   		       			
     	}
 	}
 

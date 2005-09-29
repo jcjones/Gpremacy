@@ -77,70 +77,175 @@ class GpremacyMap : DrawingArea
         {
         	String line;
         	String name;
-        	bool land;
-        	int id, cur, next, i, n = 10;
-        	ArrayList points = new ArrayList();
         	Player owner;
+        	int ownerid, x, y, id = 0;
+        	ArrayList points = new ArrayList(); // of Gdk.Point
+        	ArrayList graphConnections = new ArrayList(); // of ArrayList of String.
+        	ArrayList subGraph; // of String
+        	bool isLand;
+        	Territory lastTerritory = null;
         	
         	try {
-        		
-	       		System.IO.StreamReader input = new System.IO.StreamReader(SupportFileLoader.locateGameFile("countries.csv"));
-	        	do {
-	        		n=n+30;
-	        		line = input.ReadLine();
-	        		if ((line == null) || (line.Length > 0 && line[0]=='#')) continue;
-	        		
-	        		// Format: Name, Owner#, [x, y]*
-	        		//System.Console.WriteLine("got [" + line + "] l=" + line.Length);
-	        		if (line.IndexOf(",") > 0) {
-	        			cur = 0; i=0;
-	        			next = line.IndexOf(",");
-	        			//System.Console.WriteLine("Now..." + cur);
-	        			name = line.Substring(cur, (next-cur));
-	        			
-        				cur = next+1;
-        				next = line.IndexOf(",", cur);
-        				id = Int16.Parse(line.Substring(cur, (next-cur)));
-        				
-        				cur = next+1;
-        				next = line.IndexOf(",", cur);
-        				land = Boolean.Parse(line.Substring(cur, (next-cur)));
-        				
-	        				        			
-	        			//System.Console.WriteLine("Name: " + name + "ID: " + id + "Land: " + land);
-	        			
-	        			while (next < line.Length ) {
-	        				cur = next+1;
-	        				next = line.IndexOf(",", cur);
-	        				if (next < 0) next = line.Length;
-	        				
-	        				points.Add(Int16.Parse(line.Substring(cur, (next-cur))));
-	        				i++;
-	        			}
-
-	        			if (id > 0 && id <= game.Players.Count)
-	        				owner = (Player)(game.Players[id-1]);
-	        			else
-	        				owner = game.PlayerNobody;
-	        				
-	        			//System.Console.WriteLine("id: " + id + " " + game.Players.Count + " " + owner.Name);
-	        				
-	        			Territories.Add(new Territory(name, id, owner, land, points, this.PangoContext));
-                        points.Clear();
-	        		}
-	        		        		
+	        	System.IO.StreamReader input = new System.IO.StreamReader(SupportFileLoader.locateGameFile("countries.csv"));
+		       	do {
+		       		line = input.ReadLine();
+	       			if ((line == null) || (line.Length > 0 && line[0]=='#')) continue;
+		       		
+	       			// Format: Name,   Owner#, [x, y]*
+	       			//         string  int      int,int
+	       			// Format: \t%ConnectingName, ConnectingName*
+					//		      string          string
+	       			if (line.IndexOf(",") <= 0)
+	       				continue;
+	       			if (line.IndexOf("%") <= 0) 
+					{
+	       				String[] parts;
+		       			parts = line.Split(',');
+	       				/*for (int i=0;i<parts.Length;i++) 
+	       					System.Console.Write("[" + parts[i] + "],");
+	       				System.Console.WriteLine(); */
+	       				
+		       			if (parts.Length > 2) 
+	       				{
+		       				// Extract data
+	       					name = parts[0].Trim('"');
+	       					ownerid = Int16.Parse(parts[1]);
+		        			if (ownerid > 0 && ownerid <= game.Players.Count)
+		        				owner = (Player)(game.Players[ownerid-1]);
+		        			else
+		        				owner = game.PlayerNobody;
+		        			isLand = Boolean.Parse(parts[2]);
+		        			// Get points
+		        			for (int i=3; i<parts.Length-1; i=i+2)
+		        			{
+		        				x = Int16.Parse(parts[i]); 
+		        				y = Int16.Parse(parts[i+1]); 
+		        				points.Add(new Gdk.Point(x,y));
+		        			} 
+							lastTerritory = new Territory(id++, name, ownerid, owner, isLand, points, this.PangoContext);
+							Territories.Add(lastTerritory);
+                        	points.Clear();
+	       				}
+	       			} else {
+	       				/* Read in Graph*/	       				
+	       				String[] parts;
+		       			parts = line.Substring(line.IndexOf("%")+1).Split(',');
+		       			subGraph = new ArrayList();
+		       			subGraph.Add(lastTerritory);
+		       			for (int i=0; i<parts.Length; i++)
+		       				subGraph.Add(parts[i]);
+		       			graphConnections.Add(subGraph);
+	       			}
 	       		} while (input.Peek() > -1);
 	       		input.Close();
 	       		
        		} catch ( System.IO.FileNotFoundException e ) {
-        		System.Console.WriteLine("Couldn't open countries.csv.");        		       			
+        		game.HaltGame("Couldn't open countries.csv. Game halts.");    		       			
        		}
+       		
+       		/* Take care of connection graphs */       		
+       		Territory home;
+       		String target;
+       		foreach (ArrayList graph in graphConnections) {
+       			home = (Territory)graph[0];
+       			
+       			for (int i=1; i<graph.Count; i++) {
+       				target=(String)graph[i];
+       				home.MapTerritory.addConnection(getTerritoryByName(target));
+       			}
+       		}
+        }
+        
+        public Territory getTerritoryByName(String name)
+        {
+        	foreach (Territory t in Territories)
+        		if (t.Name == name)
+        			return t;
+        	throw new Exception("Could not find the territory by name of " + name +". Check your countries.csv file; maybe you mispelled it?");
+        	return null;        	
         }
         
         public ArrayList getTerritories()
         {
         	return Territories;
         }
+
+        /* Graph Functions */
+        /* This is the Bellman-Ford All-Destinations Shortest Path Algorithm */
+       	public void shortestPaths(Territory startPoint, 
+       								out int[] connectionDistances, 
+							       	out int[] connectionWayPoints)
+		{
+			connectionDistances = new int[Territories.Count];
+			connectionWayPoints = new int[Territories.Count];
+			Territory current;
+			
+			/* Initialize Graph */
+			foreach(Territory t in Territories)
+			{
+				if (t == startPoint)
+					connectionDistances[t.ID] = 0;
+				else
+					connectionDistances[t.ID] = 600;
+				connectionWayPoints[t.ID] = -1;
+			}
+/*			System.Console.WriteLine("PRE- Distances From " + startPoint.Name + " -");
+			foreach(Territory edge in startPoint.MapTerritory.ConnectedTerritories)
+				if (edge.ID > 0)
+					System.Console.WriteLine("To " + edge.Name + " is " +  connectionDistances[edge.ID] +" through " + ((connectionWayPoints[edge.ID]>=0)?((Territory)Territories[connectionWayPoints[edge.ID]]).Name:"Nowhere"));
+*/							
+/*  
+   // Step 2: relax edges repeatedly
+   for i from 1 to size(vertices):       
+       for each edge uv in edges:
+           u := uv.source
+           v := uv.destination             // uv is the edge from u to v
+           if v.distance > u.distance + uv.weight
+               v.distance := u.distance + uv.weight
+               v.predecessor := u
+*/
+			for (int i=0; i<Territories.Count; i++)
+			{
+				//Console.WriteLine("Checking Terr " + ((Territory)Territories[i]).Name);
+				foreach(Territory edge in ((Territory)Territories[i]).MapTerritory.ConnectedTerritories)
+				{
+					//Console.WriteLine("  Checking Edge " + edge.Name);
+					if (connectionDistances[edge.ID] > connectionDistances[i]+1)
+					{
+						//Console.WriteLine("    Changing Edge " + edge.Name + " to come from " + ((Territory)Territories[i]).Name);
+						connectionDistances[edge.ID] = connectionDistances[i]+1;
+						connectionWayPoints[edge.ID] = i;
+						//Console.WriteLine("    UEDONE");
+					}
+					//Console.WriteLine("  EDONE");
+				}
+				//Console.WriteLine("TDONE");
+			}		
+			/* Every distance of a ConnectedTerritory must be 1, so uncomment this to error check */
+			/*
+			System.Console.WriteLine("- Distances From " + startPoint.Name + " -");
+			foreach(Territory edge in startPoint.MapTerritory.ConnectedTerritories)
+				if (edge.ID > 0)
+					System.Console.WriteLine("To " + edge.Name + " is " +  connectionDistances[edge.ID] +" through " + ((connectionWayPoints[edge.ID]>=0)?((Territory)Territories[connectionWayPoints[edge.ID]]).Name:"Nowhere"));			
+			*/
+		}
+		
+		public void updatePathsFrom(Territory A)
+		{
+			int[] dist, way;
+			shortestPaths(A, out dist, out way);
+			A.MapTerritory.ConnectionDistances = dist; 
+			A.MapTerritory.ConnectionWayPoints = way;
+		}		
+
+        public int distanceBetween(Territory a, Territory b)
+        {
+        	if (a.MapTerritory.ConnectionDistances == null)
+				updatePathsFrom(a);
+        	return a.MapTerritory.ConnectionDistances[b.ID];
+        }
+        
+        /* Pretty Stuff */
         
         public void drawArrow(Point a, Point b)
         {

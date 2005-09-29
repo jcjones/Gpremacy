@@ -161,7 +161,6 @@ class GameState {
 	
 	public void mouseClick(Territory target, uint Button)
 	{
-
 		currentState.mouseClick(target, Button);
    							
    		if (Button == 3)
@@ -170,7 +169,7 @@ class GameState {
 						"Clicked " + target.toString() + "\n" +						
 						"=============================");
 		}			
-		
+
 	}
 
 	public void Execute(Command cmd)

@@ -11,7 +11,7 @@ class TacticalUnit : Unit {
 		System.Console.WriteLine("New unit created in " + CurrentLocation.toString());
 	}	
 	
-	public bool canMoveTo ( Territory dest )
+	public virtual bool canMoveTo ( Territory dest )
 	{		
 		return true;
 	}
@@ -40,6 +40,11 @@ class TacticalUnit : Unit {
 	public override string Name
 	{
 		get { return "Generic Tactical Unit"; }
+	}
+	
+	public virtual ArrayList calculateMovementCost(Territory b)
+	{
+		return new ArrayList();
 	}
 	
 	public override int Upkeep
