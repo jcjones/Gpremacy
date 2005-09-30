@@ -95,6 +95,10 @@ class Orig_Play4Move : State {
 					} 
 					/* No ships! */
 					return false;
+				}
+				/* Confirm that they're adjacent */
+				if (Game.GUI.Map.distanceBetween(land, sea) > 1) {
+					return false;
 				}				
 				
 				ArrayList b = new ArrayList();				 
@@ -141,14 +145,21 @@ class Orig_MoveUnit : Command {
 		/* Confirm we can move here ... don't bother for unexecute */
 		if (unit.canMoveTo(next)) 
 		{
-			previous.removeUnit(unit);
-			next.addUnit(unit);			
-			unit.moveTo(next);
-			
 			/* Charge Movement Cost */
 			foreach (Stock s in moveCost)
+			{
+				/* If charging multiple stocks, this will possibly subtract part of a cost set */
+				if (game.State.CurrentPlayer.getStockpileAmount(s.Good) < -1*s.Number)
+				{
+					game.GUI.ShowError("Not enough " + s.Good.Name);
+					return;
+				}
 				game.State.CurrentPlayer.changeResourceStockpile(s);
-				
+			}
+
+			previous.removeUnit(unit);
+			next.addUnit(unit);			
+			unit.moveTo(next);							
 		}	
 		
 		game.GUI.redrawTerritory(next);
@@ -160,7 +171,12 @@ class Orig_MoveUnit : Command {
 		unit.moveTo(previous);
 		
 		/* Refund Movement Cost */
-	
+		foreach (Stock s in moveCost)
+		{
+			Stock a = new Stock(s.Good, -1*s.Number);
+			game.State.CurrentPlayer.changeResourceStockpile(a);
+		}
+			
 		game.GUI.redrawTerritory(next);
 		game.GUI.redrawTerritory(previous);
 	}

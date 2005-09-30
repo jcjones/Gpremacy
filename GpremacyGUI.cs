@@ -30,6 +30,7 @@ class GpremacyGUI {
 	[Glade.Widget] Gtk.Label LoadNavalOptionsCounter;
 	[Glade.Widget] Gtk.Label LoadNavalOptionsTitle;
 	[Glade.Widget] Gtk.Table LoadNavalOptionsTable;
+	[Glade.Widget] Gtk.Button NavalOkay;
 		
 	/* Buy/Sell Options */
 	[Glade.Widget] Gtk.Window MarketBuySell;
@@ -446,8 +447,17 @@ class GpremacyGUI {
 		}
 		resultOnShore = (unitsOnLand + sumOfUnitsAboard) - sumOfSpinBoxes;
 		System.Console.WriteLine("resOnShore:"+resultOnShore+" unOnLand:"+unitsOnLand+" sumAboard:"+sumOfUnitsAboard+" sumSpin:"+sumOfSpinBoxes);
+
+		foreach (Gtk.Widget wid in LoadNavalOptionsTable)
+			if (wid is Gtk.SpinButton)
+				if (resultOnShore < 1)
+					((Gtk.SpinButton)wid).SetRange(0.0, ((Gtk.SpinButton)wid).Value);
+				else
+					((Gtk.SpinButton)wid).SetRange(0.0, 4.0);
 		
 		LoadNavalOptionsCounter.Text = "Friendlies on shore: " + resultOnShore;
+		
+		NavalOkay.Sensitive = (resultOnShore >= 0);
 	}	
 	public void on_NavalOkay_clicked(System.Object obj, EventArgs e)
 	{
