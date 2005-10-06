@@ -30,7 +30,11 @@ class Resource {
 	virtual public string Name
 	{		
 		get { return "Unknown"; }
-	}	
+	}
+	
+	override public int GetHashCode() {
+		return Name.GetHashCode();
+	}
 	
 }
 }

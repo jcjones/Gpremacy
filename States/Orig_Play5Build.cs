@@ -1,9 +1,12 @@
+using System.Collections;
+
 namespace Gpremacy {
 class Orig_Play5Build : State {
-	int numberOfArmies;
+	ArrayList unitsToBuild;
+	
 	public Orig_Play5Build (Game game_i) : base(game_i,5,6)
 	{
-		numberOfArmies = 3;
+		unitsToBuild = new ArrayList();
 	}
 	
 	public override string Name()
@@ -14,68 +17,102 @@ class Orig_Play5Build : State {
 	public override bool mouseClick(Territory target, uint Button)
 	{
 		Unit nu;
+		Player me = Game.GetInstance().State.CurrentPlayer;
+		
 		if (target.MapTerritory.isLand)
-			nu = new Army(Game.State.CurrentPlayer, target);
+			nu = new Army(me, target);
 		else
-			nu = new Navy(Game.State.CurrentPlayer, target);
+			nu = new Navy(me, target);
+		
+		/* Can't use Contains since hash values are different ... search stupidly */
+		foreach(Unit u in unitsToBuild)
+		{
+			if (u.Name == nu.Name)
+			{
+				unitsToBuild.Remove(u);				
+				Game.GetInstance().GUI.writeToLog("Building " + nu.Name);
+				Orig_BuildUnit cmd = new Orig_BuildUnit(nu, target, me);
+				Game.GetInstance().State.Execute(cmd);
+				break; // must break, because another iteration will fault
+			}			
+		}
 	
-		if (numberOfArmies > 2) {
-			numberOfArmies = 0;
-			Orig_PurchaseUnit ucmd = new Orig_PurchaseUnit(nu);
-			Game.State.Execute(ucmd);
+		displayUnitsLeftToBuild();
+		return true;
+	}
+	
+	public void displayUnitsLeftToBuild() {
+		if (unitsToBuild.Count < 1) return;
+		
+		Dictionary dict = new Dictionary();
+		foreach(Unit u in unitsToBuild) {
+			dict.IncValue(u);
 		}
 		
-		numberOfArmies++;
-		Game.GUI.writeToLog("You can build " + (3-numberOfArmies) + " more units for this price.");
+		Game.GetInstance().GUI.writeToResourcesTextBox(dict.toString());
+	}
 	
-		Orig_BuildUnit cmd = new Orig_BuildUnit(nu, target);
-		Game.State.Execute(cmd);	
-		
-		return true;
+	public override void beginPlayer(Player p) {
+		Game.GUI.showUnitBuy();
+		displayUnitsLeftToBuild();
 	}
 	
 	public override bool mouseMotion(double x, double y, Territory curTerr, uint Button)
 	{
+		displayUnitsLeftToBuild();
 		return false;
+	}
+	
+	public ArrayList UnitsToBuild
+	{
+		get { return unitsToBuild; }
+		set { unitsToBuild = value; }
 	}
 
 }
 class Orig_PurchaseUnit : Command {
 	Unit unit;
-	public Orig_PurchaseUnit(Unit nu)
+	Player curPlay;
+	public Orig_PurchaseUnit(Unit nu, Player p)
 	{
-		unit = nu;
+		unit = nu; curPlay = p;
 	}
 	public override void Execute(Game game)
 	{
-		game.State.CurrentPlayer.changeResourceStockpile(new Minerals(),-1);
-		game.State.CurrentPlayer.changeResourceStockpile(new Grain(),-1);
-		game.State.CurrentPlayer.changeResourceStockpile(new Oil(),-1);
-		game.State.CurrentPlayer.Money -= 300;
+		foreach(Stock s in unit.CostResources)
+		{
+			curPlay.changeResourceStockpile(s);
+		}
+		curPlay.Money -= unit.CostMoney;
 	}
 }
 
 class Orig_BuildUnit : Command {
 	Unit unit;
 	Territory target;
+	Player curPlay;
 
-	public Orig_BuildUnit(Unit aunit, Territory atarget) 
+	public Orig_BuildUnit(Unit aunit, Territory atarget, Player p) 
 	{
-		unit = aunit; target = atarget;
+		unit = aunit; target = atarget; curPlay = p;
 		undoable = true;
 	}
 	
 	public override void Execute(Game game) 
 	{
-		target.addUnit(unit);   			
-		game.State.CurrentPlayer.ActiveUnits.Add(unit);
-		game.GUI.redrawTerritory(target);
+		if (target != null) {
+			target.addUnit(unit);   			
+			game.GUI.redrawTerritory(target);
+		}
+		curPlay.ActiveUnits.Add(unit);
 	}
 	public override void Unexecute(Game game) 
 	{
-		target.removeUnit(unit);   			
-		game.State.CurrentPlayer.ActiveUnits.Remove(unit);
-		game.GUI.redrawTerritory(target);
+		if (target != null) {
+			target.removeUnit(unit);   			
+			game.GUI.redrawTerritory(target);
+		}
+		curPlay.ActiveUnits.Remove(unit);
 	}
 }
 }

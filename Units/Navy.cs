@@ -26,6 +26,27 @@ class Navy : TacticalUnit {
 		get { return "Navy"; }
 	}
 	
+	public override int CostMoney
+	{
+		get { return 300; }
+	}
+	
+	public override ArrayList CostResources
+	{
+		get { 
+			ArrayList r = new ArrayList(); 
+			r.Add(new Stock(new Minerals(), -1));
+			r.Add(new Stock(new Oil(), -1));
+			r.Add(new Stock(new Grain(), -1));
+			return r;
+		}
+	}
+	
+	public override string Costs
+	{
+		get { return "per 3: $300M and a set of supplies"; }
+	}		
+	
 	public override string toString()
 	{
 		string ret;

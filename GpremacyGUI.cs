@@ -32,7 +32,7 @@ class GpremacyGUI {
 	[Glade.Widget] Gtk.Table LoadNavalOptionsTable;
 	[Glade.Widget] Gtk.Button NavalOkay;
 		
-	/* Buy/Sell Options */
+	/* Buy/Sell Resources Options */
 	[Glade.Widget] Gtk.Window MarketBuySell;
 	[Glade.Widget] Gtk.Label MineralsStock;
 	[Glade.Widget] Gtk.Label MineralsCost;
@@ -50,6 +50,18 @@ class GpremacyGUI {
 	[Glade.Widget] Gtk.Window MoveGroundOptions;
 	[Glade.Widget] Gtk.Label MoveGroundLabel;
 	[Glade.Widget] Gtk.Table MoveGroundTable;
+	
+	/* Build Forces and/or Weapons */
+	[Glade.Widget] Gtk.Window UnitBuy;
+	[Glade.Widget] Gtk.Table UnitBuyTable;
+	[Glade.Widget] Gtk.Label UnitBuyCost;
+	
+	/* Deck Dealer (Research / Prospecting) */
+	[Glade.Widget] Gtk.Window DeckDealer;
+	[Glade.Widget] Gtk.Label DeckDealerLegend;
+	[Glade.Widget] Gtk.Label DeckDealerStatus;
+	[Glade.Widget] Gtk.DrawingArea DeckDealerDrawLeft;
+	[Glade.Widget] Gtk.DrawingArea DeckDealerDrawRight;
 	
 	public GpremacyGUI(Game i)
 	{
@@ -594,6 +606,248 @@ class GpremacyGUI {
 		MoveGroundOptions.Hide();
 	}	
 	
+	/* Build Forces And/Or Weapons Options */
+	
+	public void showUnitBuy (){
+	/*[Glade.Widget] Gtk.Window UnitBuy;
+	[Glade.Widget] Gtk.Table UnitBuyTable;*/
+		foreach(Widget wid in UnitBuyTable)
+			UnitBuyTable.Remove(wid);
+
+		uint row = 0;
+		foreach(Unit u in Game.GetInstance().AllUnits) {
+			Gtk.Label lbl = new Gtk.Label(u.Name);
+			Gtk.Label cost = new Gtk.Label(u.Costs);
+			UnitBuyTable.Attach(lbl, 0, 1, row, row+1);
+			UnitBuyTable.Attach(cost, 1, 2, row, row+1);
+			
+			if (Game.GetInstance().State.CurrentPlayer.canBuild(u)) {
+				Gtk.SpinButton spin = new Gtk.SpinButton(0.0, 100.0, 1.0);
+				spin.ValueChanged += displayUnitBuyCost;
+				UnitBuyTable.Attach(spin, 2, 3, row, row+1);
+			} else {
+				Gtk.Button btn = new Gtk.Button();
+				btn.Label = "Research";
+				btn.Clicked += on_UnitBuy_research_click;
+				UnitBuyTable.Attach(btn, 2, 3, row, row+1);
+			}			
+			
+			row++;
+		}
+		
+		displayUnitBuyCost(null, null);
+		UnitBuy.ShowAll();
+	}
+	
+	public void displayUnitBuyCost(System.Object obj, EventArgs e)
+	{
+		ArrayList purchasedUnits; // of Unit
+		Dictionary bill;
+		int costMoney;
+
+		UnitBuyCost.Text = calculateUnitBuyCost(out costMoney, out bill, out purchasedUnits);
+	}
+	
+	public string calculateUnitBuyCost(out int costMoney, out Dictionary bill, out ArrayList purchasedUnits)
+	{
+		string str = "";		
+
+		purchasedUnits = new ArrayList(); // of Unit
+		bill = new Dictionary();
+		costMoney = 0;
+		
+		int i = 0;
+		
+		int numTripleTacticalUnits = 0; // The number of Armies and Navies bought
+		foreach(Widget wid in UnitBuyTable)
+		{
+			
+			if (! (wid is Gtk.SpinButton) && ! (wid is Gtk.Button) )
+				continue;
+			/* Take into account things which are "Research" */
+			if (wid is Gtk.Button) 
+			{
+				i++; continue;
+			}
+			
+			int index = Game.GetInstance().AllUnits.Count-1-i;
+			if (index < 0 || index > Game.GetInstance().AllUnits.Count) 
+			{
+				throw (new Exception("calculateUnitBuyCost widget index is nuts: " + index));
+			}
+			
+			Unit curUnit = (Unit)Game.GetInstance().AllUnits[index];
+			int amt = (int)((Gtk.SpinButton)wid).Value;
+			//System.Console.WriteLine("Sel " + curUnit.Name + " of " + amt);
+			 
+			for(int j=0; j<amt; j++)
+				purchasedUnits.Add(curUnit);
+
+			if (curUnit.CostMultiplicity == 3)
+			{
+				numTripleTacticalUnits += amt;
+			} else {			
+				foreach (Stock r in curUnit.CostResources) {
+					bill.IncValue(r.Good.Name, amt*r.Number);
+				}
+				costMoney += curUnit.CostMoney*amt;
+			}
+			i++;			
+		}
+		int tripleAmt = (int)Math.Ceiling((double)numTripleTacticalUnits/3);
+		System.Console.WriteLine("TripleAmt: " + tripleAmt + " NumTriple:" + numTripleTacticalUnits);
+		costMoney += tripleAmt*300;
+		bill.IncValue(new Oil(), -1*tripleAmt);
+		bill.IncValue(new Minerals(), -1*tripleAmt);
+		bill.IncValue(new Grain(), -1*tripleAmt);
+		
+		str += "Costs: $" + costMoney.ToString() + "M,";
+		foreach(DictionaryEntry d in bill.Data) 
+		{
+			if ((Int32)d.Value < 0)
+				str += " " + (-1*(Int32)d.Value) + " " + ((Resource)d.Key).Name + ","; 
+		}
+		
+		string warning = "";
+		if (tripleAmt*3 > numTripleTacticalUnits)
+		{
+			warning = ".\nYou can buy more Armies and Navies for the same cost!";
+		}
+		
+		return str.TrimEnd(new char[] {' ', ','})+warning;
+	}
+
+	public void on_UnitBuy_research_click(System.Object obj, EventArgs e)
+	{
+		Console.WriteLine("Researching " + ((Gtk.Button)obj).Label);
+		showDeckDealer();
+	}
+	public void on_UnitBuy_delete_event(System.Object obj, EventArgs e)
+	{
+		UnitBuy.Hide();
+	}	
+	public void  on_UnitBuyOkay_clicked (System.Object obj, EventArgs e)
+	{
+		ArrayList purchasedUnits; // of Unit
+		Dictionary bill;
+		int costMoney;
+		Player me = Game.GetInstance().State.CurrentPlayer;
+
+		/* Build bill */
+		calculateUnitBuyCost(out costMoney, out bill, out purchasedUnits);
+		
+		/* Check funds */
+		foreach (DictionaryEntry d in bill.Data) 
+		{
+			if (me.getStockpileAmount((Resource)d.Key) < (Int32)d.Value)
+				 {
+				 	writeToLog("You do not have enough " + ((Resource)d.Key).Name +".");
+				 	return;
+				 }
+		}
+		if (me.Money < costMoney)
+		{
+		 	writeToLog("You do not have enough money.");
+		 	return;
+		}
+
+		/* Purchase units */
+		int MultiplicityCounter = 0;
+		foreach (Unit u in purchasedUnits)
+		{
+			if (u.CostMultiplicity == 3)
+			{
+				MultiplicityCounter++;
+				if (1 != MultiplicityCounter%3)
+					continue;
+			}	
+			Orig_PurchaseUnit cmd = new Orig_PurchaseUnit(u, me);
+			Game.GetInstance().State.Execute(cmd);
+		}
+		
+		/* Build Strategic Units */
+		ArrayList delayedUnits = new ArrayList();
+		foreach (Unit u in purchasedUnits) {
+			if (u is TacticalUnit)
+			{
+				delayedUnits.Add(u);
+				continue;
+			} else if (u is StrategicUnit) {
+				Orig_BuildUnit cmd2 = new Orig_BuildUnit(u, null, me);
+				Game.GetInstance().State.Execute(cmd2);
+			}							
+		}
+		
+		/* Queue the rest of the order and hide the window */
+		((Orig_Play5Build)Game.GetInstance().State.CurrentState).UnitsToBuild.AddRange(delayedUnits);
+		
+		UnitBuy.Hide();
+	}
+	
+	/* Deck Dealer */
+	/*[Glade.Widget] Gtk.Window DeckDealer;
+	[Glade.Widget] Gtk.Label DeckDealerLegend;
+	[Glade.Widget] Gtk.Label DeckDealerStatus;
+	[Glade.Widget] Gtk.DrawingArea DeckDealerDrawLeft;
+	[Glade.Widget] Gtk.DrawingArea DeckDealerDrawRight;*/
+	
+	public void showDeckDealer()
+	{	
+		/* This window is modal */
+		
+		DeckDealer.Modal = true;
+		DeckDealer.TransientFor = MainWindow;
+		DeckDealer.SetSizeRequest(500,300);
+		DeckDealerLegend.Text = "No Legend";
+		DeckDealerStatus.Text = "No Status";
+		
+		if (DeckDealer == null)
+		{
+			System.Console.WriteLine("NULLNESS");
+		}
+		
+		/*Gdk.GC cards = DeckDealer.Style.BlackGC;
+		Gdk.GC text = DeckDealer.Style.BlackGC;
+		*/
+				
+		DeckDealer.ExposeEvent += on_DeckDealer_exposed;
+		
+		DeckDealer.ShowAll();
+		
+	}
+	public void on_DeckDealer_exposed (object o, ExposeEventArgs args)
+	{
+		Gdk.GC text = new Gdk.GC(DeckDealerDrawLeft.GdkWindow);
+		Gdk.GC cards = new Gdk.GC(DeckDealerDrawLeft.GdkWindow);
+		
+		text.Foreground = new Gdk.Color(0,0,0);
+		text.Background = new Gdk.Color(225,25,225);
+				
+		cards.Foreground = new Gdk.Color(255,255,255);
+		cards.Background = new Gdk.Color(25,25,255);
+	
+		System.Console.WriteLine("Exposed DeckDealer");
+		drawCardFace(DeckDealerDrawLeft.GdkWindow, cards, "");
+		drawCardFace(DeckDealerDrawRight.GdkWindow, text, "Testing!!!\nMeee");							
+	}
+	public void drawCardFace(Gdk.Window win, Gdk.GC gc, string text)	
+	{
+		int top = 10, bottom = 100, left = 10, right = 200, corner = 5;
+		win.DrawLine(gc, top+corner, left+corner, top+corner, right-corner);
+		win.DrawLine(gc, bottom-corner, left+corner, bottom-corner, right+corner);
+		win.DrawLine(gc, top+corner, left+corner, bottom-corner, left+corner);
+		win.DrawLine(gc, top+corner, right-corner, bottom-corner, right-corner);
+		win.DrawArc(gc, true, top, left, corner, corner, 90 * 64, 180 * 64);
+	}	
+	public void on_DeckDealerOkay_clicked(System.Object obj, EventArgs e)
+	{
+		DeckDealer.Hide();
+	}
+	public void on_DeckDealer_delete_event(System.Object obj, EventArgs e)
+	{
+		DeckDealer.Hide();
+	}
+	
 	/* Strategic Target Selection Options */
 	public void on_StrategicTargetSelection_delete_event(System.Object obj, EventArgs e)
 	{
@@ -627,4 +881,5 @@ class GpremacyGUI {
 			
 }
 }
+
 

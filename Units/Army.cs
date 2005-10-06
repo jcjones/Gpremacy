@@ -24,10 +24,30 @@ class Army : TacticalUnit {
 		get { return "Army"; }
 	}
 	
+	public override int CostMoney
+	{
+		get { return 300; }
+	}
+	
+	public override ArrayList CostResources
+	{
+		get { 
+			ArrayList r = new ArrayList(); 
+			r.Add(new Stock(new Minerals(), -1));
+			r.Add(new Stock(new Oil(), -1));
+			r.Add(new Stock(new Grain(), -1));
+			return r;
+		}
+	}
+	
+	public override string Costs
+	{
+		get { return "per 3: $300M and a set of supplies"; }
+	}				
 		
 	public override bool canMoveTo ( Territory dest )
 	{		
-		return true;
+		return (dest.Owner == owner || dest.Units.Count < 1); 
 	}
 
 	public override ArrayList calculateMovementCost(Territory b)

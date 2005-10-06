@@ -26,7 +26,9 @@ class Game {
 	ArrayList players; // of Player
 	ArrayList cards; // of ResourceCard
 	ArrayList allcards; // of ResourceCard
+	ArrayList allunits; // of Unit
 	Player playerNobody;
+	Territory placeNowhere;
 	GameState state;
 	GpremacyMarket market;
 	GpremacyGUI mainGUI;
@@ -41,20 +43,30 @@ class Game {
 	
 	public void init()
 	{
-		players = new ArrayList();		
-		setupPlayers();
-						
 		cards = new ArrayList();
 		allcards = new ArrayList();
-		
-		market = new GpremacyMarket();		
-		state = new GameState(this);
-		mainGUI = new GpremacyGUI(this);
-						
+		allunits = new ArrayList();
+
 		playerNobody = new Player(-1, "Nobody");
+		placeNowhere = new Territory(-1, "Nowhere", playerNobody.CountryID, playerNobody, false, null, null);
+
+		allunits.Add(new Army(playerNobody, placeNowhere));
+		allunits.Add(new Navy(playerNobody, placeNowhere));
+		allunits.Add(new Nuke(playerNobody)); 
+		allunits.Add(new LSat(playerNobody));
+
+		players = new ArrayList();		
+		setupPlayers();
+				
+		market = new GpremacyMarket();
+				
 		market.initResource(new Oil(), 12);
 		market.initResource(new Minerals(), 12);
-		market.initResource(new Grain(), 12); 
+		market.initResource(new Grain(), 12);
+		
+		state = new GameState(this);
+
+		mainGUI = new GpremacyGUI(this);
 		
 		mainGUI.init();		
 	}
@@ -85,6 +97,10 @@ class Game {
 	{
 		get { return playerNobody; }
 	}
+	public Territory PlaceNowhere
+	{
+		get { return placeNowhere; }
+	}	
 
 	public ArrayList Players
 	{
@@ -117,6 +133,11 @@ class Game {
 	{
 		get { return cards; }
 	//	set { cards = value; }
+	}
+	
+	public ArrayList AllUnits
+	{
+		get { return allunits; }
 	}
 	
 	void setupPlayers()

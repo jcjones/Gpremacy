@@ -8,7 +8,6 @@ class TacticalUnit : Unit {
 	public TacticalUnit (Player lord, Territory home) : base(lord)
 	{
 		CurrentLocation = home;
-		System.Console.WriteLine("New unit created in " + CurrentLocation.toString());
 	}	
 	
 	public virtual bool canMoveTo ( Territory dest )
@@ -42,6 +41,11 @@ class TacticalUnit : Unit {
 		get { return "Generic Tactical Unit"; }
 	}
 	
+	public override int CostMultiplicity
+	{
+		get { return 3; }
+	}
+		
 	public virtual ArrayList calculateMovementCost(Territory b)
 	{
 		return new ArrayList();

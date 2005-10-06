@@ -20,6 +20,12 @@ class Stock {
 		get { return number; }
 		set { number = value; }
 	}
-
+	
+ 	public static Stock operator *(Stock c, int n)
+ 	{
+	  	Stock temp = new Stock(c.Good, c.Number*n);
+  		return temp;
+ 	}
+ 	
 }
 }

@@ -23,8 +23,13 @@ class Player {
 		resourceCards = new ArrayList(); // of ResourceCard
 		
 		stockpile.Add(new Stock(new Minerals(), 6));
-		stockpile.Add(new Stock(new Oil(), 6));
 		stockpile.Add(new Stock(new Grain(), 6));
+		stockpile.Add(new Stock(new Oil(), 6));
+		
+		availableUnits.Add(new Army(this, Game.GetInstance().PlaceNowhere));
+		availableUnits.Add(new Navy(this, Game.GetInstance().PlaceNowhere));
+		//availableUnits.Add(new Nuke(this));
+		//availableUnits.Add(new LSat(this));
 	}
 	
 	public string toString ()
@@ -183,6 +188,14 @@ class Player {
 	public int changeResourceStockpile(Resource good, int val)
 	{
 		return changeResourceStockpile(new Stock(good, val));
+	}
+	
+	public bool canBuild(Unit u) {
+		foreach (Unit a in availableUnits) {
+			if (u.Name == a.Name)
+				return true;
+		}
+		return false;
 	}
 	
 }

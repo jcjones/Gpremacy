@@ -60,6 +60,8 @@ class Dictionary {
 	public int IncValue(object key)
 	{
 		// Support Routine for Player.cs -- assumes object "Value" to be Int32.
+		if (!Exists(key))
+			Add(key, 0);
 		int val = (Int32)(GetValue(key)) + 1 ;		
 		UpdateValue(key, val);
 		return val;
@@ -67,6 +69,8 @@ class Dictionary {
 	public int IncValue(object key, int inc)
 	{
 		// Support Routine for Player.cs -- assumes object "Value" to be Int32.
+		if (!Exists(key))
+			Add(key, 0);
 		int val = (Int32)(GetValue(key)) + inc ;		
 		UpdateValue(key, val);
 		return val;
