@@ -11,6 +11,7 @@ class GpremacyGUI {
 	GpremacyMap MapArea;
 	Game game;
 	Gdk.Region invalRegion;
+	DeckDealer deckDealer;
 
 	/* Main Window*/
 	[Glade.Widget] Gtk.Viewport MapViewport;
@@ -56,12 +57,6 @@ class GpremacyGUI {
 	[Glade.Widget] Gtk.Table UnitBuyTable;
 	[Glade.Widget] Gtk.Label UnitBuyCost;
 	
-	/* Deck Dealer (Research / Prospecting) */
-	[Glade.Widget] Gtk.Window DeckDealer;
-	[Glade.Widget] Gtk.Label DeckDealerLegend;
-	[Glade.Widget] Gtk.Label DeckDealerStatus;
-	[Glade.Widget] Gtk.DrawingArea DeckDealerDrawLeft;
-	[Glade.Widget] Gtk.DrawingArea DeckDealerDrawRight;
 	
 	public GpremacyGUI(Game i)
 	{
@@ -72,6 +67,8 @@ class GpremacyGUI {
 	public void init() 
 	{
 		Application.Init ();
+		
+		// Initialize map
 		MapArea = new GpremacyMap(game);
 		System.Console.WriteLine("Got Maparea:" + MapArea + ".");		
 				
@@ -92,8 +89,10 @@ class GpremacyGUI {
 		MapArea.ButtonPressEvent += OnButtonPress;
 		MapArea.MotionNotifyEvent += OnMotion;		
 
-		updateGUIStatusBoxes();				
-												
+		// Init sub-widgets and windows
+		updateGUIStatusBoxes();			
+		deckDealer = DeckDealer.GetInstance();	
+									
 		Application.Run ();
 	}
 	
@@ -627,7 +626,7 @@ class GpremacyGUI {
 				UnitBuyTable.Attach(spin, 2, 3, row, row+1);
 			} else {
 				Gtk.Button btn = new Gtk.Button();
-				btn.Label = "Research";
+				btn.Label = "Research " + u.Name;
 				btn.Clicked += on_UnitBuy_research_click;
 				UnitBuyTable.Attach(btn, 2, 3, row, row+1);
 			}			
@@ -719,8 +718,10 @@ class GpremacyGUI {
 
 	public void on_UnitBuy_research_click(System.Object obj, EventArgs e)
 	{
-		Console.WriteLine("Researching " + ((Gtk.Button)obj).Label);
-		showDeckDealer();
+		string str = ((Gtk.Button)obj).Label;
+		str = str.Substring(str.IndexOf(" ")+1);		
+		Console.WriteLine("Researching " + str);
+		showDeckDealer(str);
 	}
 	public void on_UnitBuy_delete_event(System.Object obj, EventArgs e)
 	{
@@ -785,69 +786,29 @@ class GpremacyGUI {
 	}
 	
 	/* Deck Dealer */
-	/*[Glade.Widget] Gtk.Window DeckDealer;
-	[Glade.Widget] Gtk.Label DeckDealerLegend;
-	[Glade.Widget] Gtk.Label DeckDealerStatus;
-	[Glade.Widget] Gtk.DrawingArea DeckDealerDrawLeft;
-	[Glade.Widget] Gtk.DrawingArea DeckDealerDrawRight;*/
-	
-	public void showDeckDealer()
-	{	
-		/* This window is modal */
-		
-		DeckDealer.Modal = true;
-		DeckDealer.TransientFor = MainWindow;
-		DeckDealer.SetSizeRequest(500,300);
-		DeckDealerLegend.Text = "No Legend";
-		DeckDealerStatus.Text = "No Status";
-		
-		if (DeckDealer == null)
+	public void showDeckDealer(string searchString)
+	{		
+		foreach(Unit u in Game.GetInstance().AllUnits)
 		{
-			System.Console.WriteLine("NULLNESS");
+			if (searchString.CompareTo(u.Name) == 0)
+			{
+				deckDealer.TargetUnit = u;
+				deckDealer.show();
+				return;
+			}				
 		}
-		
-		/*Gdk.GC cards = DeckDealer.Style.BlackGC;
-		Gdk.GC text = DeckDealer.Style.BlackGC;
-		*/
-				
-		DeckDealer.ExposeEvent += on_DeckDealer_exposed;
-		
-		DeckDealer.ShowAll();
-		
+		foreach(Resource r in Game.GetInstance().AllResources)
+		{
+			if (searchString.CompareTo(r.Name) == 0)
+			{
+				deckDealer.TargetResource = r;
+				deckDealer.show();
+				return;
+			}				
+		}
+		writeToLog("ERROR: Attempting to Research/Prospect for ["+searchString+"], but that does not exist.");		
 	}
-	public void on_DeckDealer_exposed (object o, ExposeEventArgs args)
-	{
-		Gdk.GC text = new Gdk.GC(DeckDealerDrawLeft.GdkWindow);
-		Gdk.GC cards = new Gdk.GC(DeckDealerDrawLeft.GdkWindow);
 		
-		text.Foreground = new Gdk.Color(0,0,0);
-		text.Background = new Gdk.Color(225,25,225);
-				
-		cards.Foreground = new Gdk.Color(255,255,255);
-		cards.Background = new Gdk.Color(25,25,255);
-	
-		System.Console.WriteLine("Exposed DeckDealer");
-		drawCardFace(DeckDealerDrawLeft.GdkWindow, cards, "");
-		drawCardFace(DeckDealerDrawRight.GdkWindow, text, "Testing!!!\nMeee");							
-	}
-	public void drawCardFace(Gdk.Window win, Gdk.GC gc, string text)	
-	{
-		int top = 10, bottom = 100, left = 10, right = 200, corner = 5;
-		win.DrawLine(gc, top+corner, left+corner, top+corner, right-corner);
-		win.DrawLine(gc, bottom-corner, left+corner, bottom-corner, right+corner);
-		win.DrawLine(gc, top+corner, left+corner, bottom-corner, left+corner);
-		win.DrawLine(gc, top+corner, right-corner, bottom-corner, right-corner);
-		win.DrawArc(gc, true, top, left, corner, corner, 90 * 64, 180 * 64);
-	}	
-	public void on_DeckDealerOkay_clicked(System.Object obj, EventArgs e)
-	{
-		DeckDealer.Hide();
-	}
-	public void on_DeckDealer_delete_event(System.Object obj, EventArgs e)
-	{
-		DeckDealer.Hide();
-	}
-	
 	/* Strategic Target Selection Options */
 	public void on_StrategicTargetSelection_delete_event(System.Object obj, EventArgs e)
 	{

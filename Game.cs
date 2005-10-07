@@ -27,6 +27,8 @@ class Game {
 	ArrayList cards; // of ResourceCard
 	ArrayList allcards; // of ResourceCard
 	ArrayList allunits; // of Unit
+	ArrayList allresources; // of Resource
+	IEnumerator cardsIterator;
 	Player playerNobody;
 	Territory placeNowhere;
 	GameState state;
@@ -46,6 +48,7 @@ class Game {
 		cards = new ArrayList();
 		allcards = new ArrayList();
 		allunits = new ArrayList();
+		allresources = new ArrayList();
 
 		playerNobody = new Player(-1, "Nobody");
 		placeNowhere = new Territory(-1, "Nowhere", playerNobody.CountryID, playerNobody, false, null, null);
@@ -54,16 +57,21 @@ class Game {
 		allunits.Add(new Navy(playerNobody, placeNowhere));
 		allunits.Add(new Nuke(playerNobody)); 
 		allunits.Add(new LSat(playerNobody));
+		
+		allresources.Add(new Oil());
+		allresources.Add(new Minerals());
+		allresources.Add(new Grain());
 
 		players = new ArrayList();		
 		setupPlayers();
 				
 		market = new GpremacyMarket();
 				
-		market.initResource(new Oil(), 12);
-		market.initResource(new Minerals(), 12);
-		market.initResource(new Grain(), 12);
-		
+		foreach (Resource r in allresources)
+		{
+			market.initResource(r, 12);
+		}
+	
 		state = new GameState(this);
 
 		mainGUI = new GpremacyGUI(this);
@@ -140,6 +148,11 @@ class Game {
 		get { return allunits; }
 	}
 	
+	public ArrayList AllResources
+	{
+		get { return allresources; }
+	}
+		
 	void setupPlayers()
 	{
 		players.Add(new Player(1, "United States of America"));
@@ -148,11 +161,75 @@ class Game {
 		players.Add(new Player(4, "League of European Nations"));
 		players.Add(new Player(5, "Union of Soviet Sovereign Republics"));
 		players.Add(new Player(6, "People's Republic of China"));
+		
+		/*foreach (Player p in players)
+			p.Active = false;
+		*/			
 	}
 	
 	public void HaltGame(String a)
 	{
 		throw new Exception("Game halting because of " + a);
+	}
+
+	public ResourceCard CurrentResourceCard
+	{
+		get { return (ResourceCard)cardsIterator.Current; }
+	}
+	
+	public void NextResourceCard()
+	{
+		if (cardsIterator.MoveNext() == false)
+		{
+			cardsIterator.Reset();
+			cardsIterator.MoveNext();
+		}
+	}
+	
+	public void PopCurrentResourceCard()
+	{		
+		cards.Remove(cardsIterator.Current);
+		cardsIterator.Reset();
+	}
+	
+	public void ShuffleResourceCards()	
+	{
+		System.Console.WriteLine("Count of AllCards: " + allcards.Count);
+		System.Console.WriteLine("Count of UnclaimedCards: " + cards.Count);
+				
+		Random r = new Random();
+
+		/* Algorithm: 
+  		RandomInx : integer;
+  		TempPtr   : pointer;
+
+  		for Inx := aList.Count - 1 downto 1 do begin
+	    	RandomInx := Random(Inx + 1);
+    		if (RandomInx <> Inx) then begin
+	      		TempPtr := aList[Inx];
+	      		aList[Inx] := aList[RandomInx];
+	      		aList[RandomInx] := TempPtr;
+	    	end;
+		*/
+		
+		object TempPtr;
+		int RandomIndex;
+		int Index;
+		for (Index = cards.Count - 1; Index > 0; Index--)
+		{
+			RandomIndex = r.Next() % Index;
+			if (RandomIndex != Index)
+			{
+				TempPtr = cards[Index];
+				cards[Index] = cards[RandomIndex];
+				cards[RandomIndex] = TempPtr;
+			}
+		}
+		
+		cardsIterator = cards.GetEnumerator();
+		cardsIterator.Reset();
+		cardsIterator.MoveNext();
+		
 	}
 	
 	public void DistributeResourceCards()
@@ -161,9 +238,10 @@ class Game {
 		{
 			foreach(Player player in players)
 			{
-				if (card.Place.Owner == player)
+				if ((card.isResource()) && (card.Place.Owner == player) && (player.Active))
 				{
 					player.addResourceCard(card);
+					card.Active = true; // mark it active 
 					cards.Remove(card); // take it from the normal deck
 					break;
 				}
@@ -176,8 +254,10 @@ class Game {
        	String line;
        	Resource r;
        	Territory t;
+       	Unit u;
        	String name, resourceName, terrName;
        	int amt;
+       	ResourceCard newcard;
         	
        	try {
        		
@@ -186,13 +266,14 @@ class Game {
 	       		line = input.ReadLine();
 	       		if ((line == null) || (line.Length > 0 && line[0]=='#')) continue;
 	       		
+	       		t = null; r = null; u = null;
+	       		
 	       		// Format: Business Name, Territory, Resource Name, Resource Amount
 	       		//           string         string       string         int	       		
 	       		if (line.IndexOf(",") > 0) 
 				{
 	       			String[] parts;
 	       			parts = line.Split(',');
-	       			t = null;
 	       		//	for (int i=0;i<parts.Length;i++) 
 	       		//		System.Console.WriteLine("got [" + parts[i] + "]");
 	       			if (parts.Length > 3) 
@@ -210,6 +291,10 @@ class Game {
 							r = new Minerals(playerNobody, amt);
 						else if (resourceName.CompareTo("Grain") == 0)
 							r = new Grain(playerNobody, amt);
+						else if (resourceName.CompareTo("Nuke") == 0)
+							u = new Nuke(playerNobody);
+						else if (resourceName.CompareTo("LSat") == 0)
+							u = new LSat(playerNobody);
 						else {
 	       					System.Console.WriteLine("Could not determine resource type from [" + resourceName + "]");
 	       					continue;
@@ -222,15 +307,23 @@ class Game {
 	       						t = terr; break;
 	       					}
 	       				}
-	       				if (t == null)
+	       				if (t == null && u == null)
 	       				{
 	       					System.Console.WriteLine("Could not determine territory from [" + terrName + "]");
 	       					continue;
 	       				}
 	       				
-	       				// Create Card
-	       				allcards.Add(new ResourceCard(r, t, name));
-	       				t.addResource(r);
+	       				// Create Card, a Research card or a Resource card
+	       				if (u == null) {
+	       					newcard = new ResourceCard(r, t, name);
+	       					t.addResource(r);
+	       				} else { 
+	       					newcard = new ResourceCard(u, null, name);
+	       				}
+
+	       				allcards.Add(newcard);
+	       				cards.Add(newcard);
+	       				
 	       			
 	       			}
 	       		}

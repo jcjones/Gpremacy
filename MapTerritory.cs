@@ -52,6 +52,7 @@ class MapTerritory
 	   	/* Make label */	   	
         label = new Pango.Layout (pango_context);
 		label.Wrap = Pango.WrapMode.Word;
+		label.Alignment = Pango.Alignment.Center;
 		label.FontDescription = FontDescription.FromString ("Tahoma 9");
 		label.SetMarkup (name);		
 		

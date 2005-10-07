@@ -69,6 +69,10 @@ class Army : TacticalUnit {
 		return r;  		
 	}
 
+	public override Unit Clone(Player p)
+	{
+		return new Army(p, CurrentLocation);
+	}
 		
 }
 }

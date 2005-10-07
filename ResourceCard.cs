@@ -2,8 +2,10 @@
 namespace Gpremacy {
 class ResourceCard {
 	Resource Stuff;
+	Unit knowledge;
 	Territory Location;
 	string Text;
+	bool isActive;
 	
 	public Resource Good
 	{
@@ -17,24 +19,61 @@ class ResourceCard {
 	{
 		get { return Text; }
 	}
+	public Unit Knowledge
+	{
+		get { return knowledge; }
+	}
+	public bool Active
+	{
+		get { return isActive; }
+		set { isActive = value; }
+	}
+	public bool isResource() 
+	{
+		return (Location != null);
+	}
 	
 	public ResourceCard(Resource r, Territory l, string t)
 	{
 		Stuff = r;
+		knowledge = null;
 		Location = l;
 		Text = t;
+		isActive = false;
 	}
+	
+	public ResourceCard(Unit u, Territory l, string t)
+	{
+		Stuff = null;
+		knowledge = u;
+		Location = l;
+		Text = t;
+		isActive = false;
+	}	
 		
 	public string toString()
 	{
-		string ret = Stuff.toString() + " at " + Location.toString() + "\n";
+/*		string ret = Stuff.toString() + " at " + Location.toString() + "\n";
 		ret += "\tFT: \"" + Text + "\"";
 		return ret;
+*/
+		if (Stuff != null)
+			return Text + " in " + Location.Name + " produces " + Stuff.toString() + " per turn.";
+		else
+			return Text;
 	}
 	
+	/* Since we never hand research-target Resource Cards to players, we don't have to
+	   worry about them being charged upkeep for the knowledge. */
 	public virtual int Upkeep
 	{
-		get { return 50; }
+		get 
+		{
+			if (isActive) 
+				return 50;
+			else
+				return 0; 
+		}
 	}
 	
 }

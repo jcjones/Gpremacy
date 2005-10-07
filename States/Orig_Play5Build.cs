@@ -12,8 +12,8 @@ class Orig_Play5Build : State {
 	public override string Name()
 	{
 		return "Phase 5: Build Forces and Weapons";
-	} 		
-	
+	}
+		
 	public override bool mouseClick(Territory target, uint Button)
 	{
 		Unit nu;
@@ -68,8 +68,21 @@ class Orig_Play5Build : State {
 		get { return unitsToBuild; }
 		set { unitsToBuild = value; }
 	}
-
 }
+
+class Orig_ChargeMoney : Command {
+	int Cost;
+	Player curPlay;
+	public Orig_ChargeMoney(int c, Player p)
+	{
+		Cost = c; curPlay = p;
+	}
+	public override void Execute(Game game)
+	{
+		curPlay.Money -= Cost;
+	}
+}
+
 class Orig_PurchaseUnit : Command {
 	Unit unit;
 	Player curPlay;

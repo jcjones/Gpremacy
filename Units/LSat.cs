@@ -6,6 +6,7 @@ class LSat : StrategicUnit {
 	bool FiredThisTurn;
 	public LSat (Player lord) : base(lord)
 	{
+		FiredThisTurn = false;
 	}	
 
 	public override string Name
@@ -25,6 +26,11 @@ class LSat : StrategicUnit {
 			r.Add(new Stock(new Minerals(), -2));
 			return r;
 		}
+	}
+	
+	public override Unit Clone(Player p)
+	{
+		return new LSat(p);
 	}
 
 }

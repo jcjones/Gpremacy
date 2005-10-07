@@ -11,9 +11,11 @@ class Player {
 	ArrayList activeUnits; // of Units
 	long money;
 	ArrayList resourceCards; // of ResourceCards
+	bool isActive;
 	
 	public Player (int id, string n)
 	{
+		isActive = false;
 		countryID = id;
 		name = n;
 		money = 5000; // In Millions
@@ -36,7 +38,6 @@ class Player {
 	{
 		return name;
 	}
-		
 	public long Money
 	{
 		get { return money; }
@@ -50,6 +51,11 @@ class Player {
 	{
 		get { return name; }
 	}
+	public bool Active
+	{
+		set { isActive = value; } 
+		get { return isActive; }  
+	}	
 	public ArrayList ActiveUnits
 	{
 		get { return activeUnits; }
@@ -196,6 +202,14 @@ class Player {
 				return true;
 		}
 		return false;
+	}
+	
+	public void makeUnitAvailable(Unit u) 
+	{
+		if (canBuild(u))
+			return;
+		
+		availableUnits.Add(u);
 	}
 	
 }

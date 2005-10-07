@@ -24,6 +24,11 @@ class Nuke : StrategicUnit {
 			return r;
 		}
 	}
+	
+	public override Unit Clone(Player p)
+	{
+		return new Nuke(p);
+	}	
 		
 }
 }

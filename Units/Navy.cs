@@ -97,5 +97,11 @@ class Navy : TacticalUnit {
 		return r; 		
 	}
 	
+	public override Unit Clone(Player p)
+	{
+		return new Navy(p, CurrentLocation);
+	}
+
+	
 }
 }

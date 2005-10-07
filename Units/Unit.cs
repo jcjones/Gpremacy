@@ -17,6 +17,15 @@ class Unit {
 		get { return owner; }
 	}
 	
+	public virtual Unit Clone(Player p)
+	{
+		return new Unit(p);
+	}
+	public Unit Clone()
+	{
+		return this.Clone(owner);
+	}
+		
 	public virtual void draw(Gdk.Window win, int offset)
 	{
 	}
