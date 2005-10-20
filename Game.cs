@@ -89,6 +89,7 @@ class Game {
 		try {
 			mainGUI.init();
 		} catch (Exception e) {
+			Console.WriteLine("Exception caught!");
 			Console.WriteLine(e.Message);
 			Console.WriteLine("-1-");
 			Console.WriteLine(e.StackTrace);
