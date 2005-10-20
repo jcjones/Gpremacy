@@ -65,7 +65,7 @@ class Unit {
 	public virtual string Costs
 	{
 		get {
-			string s = "$" + CostMoney + "M ";
+			string s = "$" + CostMoney + " M ";
 
 			if (CostResources.Count > 0)
 				s += "and ";

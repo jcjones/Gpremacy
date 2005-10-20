@@ -56,9 +56,14 @@ class Orig_Play4Move : State {
 					{
 						/* If the unit returns an ArrayList with 
 				 		* more than one element, let the user pick */
-						moveCost = unit.calculateMovementCost(target);						
+						moveCost = unit.calculateMovementCost(target);
 						
-						Orig_MoveUnit cmd = new Orig_MoveUnit(unit, target, previousTerritory, moveCost);												
+						if (!Game.GetInstance().hasSufficientWeath(Game.State.CurrentPlayer, moveCost, 0))
+						{
+							break; 
+						}						
+						
+						Orig_MoveUnit cmd = new Orig_MoveUnit(Game.State.CurrentPlayer, unit, target, previousTerritory, moveCost);												
 												
 						if (moveCost.Count > 1)
 						{							
@@ -133,9 +138,11 @@ class Orig_Play4Move : State {
 class Orig_MoveUnit : Command {
 	TacticalUnit unit;
 	Territory next, previous;
+	Player curPlay;
 	public ArrayList moveCost; // allow GUI to set this value.
 
-	public Orig_MoveUnit(TacticalUnit aunit, Territory anext, Territory aprevious, ArrayList acost) {
+	public Orig_MoveUnit(Player p, TacticalUnit aunit, Territory anext, Territory aprevious, ArrayList acost) {
+		curPlay = p;
 		unit = aunit; next = anext; previous = aprevious;
 		moveCost = acost;
 		undoable = true;
@@ -144,17 +151,11 @@ class Orig_MoveUnit : Command {
 	public override void Execute(Game game) {		
 		/* Confirm we can move here ... don't bother for unexecute */
 		if (unit.canMoveTo(next)) 
-		{
+		{			
 			/* Charge Movement Cost */
 			foreach (Stock s in moveCost)
 			{
-				/* If charging multiple stocks, this will possibly subtract part of a cost set */
-				if (game.State.CurrentPlayer.getStockpileAmount(s.Good) < -1*s.Number)
-				{
-					game.GUI.ShowError("Not enough " + s.Good.Name);
-					return;
-				}
-				game.State.CurrentPlayer.changeResourceStockpile(s);
+				curPlay.changeResourceStockpile(s);
 			}
 
 			previous.removeUnit(unit);

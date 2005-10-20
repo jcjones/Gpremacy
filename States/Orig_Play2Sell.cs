@@ -27,8 +27,10 @@ class Orig_Sell : Command {
 
 	public override void Execute(Game game) 
 	{
+		int a = 0;
 		foreach (Stock stuff in stocks) 
 		{
+			System.Console.WriteLine((a++)+"Selling " + stuff.Number + " " + stuff.Good);
 			game.State.CurrentPlayer.changeResourceStockpile(stuff);
 			game.State.CurrentPlayer.Money += -1*stuff.Number*game.Market.getCommodityCost(stuff.Good);
 			game.Market.changeCommodityValue(stuff.Good, -1*stuff.Number);

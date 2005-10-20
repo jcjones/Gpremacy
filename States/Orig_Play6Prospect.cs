@@ -17,6 +17,24 @@ class Orig_Play6Prospect : State {
 	}
 	
 }
+
+class Orig_AddResourceCard : Command
+{
+	ResourceCard card;
+	Player player;
+	public Orig_AddResourceCard(ResourceCard c, Player p) 
+	{
+		card = c;
+		player = p;
+	}
+	
+	public override void Execute(Game game) 
+	{
+		player.addResourceCard(card);
+		game.RemoveResourceCard(card);
+	}
+}
+
 class Orig_Buy : Command 
 {
 	ArrayList stocks; // of Stock

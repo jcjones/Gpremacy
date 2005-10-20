@@ -34,10 +34,10 @@ namespace Gpremacy{
 		{
 			Gdk.PixbufLoader loader = new Gdk.PixbufLoader ();
 			byte [] buffer = new byte [8192];
-			int n;
+			ulong n;
 														       
-			while ((n = input.Read (buffer, 0, 8192)) != 0)
-				loader.Write (buffer, (uint) n);
+			while ((n = (ulong) input.Read (buffer, 0, 8192)) != 0)
+				loader.Write (buffer, n);
 														       
 			loader.Close ();
 			return loader.Pixbuf;

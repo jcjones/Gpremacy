@@ -41,9 +41,7 @@ class GameState {
 	State currentState;
 	Player currentPlayer;
 	ArrayList commandList; // of Command, for undo/redo
-	Territory previousTerritory;
-	Territory currentTerritory;
-	bool arrowOn;
+	int turnNumber;
 	
 	public GameState (Game game_i)
 	{
@@ -53,8 +51,8 @@ class GameState {
 		playerList.MoveNext();
 		currentPlayer = (Gpremacy.Player)playerList.Current;
 		
-		previousTerritory = null;
-		arrowOn = false;
+		//previousTerritory = null;
+		//arrowOn = false;
 		
 		commandList = new ArrayList();
 		
@@ -77,7 +75,8 @@ class GameState {
   		stateList = states.GetEnumerator();
   		stateList.MoveNext();
   		currentState = (Gpremacy.State)stateList.Current; 		
-		
+
+		turnNumber = 1;		
 		//nextPlayer();
 		//nextState();
 	}
@@ -102,21 +101,34 @@ class GameState {
 		get { return commandList; }
 	}
 	
+	public int TurnNumber 
+	{
+		get { return turnNumber; }
+	}
+	
 	public Player nextPlayer() 
 	{
-		if ( playerList.MoveNext() == false) 
-		{
-			playerList.Reset();
-			playerList.MoveNext();
-			// We've hit the end of our player list, so next state...
-			nextState();
-		}
-		
-		arrowOn = false;
+		/* Walk forward to find the next Active player, 
+		   but if we hit the end of the list
+		   in the process, go to the next state.*/
+		//arrowOn = false;
 		game.GUI.clearArrow();
 		
 		currentState.donePlayer(currentPlayer);
-		currentPlayer = (Gpremacy.Player)playerList.Current;
+		
+		do
+		{
+			if ( playerList.MoveNext() == false) 
+			{
+				playerList.Reset();
+				playerList.MoveNext();
+				// We've hit the end of our player list, so next state...
+				nextState();
+			}
+			currentPlayer = (Gpremacy.Player)playerList.Current;
+			
+		} while (!currentPlayer.Active);
+		
 		currentState.beginPlayer(currentPlayer);
 		
 		return currentPlayer;		
@@ -150,6 +162,10 @@ class GameState {
 		currentState = (Gpremacy.State)stateList.Current;
 		currentState.beginState();
 		currentState.beginPlayer(currentPlayer); //TODO: See if these are needed.
+		
+		/* Count Turn */
+		if (currentState.MyOrder == 1) turnNumber++;
+		
 		return next;						
 	}
 	

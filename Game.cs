@@ -24,6 +24,7 @@ using System.Collections;
 namespace Gpremacy {
 class Game {
 	ArrayList players; // of Player
+	ArrayList localplayers; // of Player, those who are on the local system.
 	ArrayList cards; // of ResourceCard
 	ArrayList allcards; // of ResourceCard
 	ArrayList allunits; // of Unit
@@ -34,6 +35,7 @@ class Game {
 	GameState state;
 	GpremacyMarket market;
 	GpremacyGUI mainGUI;
+	bool justShuffledResourceCards;
 	
 	private static Game instance;
 	private static int numOfReference;	
@@ -64,6 +66,14 @@ class Game {
 
 		players = new ArrayList();		
 		setupPlayers();
+		localplayers = new ArrayList();
+		
+		/* Force local setup */
+		((Player)players[0]).Active = true;
+		localplayers.Add(players[0]);
+		((Player)players[4]).Active = true;
+		localplayers.Add(players[4]);
+		/* Done forcing local setup */
 				
 		market = new GpremacyMarket();
 				
@@ -71,12 +81,22 @@ class Game {
 		{
 			market.initResource(r, 12);
 		}
-	
+			
 		state = new GameState(this);
 
 		mainGUI = new GpremacyGUI(this);
 		
-		mainGUI.init();		
+		try {
+			mainGUI.init();
+		} catch (Exception e) {
+			Console.WriteLine(e.Message);
+			Console.WriteLine("-1-");
+			Console.WriteLine(e.StackTrace);
+			Console.WriteLine("-2-");
+			Console.WriteLine(e.ToString());
+			Console.WriteLine("-3-");
+			mainGUI.ShowError(e.Message+"\n"+e.StackTrace);
+		}		
 	}
 	
 	public static Game GetInstance()
@@ -171,10 +191,58 @@ class Game {
 	{
 		throw new Exception("Game halting because of " + a);
 	}
+	
+	public bool hasSufficientWeath(Player p, Dictionary dict, int cash)
+	{
+		if (dict != null)
+		foreach(DictionaryEntry d in dict.Data)
+		{
+			/* If charging multiple stocks, this will possibly subtract part of a cost set */
+			if (p.getStockpileAmount((Resource)d.Key) < -1*(Int32)d.Value)
+			{
+				Game.GetInstance().GUI.ShowWarning("You do not have enough " + ((Resource)d.Key).Name );
+				return false;
+			}
+		}
+		if ( p.Money < cash )
+		{
+			Game.GetInstance().GUI.ShowWarning("You do not have enough money");
+			return false;		
+		}
+		return true;	
+	}
+	
+	public bool hasSufficientWeath(Player p, ArrayList stocks, int cash)
+	{
+		if (stocks != null)
+		foreach(Stock s in stocks)
+		{
+			/* If charging multiple stocks, this will possibly subtract part of a cost set */
+			if (p.getStockpileAmount(s.Good) < -1*s.Number)
+			{
+				Game.GetInstance().GUI.ShowWarning("You do not have enough " + s.Good.Name);
+				return false;
+			}
+		}
+		if ( p.Money < cash )
+		{
+			Game.GetInstance().GUI.ShowWarning("You do not have enough money");
+			return false;		
+		}
+		return true; 					
+	}
+
+	public bool JustShuffledResourceCards
+	{
+		get { return justShuffledResourceCards; }
+		set { justShuffledResourceCards = value; }
+	}
 
 	public ResourceCard CurrentResourceCard
 	{
-		get { return (ResourceCard)cardsIterator.Current; }
+		get {
+			return (ResourceCard)cardsIterator.Current;
+		}
 	}
 	
 	public void NextResourceCard()
@@ -186,17 +254,29 @@ class Game {
 		}
 	}
 	
+	public void RemoveResourceCard(ResourceCard c) 
+	{
+		cards.Remove(c);
+		cardsIterator = cards.GetEnumerator();
+		cardsIterator.Reset();
+		cardsIterator.MoveNext();
+	}
+	
 	public void PopCurrentResourceCard()
 	{		
 		cards.Remove(cardsIterator.Current);
+		cardsIterator = cards.GetEnumerator();
 		cardsIterator.Reset();
+		cardsIterator.MoveNext();
 	}
 	
 	public void ShuffleResourceCards()	
 	{
 		System.Console.WriteLine("Count of AllCards: " + allcards.Count);
 		System.Console.WriteLine("Count of UnclaimedCards: " + cards.Count);
-				
+
+		justShuffledResourceCards = true;
+						
 		Random r = new Random();
 
 		/* Algorithm: 

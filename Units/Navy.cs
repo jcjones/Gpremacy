@@ -44,7 +44,7 @@ class Navy : TacticalUnit {
 	
 	public override string Costs
 	{
-		get { return "per 3: $300M and a set of supplies"; }
+		get { return "per 3: $300 M and a set of supplies"; }
 	}		
 	
 	public override string toString()

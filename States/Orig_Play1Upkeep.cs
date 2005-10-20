@@ -25,24 +25,13 @@ class Orig_Play1Upkeep : State {
 		
 	public override void beginPlayer(Player player)
 	{
-		Orig_Upkeep cmd = new Orig_Upkeep(Game.State.CurrentPlayer, Game.State.CurrentPlayer.ResourceCards, calculateUpkeep());
+		/* No charge on turn 1 */
+		if (Game.State.TurnNumber == 1)
+			return;
+			
+		Orig_Upkeep cmd = new Orig_Upkeep(Game.State.CurrentPlayer, Game.State.CurrentPlayer.ResourceCards, Game.State.CurrentPlayer.CalculateUpkeep());
 		Game.State.Execute(cmd);			
 	}	
-	
-	private int calculateUpkeep()
-	{
-		int amount = 0;
-		foreach (Unit u in Game.State.CurrentPlayer.ActiveUnits)
-		{
-			amount += u.Upkeep;
-		}
-		foreach (ResourceCard c in Game.State.CurrentPlayer.ResourceCards)
-		{
-			amount += c.Upkeep;
-		}
-		return amount;
-	}
-	
 
 }
 class Orig_Upkeep : Command {
@@ -61,7 +50,8 @@ class Orig_Upkeep : Command {
 		Play.Money -= Cost;
 		foreach (ResourceCard card in ResourceCards)
 		{
-			Play.changeResourceStockpile(card.Good, card.Good.Value);			
+			if (card.Active)
+				Play.changeResourceStockpile(card.Good, card.Good.Value);			
 		}
 
 	}

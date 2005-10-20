@@ -93,7 +93,7 @@ class Orig_PurchaseUnit : Command {
 	public override void Execute(Game game)
 	{
 		foreach(Stock s in unit.CostResources)
-		{
+		{		
 			curPlay.changeResourceStockpile(s);
 		}
 		curPlay.Money -= unit.CostMoney;

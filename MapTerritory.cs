@@ -15,7 +15,7 @@ class MapTerritory
 	public Region region;
 	Pango.Layout label;
 	public int centerX, centerY;
-	int labelX, labelY;
+	//int labelX, labelY;
 	ArrayList connectedTerritories;
 	int[] connectionDistances;
 	int[] connectionWayPoints;
@@ -30,7 +30,7 @@ class MapTerritory
 		borders = new Point[borders_i.Count];
 		connectedTerritories = new ArrayList();
 		
-	   	int x1,y1,x2=-1,y2=-1; 
+	   	//int x1,y1,x2=-1,y2=-1; 
 		int totalX = 0, totalY = 0;
 	   	
 	   	for (int i=0; i < borders_i.Count; i++) 
@@ -56,10 +56,10 @@ class MapTerritory
 		label.FontDescription = FontDescription.FromString ("Tahoma 9");
 		label.SetMarkup (name);		
 		
-		int szX, szY;
-		label.GetPixelSize(out szX, out szY);
-		labelX = centerX - (szX/2);
-		labelY = centerY - (szY/2);						
+		//int szX, szY;
+		//label.GetPixelSize(out szX, out szY);
+		//labelX = centerX - (szX/2);
+		//labelY = centerY - (szY/2);						
 	}
 	
 	public void draw(Gdk.Window win, int ox, int oy, int szx, int szy, Gdk.Color terr)

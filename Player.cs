@@ -76,27 +76,45 @@ class Player {
 	{
 		get { return 12; }
 	}
+	
+	public int CalculateUpkeep()
+	{
+		int amount = 0;
+		foreach (Unit unit in activeUnits)
+		{
+			amount += unit.Upkeep;
+		}
+		foreach (ResourceCard card in resourceCards)
+		{
+			if (card.Active)
+				amount += card.Upkeep;
+		}
+		return amount;
+	}	
 
 	public string toStringResources()
 	{
 		// This function uses Gpremacy's custom Dictionary class
 		Dictionary rTypes = new Dictionary(); 
 		
-		int m=0,o=0,g=0;
 		string ret;
 
 		//Console.WriteLine("AU: " + activeUnits.Count + " RC: " + resourceCards.Count + " SP: " + stockpile.Count);
 		ret = "Available Capital:\n";
 		ret += "$" + money + " M\n";
+		ret += "Operating Costs:\n";
+		ret += "$" + CalculateUpkeep() + " M / turn\n";
 
 		ret += "Resources Produced Per Turn:\n";
 		foreach (ResourceCard card in resourceCards)
 		{
-			if (!rTypes.Exists(card.Good.Name))
-			{
-				rTypes.Add(card.Good.Name, card.Good.Value);
-			} else {
-				rTypes.IncValue(card.Good.Name, card.Good.Value);
+			if (card.Active) {
+				if (!rTypes.Exists(card.Good.Name))
+				{
+					rTypes.Add(card.Good.Name, card.Good.Value);
+				} else {
+					rTypes.IncValue(card.Good.Name, card.Good.Value);
+				}
 			}
 		}
 		ret += rTypes.toString();
@@ -157,8 +175,8 @@ class Player {
 				(card.Good is Grain && r is Grain) || 
 				(card.Good is Minerals && r is Minerals) ) 
 				{
-				resourceCards.Remove(card);
-				return true;
+					resourceCards.Remove(card);
+					return true;
 				}
 			}
 		}
@@ -169,7 +187,7 @@ class Player {
 	{
 		foreach (Stock goods in stockpile)
 		{
-			if (goods.Good.Name == r.Name)
+			if (goods.Good.Name == r.Name && goods.Number > 0)
 			{
 				return goods.Number;
 			}
@@ -185,6 +203,7 @@ class Player {
 			{
 				stockgood.Number += a.Number;
 				if (stockgood.Number > MaximumStockpile) stockgood.Number = MaximumStockpile;
+				if (stockgood.Number < 0) throw new ArgumentOutOfRangeException("Resource " + stockgood.Good.Name + " has gone negative " + stockgood.Number + " after taking " + a.Number);
 				return stockgood.Number;
 			}
 		}

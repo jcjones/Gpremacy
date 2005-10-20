@@ -16,7 +16,7 @@ class GpremacyGUI {
 	/* Main Window*/
 	[Glade.Widget] Gtk.Viewport MapViewport;
 	[Glade.Widget] Gtk.Window MainWindow;
-	[Glade.Widget] Gtk.ScrolledWindow MapScrolledWindow2;
+	//[Glade.Widget] Gtk.ScrolledWindow MapScrolledWindow2;
 		
 	[Glade.Widget] Gtk.TextView OrderOfPlayTextBox;	
 	[Glade.Widget] Gtk.TextView ResourcesTextBox;
@@ -27,7 +27,7 @@ class GpremacyGUI {
 
 	/* Naval Options */	
 	[Glade.Widget] Gtk.Window LoadNavalOptions;
-	[Glade.Widget] Gtk.DrawingArea UnitLegendNaval;
+	//[Glade.Widget] Gtk.DrawingArea UnitLegendNaval;
 	[Glade.Widget] Gtk.Label LoadNavalOptionsCounter;
 	[Glade.Widget] Gtk.Label LoadNavalOptionsTitle;
 	[Glade.Widget] Gtk.Table LoadNavalOptionsTable;
@@ -46,6 +46,7 @@ class GpremacyGUI {
 	[Glade.Widget] Gtk.HScrollbar OilScroll;
 	[Glade.Widget] Gtk.HScrollbar GrainScroll;
 	[Glade.Widget] Gtk.Button MarketBuySellOkay;
+	[Glade.Widget] Gtk.Button MarketBuySellProspect;
 	
 	/* Move Ground Options */
 	[Glade.Widget] Gtk.Window MoveGroundOptions;
@@ -57,7 +58,16 @@ class GpremacyGUI {
 	[Glade.Widget] Gtk.Table UnitBuyTable;
 	[Glade.Widget] Gtk.Label UnitBuyCost;
 	
+	/* Prospect for Resources */
+	[Glade.Widget] Gtk.Window ProspectSelection;
+	[Glade.Widget] Gtk.Table ProspectSelectionTable;
+	//[Glade.Widget] Gtk.Label ProspectSelectionLegend;
 	
+	/* Resource Card View */
+	[Glade.Widget] Gtk.Window ResourceCardView;
+	[Glade.Widget] Gtk.Table ResourceCardViewTable;
+	//[Glade.Widget] Gtk.Label ResourceCardViewLegend;
+			
 	public GpremacyGUI(Game i)
 	{
 		game = i;
@@ -188,6 +198,8 @@ class GpremacyGUI {
 	}
 	public void on_about1_activate(System.Object obj, EventArgs e) 
 	{
+	/* Requires GTK# 2.6 */
+	/*
 			string[] authors = new string[]{
 				"J.C. \"Pug\" Jones <jcjones@ufl.edu>",
 			};
@@ -196,15 +208,17 @@ class GpremacyGUI {
 				"J.C. \"Pug\" Jones <jcjones@ufl.edu>",
 			};
 			
-/*			Gnome.About about = new Gnome.About ("GPremacy", VERSION,
-					"(C) 2005 J.C. \"Pug\" Jones",
-					"An implementation of the 1984 board game Supremacy.",
-					authors, documenters, null,
-					null);
-			
-			((Gtk.Window ) about).Icon = PixbufUtils.LoadFromAssembly ("about.png");
-			about.Show ();
-*/
+			Gtk.AboutDialog dialog = new Gtk.AboutDialog();
+			dialog.Name = "Gpremacy: The Game of the Superpowers";
+			dialog.Comments = "An implementation of the 1984 board game Supremacy.";
+			dialog.Authors = authors;
+			dialog.Documenters = documenters;
+			dialog.Copyright = "(C) 2005 J.C. \"Pug\" Jones";
+			dialog.License = "Licensed under the GNU GPL version 2 or later.";
+			dialog.Website = "http://gpremacy.nongnu.org/";
+			dialog.WebsiteLabel = "Gpremacy on the Web";
+			dialog.ShowAll();
+	*/			
 	}
 	public void on_always_march1_activate(System.Object obj, EventArgs e)
 	{
@@ -217,14 +231,23 @@ class GpremacyGUI {
 	
 	public void on_endTurnButton_pressed(System.Object obj, EventArgs e)
 	{
-		//game.State.nextPlayer();
-		game.State.nextState();
-		updateGUIStatusBoxes();	
+		/* Hide All Windows. This is more of a "just in case", since all windows are modal. */
+		foreach (Gtk.Window w in Gtk.Window.ListToplevels())
+		{
+			if (w != MainWindow)
+			{
+				Console.WriteLine("Toplevel window: " + w.Title);
+				w.Hide();
+			}
+		}
+		
+		game.State.nextPlayer();
+		updateGUIStatusBoxes();
 	}
 	
 	public void updateGUIStatusBoxes()
 	{
-		writeToOrderOfPlayTextBox("Current Player:\n" + game.State.CurrentPlayer.toString() + "\nCurrent State:\n" + game.State.StateIDName);								
+		writeToOrderOfPlayTextBox("Turn Number: " + game.State.TurnNumber + "\nCurrent Player:\n" + game.State.CurrentPlayer.toString() + "\nCurrent State:\n" + game.State.StateIDName);								
 		writeToResourcesTextBox(game.State.CurrentPlayer.toStringResources());
 		writeToWorldMarketTextBox(game.Market.toString());	
 	}
@@ -256,7 +279,7 @@ class GpremacyGUI {
 		{
 			System.Console.WriteLine("Invalidating..." + invalRegion.Clipbox.X + " " + invalRegion.Clipbox.Y + " " + invalRegion.Clipbox.Height +  " " + invalRegion.Clipbox.Width);
     		MapArea.GdkWindow.InvalidateRegion(invalRegion,true);
-    		invalRegion.Destroy();
+    		//invalRegion.Destroy(); // Deprecated by GTK# 2.4
     	}    		
 	}
 	
@@ -266,8 +289,8 @@ class GpremacyGUI {
 
 		int x = a.MapTerritory.centerX;
 		int y = a.MapTerritory.centerY;
-		int w = b.MapTerritory.centerX - x;
-		int h = b.MapTerritory.centerY - y;
+		//int w = b.MapTerritory.centerX - x;
+		//int h = b.MapTerritory.centerY - y;
 
 		/* This point stuff is necessary since Gdk.Region.Rectangle() doesn't work! */
 		Point[] arrow = new Point[4];
@@ -292,14 +315,29 @@ class GpremacyGUI {
     {    
 		MessageDialog dlg = new MessageDialog
      	(MainWindow, Gtk.DialogFlags.Modal,
-     	Gtk.MessageType.Error, Gtk.ButtonsType.Ok,  error);     
+     	Gtk.MessageType.Error, Gtk.ButtonsType.Ok,  error);     	
+        dlg.Title = "Gpremacy Error!";     
+        dlg.Run();
+        dlg.Destroy();        
+    }
+    
+    public void ShowWarning(string warning)
+    {
+		MessageDialog dlg = new MessageDialog
+     	(MainWindow, Gtk.DialogFlags.Modal,
+     	Gtk.MessageType.Warning, Gtk.ButtonsType.Ok,  warning);
+     	dlg.Title = "Gpremacy Warning!";     
         dlg.Run();
         dlg.Destroy();
-    }
+	}
     
     /* Market Buy/Sell Options */
     public void showMarketBuySell(int sell)
     {
+    	MarketBuySellOkay.Sensitive = true;
+    	MarketBuySellOkay.Clicked -= on_MarketBuyOkay_clicked;
+    	MarketBuySellOkay.Clicked -= on_MarketSellOkay_clicked;
+    	
     	if (sell > 0) { /* Sell Stage */
 	    	MineralsScroll.SetRange(0.0, (double)game.State.CurrentPlayer.getStockpileAmount(new Minerals()));
 	    	OilScroll.SetRange(0.0, (double)game.State.CurrentPlayer.getStockpileAmount(new Oil()));
@@ -314,8 +352,10 @@ class GpremacyGUI {
     		
     		MarketSellProfitCalculation(null, null);
     		
-    		MarketBuySellOkay.Clicked -= on_MarketBuyOkay_clicked;
     		MarketBuySellOkay.Clicked += on_MarketSellOkay_clicked;
+    		
+    		MarketBuySellProspect.Sensitive = false;
+    		MarketBuySellProspect.Clicked -= on_MarketBuyProspect_clicked;
     	} else {  /* Buy Stage */
 	    	MineralsScroll.SetRange(0.0, 99.0);
 	    	OilScroll.SetRange(0.0, 99.0);
@@ -329,8 +369,10 @@ class GpremacyGUI {
     		OilScroll.ValueChanged += MarketBuyProfitCalculation;
     		
     		MarketBuyProfitCalculation(null, null);
-    		MarketBuySellOkay.Clicked -= on_MarketSellOkay_clicked;
     		MarketBuySellOkay.Clicked += on_MarketBuyOkay_clicked;
+
+    		MarketBuySellProspect.Sensitive = true;
+    		MarketBuySellProspect.Clicked += on_MarketBuyProspect_clicked;
     	}
     	
     	MineralsScroll.Value = 0;
@@ -363,6 +405,16 @@ class GpremacyGUI {
     	cost += ((int)OilScroll.Value)*game.Market.getCommodityCost(new Oil());
     	cost += ((int)GrainScroll.Value)*game.Market.getCommodityCost(new Grain());
     	cost += ((int)MineralsScroll.Value)*game.Market.getCommodityCost(new Minerals());
+    	
+    	if (cost > Game.GetInstance().State.CurrentPlayer.Money)
+    	{
+    		MarketBuySellOkay.Sensitive = false;
+    	}
+    	else
+    	{
+    		MarketBuySellOkay.Sensitive = true;
+    	}
+    	
     	MarketTotalBox.Text = "Cost: $"+cost.ToString()+" M";
     	
     	MineralsStock.Text = (game.State.CurrentPlayer.getStockpileAmount(new Minerals())+((int)MineralsScroll.Value)).ToString();
@@ -378,6 +430,7 @@ class GpremacyGUI {
 		forSale.Add(new Stock(new Minerals(), -1*((int)MineralsScroll.Value)));
 		forSale.Add(new Stock(new Grain(), -1*((int)GrainScroll.Value)));
 		
+		Console.WriteLine("ExeSell!");
 		Orig_Sell cmd = new Orig_Sell(forSale);
 		game.State.Execute(cmd);			
 
@@ -392,6 +445,7 @@ class GpremacyGUI {
 		ticket.Add(new Stock(new Minerals(), ((int)MineralsScroll.Value)));
 		ticket.Add(new Stock(new Grain(), ((int)GrainScroll.Value)));
 		
+		Console.WriteLine("ExeBuy!");
 		Orig_Buy cmd = new Orig_Buy(ticket);
 		game.State.Execute(cmd);			
 
@@ -401,6 +455,11 @@ class GpremacyGUI {
 	public void on_MarketBuySell_delete_event(System.Object obj, EventArgs e)
 	{	
 		MarketBuySell.Hide();
+	}
+	
+	public void on_MarketBuyProspect_clicked(System.Object obj, EventArgs e)
+	{
+		showProspectForResources();
 	}
 	
 	/* Naval Options */
@@ -738,18 +797,9 @@ class GpremacyGUI {
 		calculateUnitBuyCost(out costMoney, out bill, out purchasedUnits);
 		
 		/* Check funds */
-		foreach (DictionaryEntry d in bill.Data) 
+		if (! Game.GetInstance().hasSufficientWeath(me, bill, costMoney) )
 		{
-			if (me.getStockpileAmount((Resource)d.Key) < (Int32)d.Value)
-				 {
-				 	writeToLog("You do not have enough " + ((Resource)d.Key).Name +".");
-				 	return;
-				 }
-		}
-		if (me.Money < costMoney)
-		{
-		 	writeToLog("You do not have enough money.");
-		 	return;
+			return;
 		}
 
 		/* Purchase units */
@@ -807,6 +857,151 @@ class GpremacyGUI {
 			}				
 		}
 		writeToLog("ERROR: Attempting to Research/Prospect for ["+searchString+"], but that does not exist.");		
+	}
+
+	/* Prospect for Resources */
+	/*[Glade.Widget] Gtk.Window ProspectSelection;
+	[Glade.Widget] Gtk.Table ProspectSelectionTable;
+	[Glade.Widget] Gtk.Label ProspectSelectionLegend;	
+	*/
+	
+	public void showProspectForResources() 
+	{
+		foreach(Widget w in ProspectSelectionTable) 
+			ProspectSelectionTable.Remove(w);
+
+		uint row = 0;
+		Gtk.RadioButton group = null;
+		Gtk.RadioButton button = null;
+		
+		foreach(Resource r in Game.GetInstance().AllResources)
+		{
+			if (group == null) {
+				button = new Gtk.RadioButton(r.Name);
+				group = button;			
+			} else {
+				button = new Gtk.RadioButton(group, r.Name);
+			}
+			
+			ProspectSelectionTable.Attach(button, 0, 1, row, row+1);
+			//writeToLog("Labelling at row "+row+" a "+r.Name);
+			row++;
+		}
+
+		ProspectSelection.ShowAll();		
+	}
+	public void on_ProspectSelectionOkay_clicked(System.Object obj, EventArgs e)
+	{
+		String result = "";
+		Resource res = null;
+		
+		foreach (Gtk.Widget wid in ProspectSelectionTable)
+		{
+			if (wid is Gtk.RadioButton) {
+				if (((Gtk.RadioButton)wid).Active) {
+					result = ((Gtk.RadioButton)wid).Label;
+					break;
+				}
+			}
+		}
+		writeToLog("Got result of ["+result+"].");
+		
+		foreach (Resource r in Game.GetInstance().AllResources)
+		{
+			if (r.Name == result) 
+			{
+				res = r;
+				break;
+			}
+		}
+		
+		if (res != null) 
+		{
+			DeckDealer dd = DeckDealer.GetInstance();
+			dd.TargetResource = res;
+			dd.show();
+		}
+	}
+	public void on_ProspectSelection_delete_event(System.Object obj, EventArgs e)
+	{
+		ProspectSelection.Hide();
+	}	
+	public void on_ProspectSelectionDone_clicked(System.Object obj, EventArgs e)
+	{
+		ProspectSelection.Hide();
+	}
+	
+	/* Resource Card View */
+	public void on_manage_resource_cards1_activate(System.Object obj, EventArgs e) 
+	{
+		foreach(Gtk.Widget wid in ResourceCardViewTable)
+		{
+			ResourceCardViewTable.Remove(wid);
+		}
+		
+		uint row = 0;
+		foreach(ResourceCard card in Game.GetInstance().State.CurrentPlayer.ResourceCards)
+		{
+			System.Console.WriteLine("Row " + row+ " has " + card.toString());
+			Gtk.Label label = new Gtk.Label(card.toString());
+			Gtk.ToggleButton button = new Gtk.ToggleButton("VOID");
+			button.Active = card.Active;
+			button.Toggled += ResourceCardViewTableButton_toggled;
+			
+			/* Toggle */
+        	if (card.Active)
+	        	button.Label = "Operating";        	
+        	else
+        		button.Label = "Idle";
+			
+			ResourceCardViewTable.Attach(label, 0, 1, row, row+1);
+			ResourceCardViewTable.Attach(button, 1, 2, row, row+1);
+			row++;
+		}
+	
+		ResourceCardView.ShowAll();
+	}
+	
+	void ResourceCardViewTableButton_toggled (object obj, EventArgs args)
+    {
+        Console.WriteLine ("Button Toggled");
+        if (!(obj is Gtk.ToggleButton))
+        	return;
+        Gtk.ToggleButton btn = (Gtk.ToggleButton)obj;
+        
+        ArrayList ResourceCards = Game.GetInstance().State.CurrentPlayer.ResourceCards; 
+        
+		/* Determine correlation with ResourceCards */
+        int cardIt = ResourceCards.Count;
+		cardIt--;
+		
+		foreach(Widget wid in ResourceCardViewTable) 
+		{
+			if (wid is Gtk.ToggleButton) 
+			{
+				if (wid == obj)
+					break;
+				cardIt--;
+			}			
+		}
+
+		/* We're dealing with cardIt */
+		ResourceCard card = (ResourceCard)ResourceCards[cardIt];
+		System.Console.WriteLine("Doing " +card.toString());
+		
+		/* Toggle */
+		card.Active = btn.Active;
+        if (btn.Active)
+        	btn.Label = "Operating";        	
+        else
+        	btn.Label = "Idle";        	
+        
+        updateGUIStatusBoxes();
+    }
+	
+	public void on_ResourceCardViewOkay_clicked(System.Object obj, EventArgs e)
+	{
+		ResourceCardView.Hide();
 	}
 		
 	/* Strategic Target Selection Options */

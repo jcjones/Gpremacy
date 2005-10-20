@@ -21,6 +21,7 @@ class DeckDealer {
 	int costPerCard;
 	Resource targetResource;
 	Unit targetUnit;
+	bool finished;
 
 	private static DeckDealer instance;
 	private static int numOfReference;	
@@ -73,13 +74,13 @@ class DeckDealer {
 	public Resource TargetResource 
 	{
 		get { return targetResource; }
-		set { targetResource = value; }
+		set { targetResource = value; targetUnit = null; }
 	}
 
 	public Unit TargetUnit 
 	{
 		get { return targetUnit; }
-		set { targetUnit = value; }
+		set { targetUnit = value; targetResource = null; }
 	}
 	
 	public bool targetIsResource() 
@@ -89,7 +90,8 @@ class DeckDealer {
 		
 	public void show()
 	{
-		cardsFlipped = 0;		
+		cardsFlipped = 0;
+		finished = false;		DeckDealerLegend.Text = "Searching For ";
 		Game.GetInstance().ShuffleResourceCards();
 		
 		/* This window is modal */		
@@ -112,6 +114,9 @@ class DeckDealer {
 	
 	private void updateStatusBoxes()
 	{
+		if (finished)
+			return;
+					
 		DeckDealerLegend.Text = "Searching For ";
 		if (targetIsResource())
 			DeckDealerLegend.Text += targetResource.Name; 
@@ -134,27 +139,13 @@ class DeckDealer {
 	private bool checkForSufficientWealth()
 	{
 		Player p = Game.GetInstance().State.CurrentPlayer;
-		int totalMoney = 0;
+		
 		if (!targetIsResource())
 		{
-		/* Check resources */
-			foreach (Stock s in targetUnit.CostResources) 
-			{
-				if (p.getStockpileAmount(s.Good) < s.Number)
-			 	{
-			 		System.Console.WriteLine("You do not have enough " + s.Good.Name +".");
-				 	return false;
-			 	}
-			}
-			totalMoney += targetUnit.CostMoney;
+			return Game.GetInstance().hasSufficientWeath(p, targetUnit.CostResources, targetUnit.CostMoney+(cardsFlipped+1)*costPerCard);
+		} else {
+			return Game.GetInstance().hasSufficientWeath(p, (Dictionary)null, (cardsFlipped+1)*costPerCard);		
 		}
-		totalMoney += (cardsFlipped+1)*costPerCard;
-		
-		/* Check funds */
-		if (p.Money < totalMoney)
-			return false;
-			 
-		return true;
 	}
 	
 	private void on_DeckDealer_exposed (object o, ExposeEventArgs args)
@@ -180,8 +171,12 @@ class DeckDealer {
        	layout.SetText("\n\nGpremacy Resource Card");       	
         DeckDealerDrawLeft.GdkWindow.DrawLayout(textcolor, 15, 20, layout);
                 
-        layout.SetText(Game.GetInstance().CurrentResourceCard.toString());
-        DeckDealerDrawRight.GdkWindow.DrawLayout(textcolor, 15, 20, layout);
+        if (!Game.GetInstance().JustShuffledResourceCards)
+        {
+        	/* Don't show a card after shuffling until the user flips one */
+        	layout.SetText(Game.GetInstance().CurrentResourceCard.toString());
+	        DeckDealerDrawRight.GdkWindow.DrawLayout(textcolor, 15, 20, layout);
+        }
         								
 	}
 	public void drawCardFace(Gdk.Window win, Gdk.GC outline, Gdk.GC fill, int x, int y, int w, int h)	
@@ -207,11 +202,16 @@ class DeckDealer {
 		win.DrawLine(outline, left, top+hcorner, left, bottom-hcorner);
 		win.DrawLine(outline, right, top+hcorner, right, bottom-hcorner);
 	}
+
 	private void on_DeckDealerFlip_clicked(System.Object obj, EventArgs e)
 	{		
 		cardsFlipped++;
-		Game.GetInstance().NextResourceCard();
-		
+
+		if (Game.GetInstance().JustShuffledResourceCards)
+			Game.GetInstance().JustShuffledResourceCards = false;
+		else
+			Game.GetInstance().NextResourceCard();
+				
 		ResourceCard card = Game.GetInstance().CurrentResourceCard;
 		if (card.isResource() && targetIsResource())
 		{
@@ -219,7 +219,21 @@ class DeckDealer {
 			if (card.Good.Name == targetResource.Name)
 			{
 				Console.WriteLine("Found Target Resource");
+				finished = true;
 				DeckDealerFlip.Sensitive = false;
+				DeckDealerStatus.Text = "Charging " + cardsFlipped*costPerCard;
+				
+				/* Purchase this card */
+				Orig_ChargeMoney cmd3 = new Orig_ChargeMoney(cardsFlipped*costPerCard, Game.GetInstance().State.CurrentPlayer);
+				Game.GetInstance().State.Execute(cmd3);
+				cardsFlipped = 0; // don't make them double-pay				
+				
+				DeckDealerFlip.Sensitive = false; // stop their clicking manias
+								
+				/* Add this card to the player's hand, marked unopened */
+				card.Active = false;
+				Orig_AddResourceCard cmd4 = new Orig_AddResourceCard(card, Game.GetInstance().State.CurrentPlayer);
+				Game.GetInstance().State.Execute(cmd4);
 			}
 		} else if (!card.isResource() && !targetIsResource()) {
 			Console.WriteLine("Both Are Units");
@@ -227,7 +241,9 @@ class DeckDealer {
 			{
 				Unit nu = targetUnit.Clone(Game.GetInstance().State.CurrentPlayer); // copy that, rogue two.
 				
+				finished = true;
 				Console.WriteLine("Found Target Unit");
+				DeckDealerStatus.Text = "Charging " + cardsFlipped*costPerCard;
 				/* Set available */
 				Game.GetInstance().State.CurrentPlayer.makeUnitAvailable(nu);
 				
@@ -237,7 +253,12 @@ class DeckDealer {
 				Orig_BuildUnit cmd2 = new Orig_BuildUnit(nu, null, Game.GetInstance().State.CurrentPlayer);
 				Game.GetInstance().State.Execute(cmd2);
 								
-				DeckDealerFlip.Sensitive = false;
+				/* Pay for flipped cards */
+				Orig_ChargeMoney cmd3 = new Orig_ChargeMoney(cardsFlipped*costPerCard, Game.GetInstance().State.CurrentPlayer);
+				Game.GetInstance().State.Execute(cmd3);
+				cardsFlipped = 0; // don't make them double-pay				
+				
+				DeckDealerFlip.Sensitive = false; // stop their clicking manias
 			}
 		}		
 				
