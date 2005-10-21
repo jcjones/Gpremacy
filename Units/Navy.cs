@@ -56,7 +56,16 @@ class Navy : TacticalUnit {
 	
 	public override bool canMoveTo ( Territory dest )
 	{		
-		return (1 == Game.GetInstance().GUI.Map.distanceBetween(CurrentLocation, dest));
+		/* Enforce distance */
+		if (Game.GetInstance().GUI.Map.distanceBetween(CurrentLocation, dest) > 1)
+			return false;
+			
+		/* If the territory is a deep sea, can move */
+		if (!dest.IsLand && dest.IsDeep)
+			return true;
+		
+		/* Only allow movement to unoccupied territories, then. */
+		return dest.occupiable(owner);
 	}
 	
 	public override bool CanHoldTroops

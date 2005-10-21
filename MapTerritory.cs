@@ -11,6 +11,7 @@ namespace Gpremacy{
 class MapTerritory
 {
 	public bool isLand;
+	public bool deepSea;
 	public Point[] borders;
 	public Region region;
 	Pango.Layout label;
@@ -26,6 +27,7 @@ class MapTerritory
 
 	public MapTerritory (String name, bool land_i, ArrayList borders_i, Pango.Context pango_context)
 	{
+		deepSea = false;
 		isLand = land_i;
 		borders = new Point[borders_i.Count];
 		connectedTerritories = new ArrayList();
@@ -61,7 +63,7 @@ class MapTerritory
 		//labelX = centerX - (szX/2);
 		//labelY = centerY - (szY/2);						
 	}
-	
+		
 	public void draw(Gdk.Window win, int ox, int oy, int szx, int szy, Gdk.Color terr)
 	{
 		/* This function allows drawing the territory at a

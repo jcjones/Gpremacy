@@ -47,7 +47,7 @@ class Army : TacticalUnit {
 		
 	public override bool canMoveTo ( Territory dest )
 	{		
-		return (dest.Owner == owner || dest.Units.Count < 1); 
+		return (dest.occupiable(owner)); 
 	}
 
 	public override ArrayList calculateMovementCost(Territory b)

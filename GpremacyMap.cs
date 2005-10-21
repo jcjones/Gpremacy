@@ -144,15 +144,23 @@ class GpremacyMap : DrawingArea
        		}
        		
        		/* Take care of connection graphs */       		
-       		Territory home;
+       		Territory home, targetTerritory;
        		String target;
+       		bool noLand;
        		foreach (ArrayList graph in graphConnections) {
+       			noLand = true;
        			home = (Territory)graph[0];
        			
        			for (int i=1; i<graph.Count; i++) {
        				target=(String)graph[i];
-       				home.MapTerritory.addConnection(getTerritoryByName(target));
+       				targetTerritory = getTerritoryByName(target);
+       				if (targetTerritory.IsLand)
+       					noLand = false;
+       				home.MapTerritory.addConnection(targetTerritory);
        			}
+       			
+       			if (noLand)
+       				home.MapTerritory.deepSea = true;
        		}
         }
         
@@ -186,7 +194,7 @@ class GpremacyMap : DrawingArea
 				if (t == startPoint)
 					connectionDistances[t.ID] = 0;
 				else
-					connectionDistances[t.ID] = 600;
+					connectionDistances[t.ID] = Int32.MaxValue-100;
 				connectionWayPoints[t.ID] = -1;
 			}
 /*			System.Console.WriteLine("PRE- Distances From " + startPoint.Name + " -");
@@ -243,6 +251,24 @@ class GpremacyMap : DrawingArea
         	if (a.MapTerritory.ConnectionDistances == null)
 				updatePathsFrom(a);
         	return a.MapTerritory.ConnectionDistances[b.ID];
+        }
+        
+        public int distanceFromClosestHomeTerritory(Territory a, Player p)
+        {
+        	int shortest = Int32.MaxValue;
+        	foreach(Territory terr in Territories)
+        	{
+        		if (terr.OriginalOwner != p.CountryID || terr == a)
+        			continue;
+        			
+        		int tmp = distanceBetween(a, terr);
+        		System.Console.WriteLine("Dist btwn " + terr.Name + " and " + a.Name + " = " + tmp);
+        		
+        		if (tmp < shortest)
+        			shortest = tmp;
+        	}
+        	System.Console.WriteLine("Closest terr to " + a.Name + " is " + shortest);
+        	return shortest;
         }
         
         /* Pretty Stuff */

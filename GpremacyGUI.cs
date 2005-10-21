@@ -12,6 +12,7 @@ class GpremacyGUI {
 	Game game;
 	Gdk.Region invalRegion;
 	DeckDealer deckDealer;
+	CombatView combatView;
 
 	/* Main Window*/
 	[Glade.Widget] Gtk.Viewport MapViewport;
@@ -101,8 +102,30 @@ class GpremacyGUI {
 
 		// Init sub-widgets and windows
 		updateGUIStatusBoxes();			
-		deckDealer = DeckDealer.GetInstance();	
-									
+		deckDealer = DeckDealer.GetInstance();
+		combatView = new CombatView();
+		
+		/* Fake Crap */
+		/*Player Play = (Player)Game.GetInstance().LocalPlayers[0];
+		Territory Hom = Map.getTerritoryByName("Russia");
+		if (Play == null) Console.WriteLine("NULL RUSSIA");
+		Orig_BuildUnit cmd1 = new Orig_BuildUnit(new Army(Play, Hom), Hom, Play);
+		Game.GetInstance().State.Execute(cmd1);
+		cmd1 = new Orig_BuildUnit(new Army(Play, Hom), Hom, Play);
+		Game.GetInstance().State.Execute(cmd1);
+		cmd1 = new Orig_BuildUnit(new Army(Play, Hom), Hom, Play);
+		Game.GetInstance().State.Execute(cmd1);
+		
+		Play = (Player)Game.GetInstance().LocalPlayers[1];
+		Hom = Map.getTerritoryByName("Iraq");
+		if (Play == null)  Console.WriteLine("NULL IRAQ");
+		cmd1 = new Orig_BuildUnit(new Army(Play, Hom), Hom, Play);
+		Game.GetInstance().State.Execute(cmd1);							
+		cmd1 = new Orig_BuildUnit(new Army(Play, Hom), Hom, Play);
+		Game.GetInstance().State.Execute(cmd1);							
+		cmd1 = new Orig_BuildUnit(new Army(Play, Hom), Hom, Play);
+		Game.GetInstance().State.Execute(cmd1);*/
+		/* Done Fake Crap */							
 		Application.Run ();
 	}
 	
@@ -338,14 +361,18 @@ class GpremacyGUI {
     	MarketBuySellOkay.Clicked -= on_MarketBuyOkay_clicked;
     	MarketBuySellOkay.Clicked -= on_MarketSellOkay_clicked;
     	
+   		MineralsScroll.ValueChanged -= MarketBuyProfitCalculation;
+   		GrainScroll.ValueChanged -= MarketBuyProfitCalculation;
+   		OilScroll.ValueChanged -= MarketBuyProfitCalculation;    		
+   		MineralsScroll.ValueChanged -= MarketSellProfitCalculation;
+   		GrainScroll.ValueChanged -= MarketSellProfitCalculation;
+   		OilScroll.ValueChanged -= MarketSellProfitCalculation;
+    	
     	if (sell > 0) { /* Sell Stage */
 	    	MineralsScroll.SetRange(0.0, (double)game.State.CurrentPlayer.getStockpileAmount(new Minerals()));
 	    	OilScroll.SetRange(0.0, (double)game.State.CurrentPlayer.getStockpileAmount(new Oil()));
 	    	GrainScroll.SetRange(0.0, (double)game.State.CurrentPlayer.getStockpileAmount(new Grain()));
     		
-    		MineralsScroll.ValueChanged -= MarketBuyProfitCalculation;
-    		GrainScroll.ValueChanged -= MarketBuyProfitCalculation;
-    		OilScroll.ValueChanged -= MarketBuyProfitCalculation;    		
     		MineralsScroll.ValueChanged += MarketSellProfitCalculation;
     		GrainScroll.ValueChanged += MarketSellProfitCalculation;
     		OilScroll.ValueChanged += MarketSellProfitCalculation;
@@ -361,9 +388,6 @@ class GpremacyGUI {
 	    	OilScroll.SetRange(0.0, 99.0);
 	    	GrainScroll.SetRange(0.0, 99.0);
 
-    		MineralsScroll.ValueChanged -= MarketSellProfitCalculation;
-    		GrainScroll.ValueChanged -= MarketSellProfitCalculation;
-    		OilScroll.ValueChanged -= MarketSellProfitCalculation;
     		MineralsScroll.ValueChanged += MarketBuyProfitCalculation;
     		GrainScroll.ValueChanged += MarketBuyProfitCalculation;
     		OilScroll.ValueChanged += MarketBuyProfitCalculation;
@@ -1004,6 +1028,16 @@ class GpremacyGUI {
 		ResourceCardView.Hide();
 	}
 		
+	/* Conventional Battle Display */
+	public void showConventionalBattle(Territory Target, Territory Stage, Player Attacker, Player Defender) 
+	{
+		combatView.BattleLocation = Target;
+		combatView.StagingLocation = Stage;
+		combatView.Attacker = Attacker;
+		combatView.Defender = Defender;
+		combatView.showConventionalBattle();
+	}	
+		
 	/* Strategic Target Selection Options */
 	public void on_StrategicTargetSelection_delete_event(System.Object obj, EventArgs e)
 	{
@@ -1021,19 +1055,7 @@ class GpremacyGUI {
 	}	
 	public void on_StratBattle_clicked(System.Object obj, EventArgs e)
 	{
-	}
-	
-	/* Conventional Battle Selection Options*/
-	public void on_ConventionalBattle_delete_event(System.Object obj, EventArgs e)
-	{
 	}	
-	public void on_ConvBattleOkay_clicked(System.Object obj, EventArgs e)
-	{
-	}	
-	public void on_ConvBattleCancel_clicked(System.Object obj, EventArgs e)
-	{
-	}	
-	
 			
 }
 }

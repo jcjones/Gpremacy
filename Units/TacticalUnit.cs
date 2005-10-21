@@ -11,7 +11,7 @@ class TacticalUnit : Unit {
 	}	
 	
 	public virtual bool canMoveTo ( Territory dest )
-	{		
+	{
 		return true;
 	}
 	

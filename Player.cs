@@ -153,6 +153,16 @@ class Player {
 		return ret;
 	}
 	
+	/* Slow... don't run often */	
+	public void updateResourceCards()
+	{
+		foreach(ResourceCard card in resourceCards)
+		{
+			if (card.Place.Owner != this)
+				card.Active = false;
+		}
+	}
+	
 	public void addResourceCard(ResourceCard i)
 	{
 		resourceCards.Add(i);
@@ -213,6 +223,20 @@ class Player {
 	public int changeResourceStockpile(Resource good, int val)
 	{
 		return changeResourceStockpile(new Stock(good, val));
+	}
+	
+	public int countActiveUnits(Unit target)
+	{
+		if (target == null)
+			return activeUnits.Count;
+		
+		int count = 0;
+		
+		foreach (Unit unit in activeUnits)
+			if (unit.Name == target.Name)
+				count++;
+		
+		return count;
 	}
 	
 	public bool canBuild(Unit u) {

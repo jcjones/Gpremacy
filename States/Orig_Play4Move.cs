@@ -16,6 +16,11 @@ class Orig_Play4Move : State {
 		return "Phase 4: Movement";
 	} 		
 	
+	public override void beginPlayer(Player p) {
+		previousTerritory = currentTerritory = null;
+		arrowOn = false;		
+	}
+	
 	public override bool mouseClick(Territory target, uint Button)
 	{
 		if (Button != 1) 
@@ -151,7 +156,12 @@ class Orig_MoveUnit : Command {
 	public override void Execute(Game game) {		
 		/* Confirm we can move here ... don't bother for unexecute */
 		if (unit.canMoveTo(next)) 
-		{			
+		{
+			/* Claim territory */
+			Player oldOwner = next.Owner;
+			next.Owner = curPlay;			
+			oldOwner.updateResourceCards(); // deactivate
+						
 			/* Charge Movement Cost */
 			foreach (Stock s in moveCost)
 			{

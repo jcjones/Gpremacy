@@ -19,10 +19,17 @@ class Orig_Play5Build : State {
 		Unit nu;
 		Player me = Game.GetInstance().State.CurrentPlayer;
 		
+		
 		if (target.MapTerritory.isLand)
+		{
+			if (target.Owner != me)
+				return false;
 			nu = new Army(me, target);
-		else
+		} else {
+			if (Game.GetInstance().GUI.Map.distanceFromClosestHomeTerritory(target, me) > 1)
+				return false;
 			nu = new Navy(me, target);
+		}
 		
 		/* Can't use Contains since hash values are different ... search stupidly */
 		foreach(Unit u in unitsToBuild)

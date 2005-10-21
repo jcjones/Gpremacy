@@ -137,6 +137,11 @@ class Game {
 	//	set { players = value; }
 	}
 	
+	public ArrayList LocalPlayers
+	{
+		get { return localplayers; }
+	}
+	
 	public GpremacyGUI GUI
 	{
 		get { return mainGUI; }

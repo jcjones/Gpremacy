@@ -1111,7 +1111,6 @@
   <property name="skip_pager_hint">False</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <signal name="delete_event" handler="on_ConventionalBattle_delete_event" last_modification_time="Thu, 22 Sep 2005 01:00:00 GMT"/>
 
   <child>
     <widget class="GtkVBox" id="vbox5">
@@ -1126,7 +1125,7 @@
 	  <property name="spacing">0</property>
 
 	  <child>
-	    <widget class="GtkDrawingArea" id="UnitLegendConvBattle">
+	    <widget class="GtkDrawingArea" id="ConvBattleUnitLegend">
 	      <property name="visible">True</property>
 	    </widget>
 	    <packing>
@@ -1137,7 +1136,7 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkLabel" id="label23">
+	    <widget class="GtkLabel" id="ConvBattleLabel">
 	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">The Battle For Territory</property>
 	      <property name="use_underline">False</property>
@@ -1198,7 +1197,7 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkDrawingArea" id="AttackerUnits">
+		<widget class="GtkDrawingArea" id="ConvBattleAttackerUnits">
 		  <property name="visible">True</property>
 		</widget>
 		<packing>
@@ -1209,7 +1208,7 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkLabel" id="AttackerDice">
+		<widget class="GtkLabel" id="ConvBattleAttackerDice">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">Die Rolls</property>
 		  <property name="use_underline">False</property>
@@ -1264,7 +1263,7 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkDrawingArea" id="DefenderUnits">
+		<widget class="GtkDrawingArea" id="ConvBattleDefenderUnits">
 		  <property name="visible">True</property>
 		</widget>
 		<packing>
@@ -1275,7 +1274,7 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkLabel" id="DefenderDice">
+		<widget class="GtkLabel" id="ConvBattleDefenderDice">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">Die Rolls</property>
 		  <property name="use_underline">False</property>
@@ -1316,12 +1315,11 @@
 	  <property name="spacing">0</property>
 
 	  <child>
-	    <widget class="GtkButton" id="button5">
+	    <widget class="GtkButton" id="ConvBattleOkay">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
-	      <signal name="clicked" handler="on_ConvBattleOkay_clicked" last_modification_time="Fri, 23 Sep 2005 22:38:19 GMT"/>
 
 	      <child>
 		<widget class="GtkAlignment" id="alignment3">
@@ -1391,12 +1389,11 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkButton" id="button10">
+	    <widget class="GtkButton" id="ConvBattleCancel">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
-	      <signal name="clicked" handler="on_ConvBattleCancel_clicked" last_modification_time="Fri, 23 Sep 2005 22:38:10 GMT"/>
 
 	      <child>
 		<widget class="GtkAlignment" id="alignment7">

@@ -76,5 +76,7 @@
     <File name="./States/Command.cs" subtype="Code" buildaction="Compile" />
     <File name="./Resource/Stock.cs" subtype="Code" buildaction="Compile" />
     <File name="./DeckDealer.cs" subtype="Code" buildaction="Compile" />
+    <File name="./CombatView.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Support/RandomDie.cs" subtype="Code" buildaction="Compile" />
   </Contents>
 </Project>

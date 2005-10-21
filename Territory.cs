@@ -64,10 +64,25 @@ class Territory
 		return (Friendlies(IFF).Count > 0);
 	}
 	
+	public bool occupiable (Player IFF)
+	{
+		foreach (TacticalUnit joe in units)
+		{
+			if (joe.Owner != IFF)
+				return false;
+		}
+		System.Console.WriteLine("Appears to be occupiable.");
+		return true;
+	}
+	
 	public string toString() 
 	{
 		string ret;
 		ret = "\nTerritory " + name + " [#"+ID+"], owned by " + owner.toString() + ".\n";
+		if (IsLand)
+			ret += "[Is Land] ";
+		if (IsDeep)
+			ret += "[Is Deep] ";
 		ret += "Unit List:\n";
 		foreach (Unit u in units)
 		{
@@ -136,6 +151,11 @@ class Territory
 	public bool IsLand
 	{
 		get { return mapTerritory.isLand; }
+	}
+	
+	public bool IsDeep
+	{
+		get { return mapTerritory.deepSea; }
 	}
 		
 	public void draw(Gdk.Window win, Gdk.Color terr, Gdk.Color textcolor, Pango.Context pango_context)
