@@ -5,6 +5,8 @@ class Orig_Play3Attack : State {
 	Territory previousTerritory;
 	Territory currentTerritory;
 	bool arrowOn;
+	bool selectingTargets;
+	CombatView combatView;
 	
 	public Orig_Play3Attack (Game game_i) : base(game_i,3,4)
 	{
@@ -17,12 +19,35 @@ class Orig_Play3Attack : State {
 	
 	public override void beginPlayer(Player p) {
 		previousTerritory = currentTerritory = null;
-		arrowOn = false;		
+		arrowOn = selectingTargets = false;		
+	}
+	
+	public void strategicAttack()
+	{
+		selectingTargets = true;
+		Game game = Game.GetInstance();
+		
+		combatView = game.GUI.CombatView;
+		
+		combatView.Attacker = game.State.CurrentPlayer;
+		combatView.showStrategicTargetSelection();
+	}
+	public void doneSelectingStrategicTargets()
+	{
+		selectingTargets = false;
 	}
 	
 	public override bool mouseClick(Territory target, uint Button)
 	{
 		Player player = Game.GetInstance().State.CurrentPlayer;
+		
+		if (selectingTargets)
+		{
+			combatView.AddStrategicTarget(target);
+			return true;
+		}
+		
+		/* Conventional Attack Logic */
 		if (Button != 1) 
 		{
 			/* Cancelling */
@@ -91,6 +116,71 @@ class Orig_Play3Attack : State {
 			return true;
 		}
 		return false;
+	}
+}
+
+class NuclearTarget
+{
+	public NuclearTarget(Territory t, int i)
+	{ territory = t; icbms = i; }
+	public Territory territory;
+	public int icbms;
+}
+
+class Orig_AttackStrategicStart : Command
+{
+	Player attacker;
+	ArrayList defenders; // of Player
+	ArrayList nuclearTargetList; // of NuclearTarget
+	
+	public Orig_AttackStrategicStart(Player a, ArrayList b, ArrayList c)
+	{
+		attacker = a; defenders = b; nuclearTargetList = c;		
+	}
+	
+	public override void Execute(Game game)
+	{
+		game.GUI.CombatView.Attacker = attacker;
+		
+		foreach(Player player in defenders)
+			if (Game.GetInstance().LocalPlayers.Contains(player))
+			{
+				System.Console.WriteLine("Opening strategic battle window for " + player.Name);
+				game.GUI.CombatView.showStrategicBattle(nuclearTargetList, player);
+				break;
+			}		
+	}	
+}
+
+class Orig_AttackStrategicDetonate : Command
+{
+	Territory target;
+	public Orig_AttackStrategicDetonate (Territory a)
+	{
+		target = a;
+	}
+	
+	public override void Execute(Game game)
+	{
+		target.Destroyed = true;
+		ArrayList unitList = (ArrayList)target.Units.Clone();
+		ArrayList playersInTarget = new ArrayList();
+		
+		/* Determine who's in that territory */
+		foreach (Unit unit in unitList)
+		{
+			if (!playersInTarget.Contains(unit.Owner))
+				playersInTarget.Add(unit.Owner);
+		}
+		
+		foreach (Player player in playersInTarget)
+		{
+			Orig_AttackDeleteUnits cmd = new Orig_AttackDeleteUnits(unitList, player, target);
+			game.State.Execute(cmd);
+		}
+		
+		/* Show detonation */
+		game.GUI.showNuclearDetonationAnimation(target);
 	}
 }
 

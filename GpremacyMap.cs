@@ -11,7 +11,6 @@ class GpremacyMap : DrawingArea
 {
         Pango.Layout layout;
         ArrayList territories;
-        Gdk.Pixbuf bgimagePixbuf;
         GraphicsStorage store;
         Game game;
         Gdk.Region region;
@@ -73,12 +72,7 @@ class GpremacyMap : DrawingArea
                 /* */
                 
         }
- 
-        void OnWinDelete (object o, DeleteEventArgs args)
-        {
-                Application.Quit ();
-        }
-        
+         
         void LoadCountryBoundaries ()
         {
         	String line;
@@ -196,7 +190,7 @@ class GpremacyMap : DrawingArea
 		{
 			connectionDistances = new int[territories.Count];
 			connectionWayPoints = new int[territories.Count];
-			Territory current;
+			//Territory current;
 			
 			/* Initialize Graph */
 			foreach(Territory t in territories)
@@ -287,5 +281,6 @@ class GpremacyMap : DrawingArea
         {
         	this.GdkWindow.DrawLine (this.Style.BlackGC, a.X, a.Y, b.X, b.Y);
         }
+        
 }
 }

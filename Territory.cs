@@ -118,7 +118,7 @@ class Territory
 	public bool Destroyed
 	{
 		get { return destroyed; }
-		set { destroyed = value; }
+		set { if (mapTerritory.IsLand) destroyed = value; }
 	}
 	
 	public int OriginalOwner
@@ -169,31 +169,53 @@ class Territory
 		get { return mapTerritory.deepSea; }
 	}
 		
+	public void showNuke(Gdk.Window win, int frame)
+	{
+			Gdk.GC whocares = new Gdk.GC(win);
+ 			GraphicsStorage store = GraphicsStorage.GetInstance();
+ 			 			
+ 			Gdk.Pixbuf gfx = store.getFrame(store.Detonation, frame, store.DetonationFrames);
+
+ 			int x = mapTerritory.centerX - (gfx.Width/2);
+ 			int y = mapTerritory.centerY - (gfx.Height/2);
+ 			
+			win.DrawPixbuf(whocares, gfx, 0, 0, x, y, gfx.Width, gfx.Height, RgbDither.Normal, 1, 1);	   		
+	}
+		
 	public void draw(Gdk.Window win, Gdk.Color terr, Gdk.Color textcolor, Pango.Context pango_context)
 	{
+   		Gdk.GC textcoloring = new Gdk.GC(win);
+   		textcoloring.RgbFgColor = textcolor;
 	   	int carriedUnits = 0;
 	   	string extraLabel = "";
 	   	
 		/* Draw the map */ 
 	   	mapTerritory.draw(win, terr, textcolor);
 	   	
-	   	/* Show personnel carrier status */
+	   	/* Show radiation if destroyed */
+	   	if (destroyed)
+	   	{
+ 			GraphicsStorage store = GraphicsStorage.GetInstance();
+ 			int x = mapTerritory.centerX;
+ 			int y = mapTerritory.centerY;
+			win.DrawPixbuf(textcoloring, store.Radiation, 0, 0, x, y, store.Radiation.Width, store.Radiation.Height, RgbDither.Normal, 1, 1);	   		
+	   	}
+	   	
+	   	/* Determine personnel carrier status */
 	   	foreach(TacticalUnit joe in units)
 	   		carriedUnits += joe.UnitsAboardCount;	   		
 	   	if (carriedUnits > 0)
 	   		extraLabel = "(" + carriedUnits + ")";
-	   		
+	   		   		
 		/* Draw the first N units staggered, then use a label to show further #'s */
 	   	for (int offset=0; offset < units.Count && offset < 3; offset++)
 	   	{
 	   		((TacticalUnit)units[offset]).draw(win, offset*5);
 	   	}
+	   	
 	   	/* Label */
 	   	if (units.Count > 1 || carriedUnits > 0)
-	   	{
-	   		Gdk.GC textcoloring = new Gdk.GC(win);
-	   		textcoloring.RgbFgColor = textcolor;
-	   		
+	   	{	   		
    	        Pango.Layout label = new Pango.Layout (pango_context);
 			label.Wrap = Pango.WrapMode.Word;
 			label.FontDescription = FontDescription.FromString ("Tahoma 8");

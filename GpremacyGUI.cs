@@ -1,6 +1,7 @@
 // project created on 07/05/2005 at 20:05
 using System;
 using System.Collections;
+using System.Threading;
 using Gtk;
 using Glade;
 using Pango;
@@ -23,8 +24,8 @@ class GpremacyGUI {
 	[Glade.Widget] Gtk.TextView ResourcesTextBox;
 	[Glade.Widget] Gtk.TextView WorldMarketTextBox;
 	[Glade.Widget] Gtk.TextView LogTextBox;
-	[Glade.Widget] Gtk.TextView StatsTextBox;
-	[Glade.Widget] Gtk.TextView MiscTextBox;
+//	[Glade.Widget] Gtk.TextView StatsTextBox;
+//	[Glade.Widget] Gtk.TextView MiscTextBox;
 
 	/* Naval Options */	
 	[Glade.Widget] Gtk.Window LoadNavalOptions;
@@ -134,8 +135,13 @@ class GpremacyGUI {
 		get { return MapArea; }
 	}
 	
-   public void OnMotion (object o, MotionNotifyEventArgs args)
-   {
+	public CombatView CombatView
+	{
+		get { return combatView; }
+	}
+	
+	public void OnMotion (object o, MotionNotifyEventArgs args)
+	{
       	double x = args.Event.X;//+MapScrolledWindow2.Hadjustment.Value;
    		double y = args.Event.Y;//+MapScrolledWindow2.Vadjustment.Value;
 
@@ -274,6 +280,13 @@ class GpremacyGUI {
 		updateGUIStatusBoxes();
 	}
 	
+	public void on_strategic_attack1_activate(System.Object obj, EventArgs e)
+	{
+		State curState = Game.GetInstance().State.CurrentState;
+		if (curState is Orig_Play3Attack)
+			((Orig_Play3Attack)curState).strategicAttack();
+	}
+	
 	public void updateGUIStatusBoxes()
 	{
 		writeToOrderOfPlayTextBox("Turn Number: " + game.State.TurnNumber + "\nCurrent Player:\n" + game.State.CurrentPlayer.toString() + "\nCurrent State:\n" + game.State.StateIDName);								
@@ -339,6 +352,20 @@ class GpremacyGUI {
 	       	
 	   	invalRegion = Gdk.Region.Polygon(arrow, FillRule.WindingRule);
     }
+    
+    public void showNuclearDetonationAnimation(Territory target)
+	{	
+    	Gdk.Window win = (Gdk.Window)Game.GetInstance().GUI.Map.GdkWindow;
+    	
+		int frames = GraphicsStorage.GetInstance().DetonationFrames;
+		for (int i=0; i<frames; i++)
+		{
+			redrawTerritory(target);
+			target.showNuke(win, i);			
+			MapArea.GdkWindow.ProcessUpdates(true);
+		    Thread.Sleep(20);
+		}   
+	}
 
     public void ShowError(string error)
     {       	

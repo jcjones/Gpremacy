@@ -15,7 +15,14 @@ class Orig_Play1Upkeep : State {
 	
 	public override bool mouseClick(Territory target, uint Button)
 	{
-		return false;
+		if (Button != 2)
+			return false;
+			
+		/* Test detonation ! */
+		Orig_AttackStrategicDetonate cmd = new Orig_AttackStrategicDetonate(target);
+		Game.GetInstance().State.Execute(cmd);
+		/* Done testing detonation */ 
+		return true;
 	}
 	
 	public override bool mouseMotion(double x, double y, Territory curTerr, uint Button)

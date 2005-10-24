@@ -102,6 +102,28 @@
 		<widget class="GtkMenu" id="menuitem5_menu">
 
 		  <child>
+		    <widget class="GtkImageMenuItem" id="strategic_attack1">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">Launch nuclear weapons against a target</property>
+		      <property name="label" translatable="yes">Strategic Attack</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_strategic_attack1_activate" last_modification_time="Mon, 24 Oct 2005 02:36:50 GMT"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image19">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-no</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
 		    <widget class="GtkCheckMenuItem" id="always_march1">
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Always _March</property>
@@ -142,7 +164,7 @@
 		      <signal name="activate" handler="on_manage_resource_cards1_activate" last_modification_time="Tue, 18 Oct 2005 21:49:47 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image16">
+			<widget class="GtkImage" id="image20">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-zoom-fit</property>
 			  <property name="icon_size">1</property>
@@ -1274,6 +1296,25 @@
 	      </child>
 
 	      <child>
+		<widget class="GtkCheckButton" id="ConvBattleFullDefense">
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="label" translatable="yes">Full Defense (Costs a supply set)</property>
+		  <property name="use_underline">True</property>
+		  <property name="relief">GTK_RELIEF_NORMAL</property>
+		  <property name="focus_on_click">True</property>
+		  <property name="active">True</property>
+		  <property name="inconsistent">False</property>
+		  <property name="draw_indicator">True</property>
+		</widget>
+		<packing>
+		  <property name="padding">0</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
+		</packing>
+	      </child>
+
+	      <child>
 		<widget class="GtkLabel" id="ConvBattleDefenderDice">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">Die Rolls</property>
@@ -1476,7 +1517,7 @@
   <property name="title" translatable="yes">Strategic Target Selection</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">True</property>
+  <property name="modal">False</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>
@@ -1484,7 +1525,6 @@
   <property name="skip_pager_hint">False</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <signal name="delete_event" handler="on_StrategicTargetSelection_delete_event" last_modification_time="Thu, 22 Sep 2005 01:00:06 GMT"/>
 
   <child>
     <widget class="GtkVBox" id="vbox8">
@@ -1500,6 +1540,7 @@
 
 	  <child>
 	    <widget class="GtkDrawingArea" id="StrategicLegend">
+	      <property name="width_request">200</property>
 	      <property name="visible">True</property>
 	    </widget>
 	    <packing>
@@ -1510,14 +1551,14 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkLabel" id="label24">
+	    <widget class="GtkLabel" id="StrategicTargetArsenal">
 	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">Strategic Arsenal:
 8 Nuclear ICBMs</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
-	      <property name="wrap">False</property>
+	      <property name="wrap">True</property>
 	      <property name="selectable">False</property>
 	      <property name="xalign">0.5</property>
 	      <property name="yalign">0.5</property>
@@ -1528,6 +1569,61 @@
 	      <property name="padding">0</property>
 	      <property name="expand">False</property>
 	      <property name="fill">False</property>
+	    </packing>
+	  </child>
+	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">True</property>
+	  <property name="fill">True</property>
+	</packing>
+      </child>
+
+      <child>
+	<widget class="GtkHBox" id="hbox32">
+	  <property name="visible">True</property>
+	  <property name="homogeneous">False</property>
+	  <property name="spacing">0</property>
+
+	  <child>
+	    <widget class="GtkLabel" id="label57">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">Target</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_CENTER</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label58">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">Warhead Count</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_CENTER</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
 	    </packing>
 	  </child>
 	</widget>
@@ -1553,9 +1649,9 @@
 	      <property name="shadow_type">GTK_SHADOW_IN</property>
 
 	      <child>
-		<widget class="GtkTable" id="table2">
+		<widget class="GtkTable" id="StrategicTargetTable">
 		  <property name="visible">True</property>
-		  <property name="n_rows">3</property>
+		  <property name="n_rows">2</property>
 		  <property name="n_columns">2</property>
 		  <property name="homogeneous">False</property>
 		  <property name="row_spacing">0</property>
@@ -1578,8 +1674,8 @@
 		    <packing>
 		      <property name="left_attach">0</property>
 		      <property name="right_attach">1</property>
-		      <property name="top_attach">2</property>
-		      <property name="bottom_attach">3</property>
+		      <property name="top_attach">1</property>
+		      <property name="bottom_attach">2</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
@@ -1600,56 +1696,29 @@
 		    <packing>
 		      <property name="left_attach">1</property>
 		      <property name="right_attach">2</property>
-		      <property name="top_attach">2</property>
-		      <property name="bottom_attach">3</property>
+		      <property name="top_attach">1</property>
+		      <property name="bottom_attach">2</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
 
 		  <child>
-		    <widget class="GtkLabel" id="label27">
+		    <widget class="GtkSpinButton" id="SpaceBurstNumber">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Target</property>
-		      <property name="use_underline">False</property>
-		      <property name="use_markup">False</property>
-		      <property name="justify">GTK_JUSTIFY_LEFT</property>
+		      <property name="can_focus">True</property>
+		      <property name="climb_rate">1</property>
+		      <property name="digits">0</property>
+		      <property name="numeric">False</property>
+		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
+		      <property name="snap_to_ticks">False</property>
 		      <property name="wrap">False</property>
-		      <property name="selectable">False</property>
-		      <property name="xalign">0</property>
-		      <property name="yalign">0.5</property>
-		      <property name="xpad">0</property>
-		      <property name="ypad">0</property>
-		    </widget>
-		    <packing>
-		      <property name="left_attach">0</property>
-		      <property name="right_attach">1</property>
-		      <property name="top_attach">0</property>
-		      <property name="bottom_attach">1</property>
-		      <property name="x_options">fill</property>
-		      <property name="y_options"></property>
-		    </packing>
-		  </child>
-
-		  <child>
-		    <widget class="GtkLabel" id="label28">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Number of Warheads</property>
-		      <property name="use_underline">False</property>
-		      <property name="use_markup">False</property>
-		      <property name="justify">GTK_JUSTIFY_LEFT</property>
-		      <property name="wrap">False</property>
-		      <property name="selectable">False</property>
-		      <property name="xalign">0</property>
-		      <property name="yalign">0.5</property>
-		      <property name="xpad">0</property>
-		      <property name="ypad">0</property>
+		      <property name="adjustment">0 0 100 1 10 10</property>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">1</property>
 		      <property name="right_attach">2</property>
 		      <property name="top_attach">0</property>
 		      <property name="bottom_attach">1</property>
-		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
@@ -1671,30 +1740,9 @@
 		    <packing>
 		      <property name="left_attach">0</property>
 		      <property name="right_attach">1</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
+		      <property name="top_attach">0</property>
+		      <property name="bottom_attach">1</property>
 		      <property name="x_options">fill</property>
-		      <property name="y_options"></property>
-		    </packing>
-		  </child>
-
-		  <child>
-		    <widget class="GtkSpinButton" id="SpaceBurstNumber">
-		      <property name="visible">True</property>
-		      <property name="can_focus">True</property>
-		      <property name="climb_rate">1</property>
-		      <property name="digits">0</property>
-		      <property name="numeric">False</property>
-		      <property name="update_policy">GTK_UPDATE_ALWAYS</property>
-		      <property name="snap_to_ticks">False</property>
-		      <property name="wrap">False</property>
-		      <property name="adjustment">0 0 100 1 10 10</property>
-		    </widget>
-		    <packing>
-		      <property name="left_attach">1</property>
-		      <property name="right_attach">2</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
@@ -1717,12 +1765,11 @@
 	  <property name="spacing">0</property>
 
 	  <child>
-	    <widget class="GtkButton" id="button7">
+	    <widget class="GtkButton" id="StrategicTargetOkay">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
-	      <signal name="clicked" handler="on_StratTargetOkay_clicked" last_modification_time="Fri, 23 Sep 2005 22:36:35 GMT"/>
 
 	      <child>
 		<widget class="GtkAlignment" id="alignment5">
@@ -1792,26 +1839,83 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkButton" id="button8">
+	    <widget class="GtkButton" id="StrategicTargetCancel">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
-	      <property name="label">Think of the _Children!</property>
-	      <property name="use_underline">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
-	      <signal name="clicked" handler="on_StratTargetCancel_clicked" last_modification_time="Fri, 23 Sep 2005 22:36:24 GMT"/>
+
+	      <child>
+		<widget class="GtkAlignment" id="alignment14">
+		  <property name="visible">True</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xscale">0</property>
+		  <property name="yscale">0</property>
+		  <property name="top_padding">0</property>
+		  <property name="bottom_padding">0</property>
+		  <property name="left_padding">0</property>
+		  <property name="right_padding">0</property>
+
+		  <child>
+		    <widget class="GtkHBox" id="hbox31">
+		      <property name="visible">True</property>
+		      <property name="homogeneous">False</property>
+		      <property name="spacing">2</property>
+
+		      <child>
+			<widget class="GtkImage" id="image17">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-cancel</property>
+			  <property name="icon_size">4</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
+			</packing>
+		      </child>
+
+		      <child>
+			<widget class="GtkLabel" id="label56">
+			  <property name="visible">True</property>
+			  <property name="label">Think of the _Children!</property>
+			  <property name="use_underline">True</property>
+			  <property name="use_markup">False</property>
+			  <property name="justify">GTK_JUSTIFY_LEFT</property>
+			  <property name="wrap">False</property>
+			  <property name="selectable">False</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
+			</packing>
+		      </child>
+		    </widget>
+		  </child>
+		</widget>
+	      </child>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>
-	      <property name="expand">True</property>
+	      <property name="expand">False</property>
 	      <property name="fill">True</property>
 	    </packing>
 	  </child>
 	</widget>
 	<packing>
 	  <property name="padding">0</property>
-	  <property name="expand">True</property>
-	  <property name="fill">True</property>
+	  <property name="expand">False</property>
+	  <property name="fill">False</property>
 	</packing>
       </child>
     </widget>
@@ -1830,7 +1934,6 @@
   <property name="skip_pager_hint">False</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <signal name="delete_event" handler="on_StrategicBattle_delete_event" last_modification_time="Thu, 22 Sep 2005 01:00:15 GMT"/>
 
   <child>
     <widget class="GtkVBox" id="vbox9">
@@ -1846,6 +1949,7 @@
 
 	  <child>
 	    <widget class="GtkDrawingArea" id="StrategicBattleLegend">
+	      <property name="width_request">200</property>
 	      <property name="visible">True</property>
 	    </widget>
 	    <packing>
@@ -1856,14 +1960,14 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkLabel" id="label40">
+	    <widget class="GtkLabel" id="StrategicBattleLabel">
 	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">Number of 
 Defending L-Stars: 2</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
-	      <property name="wrap">False</property>
+	      <property name="wrap">True</property>
 	      <property name="selectable">False</property>
 	      <property name="xalign">0.5</property>
 	      <property name="yalign">0.5</property>
@@ -1885,6 +1989,84 @@ Defending L-Stars: 2</property>
       </child>
 
       <child>
+	<widget class="GtkHBox" id="hbox33">
+	  <property name="visible">True</property>
+	  <property name="homogeneous">False</property>
+	  <property name="spacing">0</property>
+
+	  <child>
+	    <widget class="GtkLabel" id="label35">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">Target</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label36">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">Number of
+Incoming ICBMs</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label37">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">Number of 
+L-Stars to Fire</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
+	    </packing>
+	  </child>
+	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">True</property>
+	  <property name="fill">False</property>
+	</packing>
+      </child>
+
+      <child>
 	<widget class="GtkScrolledWindow" id="scrolledwindow8">
 	  <property name="visible">True</property>
 	  <property name="can_focus">True</property>
@@ -1899,87 +2081,13 @@ Defending L-Stars: 2</property>
 	      <property name="shadow_type">GTK_SHADOW_IN</property>
 
 	      <child>
-		<widget class="GtkTable" id="table3">
+		<widget class="GtkTable" id="StrategicBattleTable">
 		  <property name="visible">True</property>
-		  <property name="n_rows">2</property>
+		  <property name="n_rows">1</property>
 		  <property name="n_columns">3</property>
 		  <property name="homogeneous">False</property>
 		  <property name="row_spacing">0</property>
 		  <property name="column_spacing">0</property>
-
-		  <child>
-		    <widget class="GtkLabel" id="label35">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Target</property>
-		      <property name="use_underline">False</property>
-		      <property name="use_markup">False</property>
-		      <property name="justify">GTK_JUSTIFY_LEFT</property>
-		      <property name="wrap">False</property>
-		      <property name="selectable">False</property>
-		      <property name="xalign">0</property>
-		      <property name="yalign">0.5</property>
-		      <property name="xpad">0</property>
-		      <property name="ypad">0</property>
-		    </widget>
-		    <packing>
-		      <property name="left_attach">0</property>
-		      <property name="right_attach">1</property>
-		      <property name="top_attach">0</property>
-		      <property name="bottom_attach">1</property>
-		      <property name="x_options">fill</property>
-		      <property name="y_options"></property>
-		    </packing>
-		  </child>
-
-		  <child>
-		    <widget class="GtkLabel" id="label36">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Number of
-Incoming ICBMs</property>
-		      <property name="use_underline">False</property>
-		      <property name="use_markup">False</property>
-		      <property name="justify">GTK_JUSTIFY_LEFT</property>
-		      <property name="wrap">False</property>
-		      <property name="selectable">False</property>
-		      <property name="xalign">0</property>
-		      <property name="yalign">0.5</property>
-		      <property name="xpad">0</property>
-		      <property name="ypad">0</property>
-		    </widget>
-		    <packing>
-		      <property name="left_attach">1</property>
-		      <property name="right_attach">2</property>
-		      <property name="top_attach">0</property>
-		      <property name="bottom_attach">1</property>
-		      <property name="x_options">fill</property>
-		      <property name="y_options"></property>
-		    </packing>
-		  </child>
-
-		  <child>
-		    <widget class="GtkLabel" id="label37">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Number of 
-L-Stars to Fire</property>
-		      <property name="use_underline">False</property>
-		      <property name="use_markup">False</property>
-		      <property name="justify">GTK_JUSTIFY_LEFT</property>
-		      <property name="wrap">False</property>
-		      <property name="selectable">False</property>
-		      <property name="xalign">0</property>
-		      <property name="yalign">0.5</property>
-		      <property name="xpad">0</property>
-		      <property name="ypad">0</property>
-		    </widget>
-		    <packing>
-		      <property name="left_attach">2</property>
-		      <property name="right_attach">3</property>
-		      <property name="top_attach">0</property>
-		      <property name="bottom_attach">1</property>
-		      <property name="x_options">fill</property>
-		      <property name="y_options"></property>
-		    </packing>
-		  </child>
 
 		  <child>
 		    <widget class="GtkSpinButton" id="StrategicTargetDefendingLStars">
@@ -1996,8 +2104,8 @@ L-Stars to Fire</property>
 		    <packing>
 		      <property name="left_attach">2</property>
 		      <property name="right_attach">3</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
+		      <property name="top_attach">0</property>
+		      <property name="bottom_attach">1</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
@@ -2019,8 +2127,8 @@ L-Stars to Fire</property>
 		    <packing>
 		      <property name="left_attach">0</property>
 		      <property name="right_attach">1</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
+		      <property name="top_attach">0</property>
+		      <property name="bottom_attach">1</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
@@ -2043,8 +2151,8 @@ L-Stars to Fire</property>
 		    <packing>
 		      <property name="left_attach">1</property>
 		      <property name="right_attach">2</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
+		      <property name="top_attach">0</property>
+		      <property name="bottom_attach">1</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
@@ -2062,12 +2170,11 @@ L-Stars to Fire</property>
       </child>
 
       <child>
-	<widget class="GtkButton" id="button9">
+	<widget class="GtkButton" id="StrategicBattleOkay">
 	  <property name="visible">True</property>
 	  <property name="can_focus">True</property>
 	  <property name="relief">GTK_RELIEF_NORMAL</property>
 	  <property name="focus_on_click">True</property>
-	  <signal name="clicked" handler="on_StratBattle_clicked" last_modification_time="Fri, 23 Sep 2005 22:36:46 GMT"/>
 
 	  <child>
 	    <widget class="GtkAlignment" id="alignment6">

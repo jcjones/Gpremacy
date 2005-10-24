@@ -13,6 +13,7 @@ class  GraphicsStorage
 	private Gdk.Pixbuf navy;
 	private Gdk.Pixbuf lsat;
 	private Gdk.Pixbuf icbm;
+	private Gdk.Pixbuf radiation;
 	private Gdk.Pixbuf detonation;
 	private Gdk.Pixbuf map;
 	
@@ -24,20 +25,9 @@ class  GraphicsStorage
 		navy = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/navy.png"));
 		lsat = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/lsat.png"));
 		icbm = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/icbm.png"));
-		
+		radiation = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/radiation.png")); 		
+		detonation = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/detonation.png"));		
 		map = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/classic_map.jpg"));
-		
-		if (army == null)
-			throw ( new System.IO.FileNotFoundException("Couldn't find army.png image") );
-		if (navy == null)
-			throw ( new System.IO.FileNotFoundException("Couldn't find navy.png image") );
-		if (lsat == null)
-			throw ( new System.IO.FileNotFoundException("Couldn't find lsat.png image") );
-		if (icbm == null)
-			throw ( new System.IO.FileNotFoundException("Couldn't find icbm.png image") );
-		if (map == null)
-			throw ( new System.IO.FileNotFoundException("Couldn't find classic_map.jpg image") );
-			
 	} 
 
 	public static GraphicsStorage GetInstance()
@@ -71,9 +61,35 @@ class  GraphicsStorage
 	{
 		get { return icbm; }
 	}
+	public Gdk.Pixbuf Radiation
+	{
+		get { return radiation; }
+	}
+	public Gdk.Pixbuf Detonation
+	{
+		get { return detonation; }
+	}
 	public Gdk.Pixbuf Map
 	{
 		get { return map; }
 	}
+	
+	public int DetonationFrames
+	{
+		get { return 32; }
+	}
+	
+	public Gdk.Pixbuf getFrame(Gdk.Pixbuf buf, int framenum, int maxframes)
+	{
+		if (framenum >= maxframes)
+			throw new System.ArgumentOutOfRangeException("Asked for frame #"+framenum + " when there are only " + maxframes + " frames.");
+			
+		int frameWidth = buf.Width / maxframes;
+		
+		Gdk.Pixbuf frame = new Gdk.Pixbuf(buf, framenum*frameWidth, 0, frameWidth, buf.Height);
+		
+		return frame;
+	}
+	
 }
 }

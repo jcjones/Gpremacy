@@ -57,7 +57,7 @@ class MapTerritory
 		label.Alignment = Pango.Alignment.Center;
 		label.FontDescription = FontDescription.FromString ("Tahoma 9");
 		label.SetMarkup (name);		
-		
+				
 		//int szX, szY;
 		//label.GetPixelSize(out szX, out szY);
 		//labelX = centerX - (szX/2);
