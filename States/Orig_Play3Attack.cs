@@ -49,9 +49,15 @@ class Orig_Play3Attack : State {
 		}
 		
 		currentTerritory = target;
+
+//		Game.GetInstance().GUI.showConventionalBattle(currentTerritory, previousTerritory, player, currentTerritory.Owner);
 		
 		/* Confirm that they're adjacent */
 		if (Game.GUI.Map.distanceBetween(previousTerritory, currentTerritory) > 1)
+			return false;
+			
+		/* Confirm that they're of the same type */
+		if (previousTerritory.IsLand != currentTerritory.IsLand)
 			return false;
 		
 		/* Confirm that it's occupied */
@@ -113,23 +119,6 @@ class Orig_AttackConventionalStart : Command
 	}	
 }
 
-class Orig_PruneOrphanedUnits : Command
-{
-	public override void Execute(Game game)
-	{
-		foreach(Player play in game.Players)
-		{
-			foreach(Unit unit in play.ActiveUnits)
-			{
-				if (unit is TacticalUnit)
-				{
-					if (((TacticalUnit)Unit).
-				}
-			}
-		}
-	}	
-}
-
 class Orig_AttackDeleteUnits : Command
 {
 	ArrayList units;
@@ -153,6 +142,11 @@ class Orig_AttackDeleteUnits : Command
 			}
 			curPlay.ActiveUnits.Remove(unit);
 			System.Console.Write(unit.Name + " ");
+			if (unit is TacticalUnit)
+			{
+				if (((TacticalUnit)unit).CanHoldTroops)
+					((TacticalUnit)unit).DeleteUnitsAboard(-1);
+			}
 		}
 		System.Console.WriteLine(".");
 		if (land != null)

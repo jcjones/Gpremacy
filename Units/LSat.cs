@@ -1,12 +1,13 @@
 // created on 08/28/2005 at 09:34
+using Gdk;
 using System.Collections;
 
 namespace Gpremacy {
 class LSat : StrategicUnit {
-	bool FiredThisTurn;
+	bool firedThisTurn;
 	public LSat (Player lord) : base(lord)
 	{
-		FiredThisTurn = false;
+		firedThisTurn = false;
 	}	
 
 	public override string Name
@@ -19,6 +20,12 @@ class LSat : StrategicUnit {
 		get { return 1000; }
 	}
 	
+	public bool FiredThisTurn
+	{
+		get { return firedThisTurn; }
+		set { firedThisTurn = value; }
+	}
+	
 	public override ArrayList CostResources
 	{
 		get { 
@@ -26,6 +33,13 @@ class LSat : StrategicUnit {
 			r.Add(new Stock(new Minerals(), -2));
 			return r;
 		}
+	}
+	
+	override public void draw(Gdk.Window win, int x, int y)
+	{
+		Gdk.GC context = new Gdk.GC(win);
+ 		GraphicsStorage store = GraphicsStorage.GetInstance();
+		win.DrawPixbuf(context, store.LSat, 0, 0, x, y, store.LSat.Width, store.LSat.Height, RgbDither.Normal, 1, 1);
 	}
 	
 	public override Unit Clone(Player p)

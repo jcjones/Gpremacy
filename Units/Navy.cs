@@ -10,16 +10,12 @@ class Navy : TacticalUnit {
 	{
 		hold = new Territory(-1, "Ship hold", lord.CountryID, lord, false, null, null);
 	}	
-	override public void draw(Gdk.Window win, int offset)
-	{	
+	override public void draw(Gdk.Window win, int x, int y)
+	{
 		Gdk.GC context = new Gdk.GC(win);
  		GraphicsStorage store = GraphicsStorage.GetInstance();
-	   	
-		int X = CurrentLocation.MapTerritory.centerX+offset;
-		int Y = CurrentLocation.MapTerritory.centerY+offset;
-		
-		win.DrawPixbuf(context, store.Navy, 0, 0, X, Y, store.Navy.Width, store.Navy.Height, RgbDither.Normal, 1, 1);
-	}
+		win.DrawPixbuf(context, store.Navy, 0, 0, x, y, store.Army.Width, store.Army.Height, RgbDither.Normal, 1, 1);
+	}	
 	
 	public override string Name
 	{
@@ -76,6 +72,24 @@ class Navy : TacticalUnit {
 	public override int UnitsAboardCount
 	{
 		get { return hold.Units.Count; }
+	}
+
+	public override void DeleteUnitsAboard(int num)
+	{
+		if (num < 0 || num > UnitsAboardCount) 
+			num = UnitsAboardCount;
+
+		ArrayList oldUnits = (ArrayList)hold.Units.Clone();
+		System.Console.Write("Hold removing [");
+		
+		for (int i=0; i<num; i++)
+		{
+			hold.removeUnit((Unit)oldUnits[i]);   			
+			owner.ActiveUnits.Remove((Unit)oldUnits[i]);
+			System.Console.Write(((Unit)oldUnits[i]).Name + " ");
+		}
+		
+		System.Console.WriteLine("]");
 	}
 	
 	public Territory Hold 

@@ -30,7 +30,8 @@ class Territory
 			mapTerritory = new MapTerritory();
 		destroyed = false;
 		units = new ArrayList();
-		resources = new ArrayList();		
+		resources = new ArrayList();
+							
 	}
 	
 	public ArrayList Units
@@ -41,6 +42,16 @@ class Territory
 	public ArrayList Resources
 	{
 		get { return resources; }
+	}
+	
+	public Gdk.Color Color
+	{
+		get { 
+			if (!mapTerritory.IsLand)
+				return new Gdk.Color(18,100,186);
+			else
+				return Owner.Color;
+		}
 	}
 
 	public ArrayList Friendlies(Player bob)

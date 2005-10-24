@@ -30,6 +30,10 @@ class Unit {
 	{
 	}
 	
+	public virtual void draw(Gdk.Window win, int x, int y)
+	{
+	}	
+	
 	public virtual string toString()
 	{
 		string ret;

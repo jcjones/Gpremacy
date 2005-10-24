@@ -142,7 +142,7 @@ class GpremacyGUI {
    		/* Find territory */
 	   	Territory target = null;   	
 	   	
-	   	foreach (Territory here in MapArea.getTerritories())
+	   	foreach (Territory here in MapArea.Territories)
 	   	{
 	   		if ( here.MapTerritory.checkClick(x,y) )
 	   		{
@@ -175,7 +175,7 @@ class GpremacyGUI {
       	double x = args.Event.X;//+MapScrolledWindow2.Hadjustment.Value;
    		double y = args.Event.Y;//+MapScrolledWindow2.Vadjustment.Value;
 	   	
-	   	foreach (Territory here in MapArea.getTerritories())
+	   	foreach (Territory here in MapArea.Territories)
 	   	{
 	   		if ( here.MapTerritory.checkClick(x,y) )
 	   		{
@@ -196,11 +196,17 @@ class GpremacyGUI {
 	
 	public void redrawTerritory(Territory target)
 	{
-		MapArea.GdkWindow.InvalidateRegion(target.MapTerritory.region,true);	
+		//MapArea.GdkWindow.InvalidateRegion(target.MapTerritory.region,true);
+
+		MapArea.GdkWindow.InvalidateRegion(Map.Region, true);
 	}
 	
+	/* Reset and start a new game */
 	public void on_new1_activate(System.Object obj, EventArgs e) 
-	{}
+	{
+			game.DistributeResourceCards(); // Should not be in this file..
+			game.GiveInitialUnits(); // Should not be in this file..	
+	}
 	public void on_open1_activate(System.Object obj, EventArgs e) 
 	{}
 	public void on_save1_activate(System.Object obj, EventArgs e) 
@@ -310,8 +316,8 @@ class GpremacyGUI {
     {
 		clearArrow();
 
-		int x = a.MapTerritory.centerX;
-		int y = a.MapTerritory.centerY;
+		//int x = a.MapTerritory.centerX;
+		//int y = a.MapTerritory.centerY;
 		//int w = b.MapTerritory.centerX - x;
 		//int h = b.MapTerritory.centerY - y;
 
@@ -335,10 +341,10 @@ class GpremacyGUI {
     }
 
     public void ShowError(string error)
-    {    
+    {       	
 		MessageDialog dlg = new MessageDialog
      	(MainWindow, Gtk.DialogFlags.Modal,
-     	Gtk.MessageType.Error, Gtk.ButtonsType.Ok,  error);     	
+     	Gtk.MessageType.Error, Gtk.ButtonsType.Ok,  GLib.Markup.EscapeText(error));
         dlg.Title = "Gpremacy Error!";     
         dlg.Run();
         dlg.Destroy();        
@@ -348,7 +354,7 @@ class GpremacyGUI {
     {
 		MessageDialog dlg = new MessageDialog
      	(MainWindow, Gtk.DialogFlags.Modal,
-     	Gtk.MessageType.Warning, Gtk.ButtonsType.Ok,  warning);
+     	Gtk.MessageType.Warning, Gtk.ButtonsType.Ok,  GLib.Markup.EscapeText(warning));
      	dlg.Title = "Gpremacy Warning!";     
         dlg.Run();
         dlg.Destroy();

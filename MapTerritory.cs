@@ -74,49 +74,62 @@ class MapTerritory
 	   	Gdk.GC field = new Gdk.GC(win);
 	   	field.RgbFgColor = terr;
 	   	
-	   	int minx = borders[0].X , miny = borders[0].Y, maxx = 0, maxy = 0, x, y;	   	
+	   	int minx = borders[0].X , miny = borders[0].Y, maxx = 0, maxy = 0, x = 0 , y = 0;	   	
 	   	Point[] translated_borders = new Point[borders.Length];
 	   	
 	   	/* Determine bounds */
 	   	for(int i=0; i<borders.Length; i++)
 	   	{
 	   		if (minx > borders[i].X) minx = borders[i].X;
-	   		if (miny > borders[i].Y) miny = borders[i].Y;	   		
-	   		System.Console.WriteLine("(x,y)=("+borders[i].X+","+borders[i].Y+")");
+	   		if (miny > borders[i].Y) miny = borders[i].Y;
+	   		
+	   		if (borders[i].X > maxx) maxx = borders[i].X;
+	   		if (borders[i].Y > maxy) maxy = borders[i].Y;	   
+	   		//System.Console.WriteLine("(x,y)=("+borders[i].X+","+borders[i].Y+")");
 	   	}
 
 	   	/* Translate */ 	   	
 	   	int tx = minx-ox, ty = miny-oy;
-	   	System.Console.WriteLine("Tx, ty="+tx+","+ty);	 
+	   	System.Console.WriteLine("Tx, ty="+tx+","+ty+" MinX,MinY="+minx+","+miny+" MaxX,MaxY="+maxx+","+maxy);	 
 	   		   	
+	   	maxx = maxy = 0;
 	   	for(int i=0; i<borders.Length; i++)
 	   	{
-	   		x = translated_borders[i].X-tx;
-	   		y = translated_borders[i].Y-ty;
+	   		x = borders[i].X-tx;
+	   		y = borders[i].Y-ty;
 	   			   		
-	   		System.Console.WriteLine("(x,y)=("+x+","+y+")");
-	   		translated_borders[i] = new Point(x,y);
-	   		
 	   		if (x > maxx) maxx = x;
 	   		if (y > maxy) maxy = y;	   			   		   		
+
+	   		translated_borders[i] = new Point(x,y);
 	   	}	   	
 
-	   	/* Scale */
+	   	/* Scale uniformly */
 	   	double scaleX = (double)(szx)/maxx;
 	   	double scaleY = (double)(szy)/maxy;
+
 	   	System.Console.WriteLine("Sx, Sy="+scaleX+","+scaleY+" MaxX,MaxY="+maxx+","+maxy);	 
+	   	
+	   	if (scaleX > scaleY)
+	   		scaleX = scaleY;
+		else
+			scaleY = scaleX;			   
 	   	
 	   	for(int i=0; i<borders.Length; i++)
 	   	{
 	   		x = (int)(translated_borders[i].X*scaleX);
 	   		y = (int)(translated_borders[i].Y*scaleY);
-	   			   		
-	   		System.Console.WriteLine("(x,y)=("+x+","+y+")");
+
+			if (true)	   			   		
+	   			System.Console.WriteLine(i+":(x,y)=("+x+","+y+")");
 	   		translated_borders[i] = new Point(x,y);
 
 	   	}
 	   	  	
-		System.Console.WriteLine("Drawing: ");
+		System.Console.WriteLine("End Sample x: " + x+ " y:" + y);
+		
+		/* Draw */
+		win.DrawPolygon(field, true, translated_borders);
 	}	
 	
 	public void draw(Gdk.Window win, Gdk.Color terr, Gdk.Color textcolor) 

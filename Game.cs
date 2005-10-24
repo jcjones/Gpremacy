@@ -52,7 +52,7 @@ class Game {
 		allunits = new ArrayList();
 		allresources = new ArrayList();
 
-		playerNobody = new Player(-1, "Nobody");
+		playerNobody = new Player(-1, "Nobody", new Gdk.Color(123,123,123));
 		placeNowhere = new Territory(-1, "Nowhere", playerNobody.CountryID, playerNobody, false, null, null);
 
 		allunits.Add(new Army(playerNobody, placeNowhere));
@@ -71,8 +71,8 @@ class Game {
 		/* Force local setup */
 		((Player)players[0]).Active = true;
 		localplayers.Add(players[0]);
-		((Player)players[4]).Active = true;
-		localplayers.Add(players[4]);
+		((Player)players[1]).Active = true;
+		localplayers.Add(players[1]);
 		/* Done forcing local setup */
 				
 		market = new GpremacyMarket();
@@ -181,12 +181,12 @@ class Game {
 		
 	void setupPlayers()
 	{
-		players.Add(new Player(1, "United States of America"));
-		players.Add(new Player(2, "Confederacy of South America"));
-		players.Add(new Player(3, "Federation of African States"));
-		players.Add(new Player(4, "League of European Nations"));
-		players.Add(new Player(5, "Union of Soviet Sovereign Republics"));
-		players.Add(new Player(6, "People's Republic of China"));
+		players.Add(new Player(1, "United States of America", new Gdk.Color(8,75,8)));
+		players.Add(new Player(2, "Confederacy of South America", new Gdk.Color(22,158,22)));
+		players.Add(new Player(3, "Federation of African States", new Gdk.Color(157,31,200)));
+		players.Add(new Player(4, "League of European Nations", new Gdk.Color(179,94,11)));
+		players.Add(new Player(5, "Union of Soviet Sovereign Republics", new Gdk.Color(178,11,93)));
+		players.Add(new Player(6, "People's Republic of China", new Gdk.Color(178,137,11)));
 		
 		/*foreach (Player p in players)
 			p.Active = false;
@@ -236,6 +236,21 @@ class Game {
 			return false;		
 		}
 		return true; 					
+	}
+
+	public void GiveInitialUnits() 
+	{
+		Army unit;
+		foreach(Territory territory in GUI.Map.Territories)
+		{
+			if (territory.IsLand && territory.Owner != PlayerNobody && territory.Owner.Active)
+			{
+				unit = new Army(territory.Owner, territory);
+				territory.addUnit(unit);   			
+				GUI.redrawTerritory(territory);
+				territory.Owner.ActiveUnits.Add(unit);
+			}
+		}
 	}
 
 	public bool JustShuffledResourceCards

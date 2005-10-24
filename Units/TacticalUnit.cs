@@ -14,6 +14,13 @@ class TacticalUnit : Unit {
 	{
 		return true;
 	}
+
+	override public void draw(Gdk.Window win, int offset)
+	{	
+		int X = CurrentLocation.MapTerritory.centerX+offset;
+		int Y = CurrentLocation.MapTerritory.centerY+offset;
+		this.draw(win, X, Y);
+	}	
 	
 	public bool moveTo ( Territory dest )
 	{
@@ -29,6 +36,10 @@ class TacticalUnit : Unit {
 	public virtual int UnitsAboardCount
 	{
 		get { return 0; }
+	}
+	
+	public virtual void DeleteUnitsAboard(int num)
+	{		
 	}
 	
 	public virtual ArrayList UnitsAboard

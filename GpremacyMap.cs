@@ -10,23 +10,29 @@ namespace Gpremacy{
 class GpremacyMap : DrawingArea
 {
         Pango.Layout layout;
-        ArrayList Territories;
+        ArrayList territories;
         Gdk.Pixbuf bgimagePixbuf;
         GraphicsStorage store;
         Game game;
+        Gdk.Region region;
  
         public GpremacyMap (Game igame)
         {
         	game = igame;
-			Territories = new ArrayList();
+			territories = new ArrayList();
 			this.Realized += OnRealized;
 			this.ExposeEvent += OnExposed;
 			LoadCountryBoundaries();
-			game.LoadResourceCards(Territories);
-			game.DistributeResourceCards(); // Should not be in this file..      
-            
+			game.LoadResourceCards(territories);
+
             store = GraphicsStorage.GetInstance();    
-                        
+
+			Gdk.Point[] borders = new Point[4];
+			borders[0]=new Point(0,0);
+			borders[1]=new Point(store.Map.Width,0);
+			borders[2]=new Point(store.Map.Width,store.Map.Height);
+			borders[3]=new Point(0,store.Map.Height);
+			region = Gdk.Region.Polygon(borders, FillRule.WindingRule);                        
 
 			this.SetSizeRequest(store.Map.Width, store.Map.Height);
 			
@@ -41,7 +47,7 @@ class GpremacyMap : DrawingArea
 			//this.GdkWindow.DrawLayout(this.Style.TextGC (StateType.Normal), 100, 150, layout);                
 			
 			
-			foreach(Territory item in Territories)
+			foreach(Territory item in territories)
 			{
 				Gdk.Color owner = new Gdk.Color ((byte)255, (byte)64, (byte)64);
 				Gdk.Color text;
@@ -123,7 +129,7 @@ class GpremacyMap : DrawingArea
 		        				points.Add(new Gdk.Point(x,y));
 		        			} 
 							lastTerritory = new Territory(id++, name, ownerid, owner, isLand, points, this.PangoContext);
-							Territories.Add(lastTerritory);
+							territories.Add(lastTerritory);
                         	points.Clear();
 	       				}
 	       			} else {
@@ -164,18 +170,22 @@ class GpremacyMap : DrawingArea
        		}
         }
         
+        public Gdk.Region Region
+        {
+        	get { return region; }
+        }
+        
         public Territory getTerritoryByName(String name)
         {
-        	foreach (Territory t in Territories)
+        	foreach (Territory t in territories)
         		if (t.Name == name)
         			return t;
         	throw new Exception("Could not find the territory by name of " + name +". Check your countries.csv file; maybe you mispelled it?");
-        	return null;        	
-        }
+        }        
         
-        public ArrayList getTerritories()
+        public ArrayList Territories
         {
-        	return Territories;
+        	get { return territories; }
         }
 
         /* Graph Functions */
@@ -184,12 +194,12 @@ class GpremacyMap : DrawingArea
        								out int[] connectionDistances, 
 							       	out int[] connectionWayPoints)
 		{
-			connectionDistances = new int[Territories.Count];
-			connectionWayPoints = new int[Territories.Count];
+			connectionDistances = new int[territories.Count];
+			connectionWayPoints = new int[territories.Count];
 			Territory current;
 			
 			/* Initialize Graph */
-			foreach(Territory t in Territories)
+			foreach(Territory t in territories)
 			{
 				if (t == startPoint)
 					connectionDistances[t.ID] = 0;
@@ -198,9 +208,9 @@ class GpremacyMap : DrawingArea
 				connectionWayPoints[t.ID] = -1;
 			}
 /*			System.Console.WriteLine("PRE- Distances From " + startPoint.Name + " -");
-			foreach(Territory edge in startPoint.MapTerritory.ConnectedTerritories)
+			foreach(Territory edge in startPoint.MapTerritory.Connectedterritories)
 				if (edge.ID > 0)
-					System.Console.WriteLine("To " + edge.Name + " is " +  connectionDistances[edge.ID] +" through " + ((connectionWayPoints[edge.ID]>=0)?((Territory)Territories[connectionWayPoints[edge.ID]]).Name:"Nowhere"));
+					System.Console.WriteLine("To " + edge.Name + " is " +  connectionDistances[edge.ID] +" through " + ((connectionWayPoints[edge.ID]>=0)?((Territory)territories[connectionWayPoints[edge.ID]]).Name:"Nowhere"));
 */							
 /*  
    // Step 2: relax edges repeatedly
@@ -212,15 +222,15 @@ class GpremacyMap : DrawingArea
                v.distance := u.distance + uv.weight
                v.predecessor := u
 */
-			for (int i=0; i<Territories.Count; i++)
+			for (int i=0; i<territories.Count; i++)
 			{
-				//Console.WriteLine("Checking Terr " + ((Territory)Territories[i]).Name);
-				foreach(Territory edge in ((Territory)Territories[i]).MapTerritory.ConnectedTerritories)
+				//Console.WriteLine("Checking Terr " + ((Territory)territories[i]).Name);
+				foreach(Territory edge in ((Territory)territories[i]).MapTerritory.ConnectedTerritories)
 				{
 					//Console.WriteLine("  Checking Edge " + edge.Name);
 					if (connectionDistances[edge.ID] > connectionDistances[i]+1)
 					{
-						//Console.WriteLine("    Changing Edge " + edge.Name + " to come from " + ((Territory)Territories[i]).Name);
+						//Console.WriteLine("    Changing Edge " + edge.Name + " to come from " + ((Territory)territories[i]).Name);
 						connectionDistances[edge.ID] = connectionDistances[i]+1;
 						connectionWayPoints[edge.ID] = i;
 						//Console.WriteLine("    UEDONE");
@@ -232,9 +242,9 @@ class GpremacyMap : DrawingArea
 			/* Every distance of a ConnectedTerritory must be 1, so uncomment this to error check */
 			/*
 			System.Console.WriteLine("- Distances From " + startPoint.Name + " -");
-			foreach(Territory edge in startPoint.MapTerritory.ConnectedTerritories)
+			foreach(Territory edge in startPoint.MapTerritory.Connectedterritories)
 				if (edge.ID > 0)
-					System.Console.WriteLine("To " + edge.Name + " is " +  connectionDistances[edge.ID] +" through " + ((connectionWayPoints[edge.ID]>=0)?((Territory)Territories[connectionWayPoints[edge.ID]]).Name:"Nowhere"));			
+					System.Console.WriteLine("To " + edge.Name + " is " +  connectionDistances[edge.ID] +" through " + ((connectionWayPoints[edge.ID]>=0)?((Territory)territories[connectionWayPoints[edge.ID]]).Name:"Nowhere"));			
 			*/
 		}
 		
@@ -256,7 +266,7 @@ class GpremacyMap : DrawingArea
         public int distanceFromClosestHomeTerritory(Territory a, Player p)
         {
         	int shortest = Int32.MaxValue;
-        	foreach(Territory terr in Territories)
+        	foreach(Territory terr in territories)
         	{
         		if (terr.OriginalOwner != p.CountryID || terr == a)
         			continue;

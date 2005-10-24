@@ -12,8 +12,9 @@ class Player {
 	long money;
 	ArrayList resourceCards; // of ResourceCards
 	bool isActive;
+	Gdk.Color color;
 	
-	public Player (int id, string n)
+	public Player (int id, string n, Gdk.Color c)
 	{
 		isActive = false;
 		countryID = id;
@@ -32,6 +33,8 @@ class Player {
 		availableUnits.Add(new Navy(this, Game.GetInstance().PlaceNowhere));
 		//availableUnits.Add(new Nuke(this));
 		//availableUnits.Add(new LSat(this));
+		
+		color = c;
 	}
 	
 	public string toString ()
@@ -76,7 +79,12 @@ class Player {
 	{
 		get { return 12; }
 	}
-	
+	public Gdk.Color Color
+	{
+		get { return color; }
+		set { color = value; }
+	}
+		
 	public int CalculateUpkeep()
 	{
 		int amount = 0;
@@ -204,6 +212,30 @@ class Player {
 		}
 		return 0;
 	}
+	
+	public ArrayList getActiveUnitsOfType(Unit u)
+	{
+		ArrayList ret = new ArrayList();
+		
+		foreach (Unit unit in activeUnits)
+		{
+			if (u.Name == unit.Name)
+				ret.Add(unit);
+		}
+		
+		return ret;
+	}
+	
+	public int getActiveUnitAmount(Unit u)
+	{
+		int count = 0;
+		foreach (Unit unit in activeUnits)
+		{
+			if (unit.Name == u.Name)
+				count++;
+		}
+		return count;
+	}	
 	
 	public int changeResourceStockpile(Stock a)
 	{
