@@ -141,7 +141,20 @@ class Orig_AttackStrategicStart : Command
 	public override void Execute(Game game)
 	{
 		game.GUI.CombatView.Attacker = attacker;
+		Nuke nuke = new Nuke(attacker);
+		ArrayList nukes = attacker.getActiveUnitsOfType(nuke);
 		
+		/* Delete fired nukes */
+		int j = 0;
+		foreach(NuclearTarget target in nuclearTargetList)
+		{
+			for (int i=0; i<target.icbms; i++)
+			{
+				attacker.ActiveUnits.Remove(nukes[j++]);
+			}
+		}
+		
+		/* Open battle */
 		foreach(Player player in defenders)
 			if (Game.GetInstance().LocalPlayers.Contains(player))
 			{

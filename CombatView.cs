@@ -47,6 +47,7 @@ class CombatView {
 	int defenderKills;
 	
 	int numberOfICBMs;
+	const int HitCutOff = 6; // 1 - 5 == hit, 6 == miss
 	
 	ArrayList attackingUnits; // Of Unit
 	ArrayList defendingUnits; // Of Unit 
@@ -174,7 +175,7 @@ class CombatView {
 		fullDefense = true;		
 	}
 		
-	private void decideDice() 
+	private void conventionalDecideDice() 
 	{
 		/* Define dice 
 		 * Attacker gets 1, Def gets 2, most units gets +1, most lstars gets +1
@@ -246,7 +247,7 @@ class CombatView {
 		battleResolved = true;
 	}
 	
-	public void rollDice()
+	public void conventionalRollDice()
 	{
 		RandomDie die = new RandomDie();
 		int attack, defend;
@@ -284,18 +285,14 @@ class CombatView {
 	{
 		if (!battleResolved)
 		{
-			decideDice(); 
+			conventionalDecideDice(); 
 			/* Begin the combat */
-			rollDice();
+			conventionalRollDice();
 		}
 	}
 	
 	private void on_ConventionalBattle_exposed (object o, ExposeEventArgs args)
 	{
-/*	[Glade.Widget] Gtk.DrawingArea ConvBattleUnitLegend;
-	[Glade.Widget] Gtk.DrawingArea ConvBattleAttackerUnits;
-	[Glade.Widget] Gtk.DrawingArea ConvBattleDefenderUnits;
-*/
 
 		//const int N = 35;
 		int N = 35;
@@ -342,10 +339,11 @@ N = -1;
 			resetBattleAndHide();
 	}		
 
-	public void on_ConventionalBattle_delete_event(System.Object obj, EventArgs e)
+	public void on_ConventionalBattle_delete_event(System.Object obj, DeleteEventArgs e)
 	{
 		if (battleResolved)
 			resetBattleAndHide();
+		e.RetVal = !battleResolved; // True == do not allow delete
 	}	
 
 	/* Strategic Target Selection */
@@ -429,13 +427,13 @@ N = -1;
 
 	}
 
-
 	public void resetStrategicTargetSelectionAndHide()
 	{
 		StrategicTargetSelection.Hide(); // Hide first as to not crash on expose()
 
 		attacker = defender = null; // Invalidate Players	
 		attackingUnits = defendingUnits = null; // Invalidate lists
+		battleResolved = false;
 		
 		numberOfICBMs = 0;
 		strategicTargets.Clear();
@@ -506,12 +504,15 @@ N = -1;
 	
 	public void showStrategicBattle(ArrayList stratTargets, Player you)
 	{
-		LSat lsat = new LSat(you);
+		defender = you;
+		
+		LSat lsat = new LSat(defender);
 		strategicTargetsWithCounts = stratTargets;
 		
-		int numLstars = you.getActiveUnitAmount(lsat);
+		int numLstars = defender.getActiveUnitAmount(lsat);
+		int countLstars = 0;
 		
-		StrategicBattleLabel.Text = attacker.Name + " has launched a strategic attack.";
+		StrategicBattleLabel.Text = attacker.Name + "\nhas launched a\nstrategic attack.";
 		
 		foreach(Widget wid in StrategicBattleTable)
 			StrategicBattleTable.Remove(wid);
@@ -524,40 +525,127 @@ N = -1;
 			Gtk.Label numIncoming = new Gtk.Label(target.icbms.ToString());
 			Gtk.SpinButton lstarsToFire = new Gtk.SpinButton(0.0, (double)numLstars, 1.0);
 			
+			lstarsToFire.ValueChanged += on_StrategicBattle_spun;
+			
 			StrategicBattleTable.Attach(label, 0, 1, row, row+1);
 			StrategicBattleTable.Attach(numIncoming, 1, 2, row, row+1);
-			StrategicBattleTable.Attach(lstarsToFire, 2, 3, row, row+1);			
+			StrategicBattleTable.Attach(lstarsToFire, 2, 3, row, row+1);
+			
+			/* Auto-populate defensive fields */
+			if (target.territory.Owner == defender)
+			{
+				while ((countLstars < numLstars) && (lstarsToFire.Value < target.icbms + 1))
+				{
+					lstarsToFire.Value += 1.0;
+					countLstars++;
+				}				
+			}
+			
+			row++; 			
 		}
 	
 		StrategicBattle.ShowAll();
 	}
 	
-	public void resetStrategicBattleAndHide()
+	private void on_StrategicBattle_spun(object o, EventArgs args)
 	{
-		resetStrategicTargetSelectionAndHide();
-		StrategicBattle.Hide();
+		LSat lsat = new LSat(defender);
+		int numLstars = defender.getActiveUnitAmount(lsat);
+		int countLstars = 0;
+		
+		foreach(Widget wid in StrategicBattleTable)
+		{		
+			if (!(wid is Gtk.SpinButton))
+				continue;
+				
+			countLstars += (int)((Gtk.SpinButton)wid).Value;
+		}
+		foreach(Widget wid in StrategicBattleTable)
+		{
+			if (!(wid is Gtk.SpinButton))
+				continue;		
+			if (countLstars < numLstars)
+				((Gtk.SpinButton)wid).SetRange(0.0, (double)numLstars);
+			else		
+				((Gtk.SpinButton)wid).SetRange(0.0, ((Gtk.SpinButton)wid).Value);							
+
+		}
+		
+		/* Disable okay button if we've exceeded the count somehow */		
+		StrategicBattleOkay.Sensitive = (countLstars <= numLstars);							
 	}
 	
-	public void on_StrategicBattleOkay_clicked(System.Object obj, EventArgs e)
+	private void strategicRollDice(NuclearTarget target, int defendingLSats)
 	{
-		foreach(NuclearTarget target in strategicTargetsWithCounts)
+		RandomDie die = new RandomDie();	
+		Game game = Game.GetInstance();
+		// Defender rolls 1d / L-Star. A 1-5 destroys a nuke, a 6 misses
+		
+		if (defendingLSats > 0)
 		{
-			System.Console.WriteLine("Nuking " + target.territory.Name + "...");
-			Orig_AttackStrategicDetonate cmd = new Orig_AttackStrategicDetonate(target.territory);
-			Game.GetInstance().State.Execute(cmd);
+			string result = "L-Sat Screen of " + defendingLSats + " firing in defense of " + target.territory.Name + " against " + target.icbms + " ICBMs: ";
+			for (int i=0; i<defendingLSats; i++)
+			{
+				int roll = die.roll();
+				result += roll.ToString() + ", ";
+				if (roll < HitCutOff && target.icbms > 0)
+				{
+					target.icbms--;
+				}
+			}
+			game.GUI.writeToLog(result);
 		}
-		battleResolved = true;
+		
+		System.Console.WriteLine("Remaining Nukes: " + target.icbms);
+		
+		if (target.icbms > 0) 
+		{		
+			Orig_AttackStrategicDetonate cmd = new Orig_AttackStrategicDetonate(target.territory);
+			game.State.Execute(cmd);
+		}
+			
+	}
+	
+	private void resetStrategicBattleAndHide()
+	{
+		StrategicBattle.Hide(); // Don't allow more exposes to muck things up
+		resetStrategicTargetSelectionAndHide();
+	}
+	
+	private void on_StrategicBattleOkay_clicked(System.Object obj, EventArgs e)
+	{
+		if (battleResolved)
+		{
+			resetStrategicBattleAndHide();
+			return;	
+		}
+		
+		int i = strategicTargetsWithCounts.Count;
+		foreach(Gtk.Widget wid in StrategicBattleTable)
+		{
+			if (! (wid is Gtk.SpinButton))
+				continue;
+				
+			NuclearTarget target = (NuclearTarget)strategicTargetsWithCounts[--i];
+			strategicRollDice(target, (int)((Gtk.SpinButton)wid).Value);				
+		}			
+		
+		battleResolved = true;		
 	}
 				
-	public void on_StrategicBattle_delete_event(System.Object obj, EventArgs e)
+	private void on_StrategicBattle_delete_event(System.Object obj, DeleteEventArgs e)
 	{
 		if (battleResolved)
 			resetStrategicTargetSelectionAndHide();	
+		e.RetVal = !battleResolved; // True == do not allow delete
 	}
 	
-	public void on_StrategicBattle_exposed(System.Object obj, ExposeEventArgs e)
+	private void on_StrategicBattle_exposed(System.Object obj, ExposeEventArgs e)
 	{
 		const int N = 35; 
+		if (attackingUnits == null)
+			return;
+			
 	   	for (int offset=0; offset < attackingUnits.Count && offset < N; offset++)
 	   	{
 	   		((Unit)attackingUnits[offset]).draw(StrategicBattleLegend.GdkWindow, offset*8+10, 10);

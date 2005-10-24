@@ -119,6 +119,7 @@ class Territory
 	{
 		get { return destroyed; }
 		set { if (mapTerritory.IsLand) destroyed = value; }
+		/* You can't destroy the ocean, man... whoa */
 	}
 	
 	public int OriginalOwner
