@@ -156,12 +156,26 @@ class Orig_AttackStrategicStart : Command
 		
 		/* Open battle */
 		foreach(Player player in defenders)
-			if (Game.GetInstance().LocalPlayers.Contains(player))
+			if (game.LocalPlayers.Contains(player))
 			{
 				System.Console.WriteLine("Opening strategic battle window for " + player.Name);
 				game.GUI.CombatView.showStrategicBattle(nuclearTargetList, player);
 				break;
-			}		
+			} else {
+				if (!player.Active)
+				{
+				}
+			}
+		
+		if (defenders.Count < 1)
+		{
+			// There are no defenders for some reason, just nuke'em all.
+			foreach(NuclearTarget target in nuclearTargetList)
+			{
+				Orig_AttackStrategicDetonate cmd = new Orig_AttackStrategicDetonate(target.territory);
+				game.State.Execute(cmd);
+			}
+		}		
 	}	
 }
 

@@ -1,0 +1,14 @@
+#!/bin/sh
+target=$(basename $(pwd))
+name="gpremacy-mono-$(date +%Y%m%d).tar.gz"
+
+pushd ..
+
+tar --exclude="Project.planner" --exclude="*.gz" --exclude="Original Graphics" -zcf $name  $target
+
+echo "Tarball created in $(pwd)/$name"
+
+gpg -b --use-agent $name
+
+popd
+
