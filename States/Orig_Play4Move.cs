@@ -161,6 +161,12 @@ class Orig_MoveUnit : Command {
 			Player oldOwner = next.Owner;
 			next.Owner = curPlay;			
 			oldOwner.updateResourceCards(); // deactivate
+			/* If owner has this resource card and it's never been active before, notify */
+			foreach (ResourceCard card in curPlay.ResourceCards)
+			{
+				if (card.isResource() && card.Place == next && !card.HasBeenActive)
+					game.GUI.writeToLog("Resource card " + card.FlavorText + " now available.");
+			}
 						
 			/* Charge Movement Cost */
 			foreach (Stock s in moveCost)

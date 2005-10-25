@@ -991,13 +991,15 @@ class GpremacyGUI {
 	/* Resource Card View */
 	public void on_manage_resource_cards1_activate(System.Object obj, EventArgs e) 
 	{
+		Player curPlay = Game.GetInstance().State.CurrentPlayer;
+		
 		foreach(Gtk.Widget wid in ResourceCardViewTable)
 		{
 			ResourceCardViewTable.Remove(wid);
 		}
 		
 		uint row = 0;
-		foreach(ResourceCard card in Game.GetInstance().State.CurrentPlayer.ResourceCards)
+		foreach(ResourceCard card in curPlay.ResourceCards)
 		{
 			System.Console.WriteLine("Row " + row+ " has " + card.toString());
 			Gtk.Label label = new Gtk.Label(card.toString());
@@ -1010,6 +1012,8 @@ class GpremacyGUI {
 	        	button.Label = "Operating";        	
         	else
         		button.Label = "Idle";
+        	if (card.Place.Owner != curPlay)
+        		button.Sensitive = false;
 			
 			ResourceCardViewTable.Attach(label, 0, 1, row, row+1);
 			ResourceCardViewTable.Attach(button, 1, 2, row, row+1);

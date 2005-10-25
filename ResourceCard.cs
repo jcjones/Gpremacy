@@ -6,6 +6,7 @@ class ResourceCard {
 	Territory Location;
 	string Text;
 	bool isActive;
+	bool hasBeenActive;
 	
 	public Resource Good
 	{
@@ -26,7 +27,15 @@ class ResourceCard {
 	public bool Active
 	{
 		get { return isActive; }
-		set { isActive = value; }
+		set { 
+			isActive = value;
+			if (isActive) 
+				hasBeenActive = true;
+		}
+	}
+	public bool HasBeenActive
+	{
+		get { return hasBeenActive; }
 	}
 	public bool isResource() 
 	{
@@ -40,6 +49,7 @@ class ResourceCard {
 		Location = l;
 		Text = t;
 		isActive = false;
+		hasBeenActive = false;
 	}
 	
 	public ResourceCard(Unit u, Territory l, string t)
@@ -49,6 +59,7 @@ class ResourceCard {
 		Location = l;
 		Text = t;
 		isActive = false;
+		hasBeenActive = false;
 	}	
 		
 	public string toString()

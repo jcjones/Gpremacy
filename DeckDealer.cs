@@ -215,7 +215,7 @@ class DeckDealer {
 		ResourceCard card = Game.GetInstance().CurrentResourceCard;
 		if (card.isResource() && targetIsResource())
 		{
-			Console.WriteLine("Both Are Resources");
+			Console.WriteLine("Both Are Resources: " + card.Good.Name + " and " + targetResource.Name);
 			if (card.Good.Name == targetResource.Name)
 			{
 				Console.WriteLine("Found Target Resource");
