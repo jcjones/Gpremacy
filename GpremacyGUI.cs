@@ -14,6 +14,7 @@ class GpremacyGUI {
 	Gdk.Region invalRegion;
 	DeckDealer deckDealer;
 	CombatView combatView;
+	GameSetupView gameSetupView;
 
 	/* Main Window*/
 	[Glade.Widget] Gtk.Viewport MapViewport;
@@ -105,29 +106,11 @@ class GpremacyGUI {
 		updateGUIStatusBoxes();			
 		deckDealer = DeckDealer.GetInstance();
 		combatView = new CombatView();
-		
-		/* Fake Crap */
-		/*Player Play = (Player)Game.GetInstance().LocalPlayers[0];
-		Territory Hom = Map.getTerritoryByName("Russia");
-		if (Play == null) Console.WriteLine("NULL RUSSIA");
-		Orig_BuildUnit cmd1 = new Orig_BuildUnit(new Army(Play, Hom), Hom, Play);
-		Game.GetInstance().State.Execute(cmd1);
-		cmd1 = new Orig_BuildUnit(new Army(Play, Hom), Hom, Play);
-		Game.GetInstance().State.Execute(cmd1);
-		cmd1 = new Orig_BuildUnit(new Army(Play, Hom), Hom, Play);
-		Game.GetInstance().State.Execute(cmd1);
-		
-		Play = (Player)Game.GetInstance().LocalPlayers[1];
-		Hom = Map.getTerritoryByName("Iraq");
-		if (Play == null)  Console.WriteLine("NULL IRAQ");
-		cmd1 = new Orig_BuildUnit(new Army(Play, Hom), Hom, Play);
-		Game.GetInstance().State.Execute(cmd1);							
-		cmd1 = new Orig_BuildUnit(new Army(Play, Hom), Hom, Play);
-		Game.GetInstance().State.Execute(cmd1);							
-		cmd1 = new Orig_BuildUnit(new Army(Play, Hom), Hom, Play);
-		Game.GetInstance().State.Execute(cmd1);*/
-		/* Done Fake Crap */							
-		Application.Run ();
+													
+		gameSetupView = new GameSetupView(MainWindow);
+		gameSetupView.showGameSetupUI();
+				
+		Application.Run ();		
 	}
 	
 	public GpremacyMap Map
@@ -138,6 +121,16 @@ class GpremacyGUI {
 	public CombatView CombatView
 	{
 		get { return combatView; }
+	}
+	
+	public GameSetupView GameSetupView
+	{
+		get { return gameSetupView; }
+	}
+	
+	public Gtk.Window mainWindow
+	{
+		get { return MainWindow; }
 	}
 	
 	public void OnMotion (object o, MotionNotifyEventArgs args)

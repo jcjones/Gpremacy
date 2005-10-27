@@ -6,7 +6,12 @@
 						cmd.Unit = unit;
 						Game.State.Execute(cmd);
 */
+
+using System;
+
 namespace Gpremacy {
+
+[Serializable]
 class Command {
 	string name = "Generic";
 	protected bool undoable = false;

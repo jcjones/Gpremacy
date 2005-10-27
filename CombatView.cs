@@ -8,9 +8,9 @@ using Gdk;
 namespace Gpremacy {
 
 class CombatView {
-
-	/* Conventional Battle */
 	[Glade.Widget] Gtk.Window MainWindow;
+
+	/* Conventional Battle */	
 	[Glade.Widget] Gtk.Window ConventionalBattle;
 	[Glade.Widget] Gtk.DrawingArea ConvBattleUnitLegend;
 	[Glade.Widget] Gtk.DrawingArea ConvBattleAttackerUnits;

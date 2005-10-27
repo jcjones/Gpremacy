@@ -24,7 +24,7 @@ using System.Collections;
 namespace Gpremacy {
 class Game {
 	ArrayList players; // of Player
-	ArrayList localplayers; // of Player, those who are on the local system.
+	ArrayList localplayers; // of Player, those who are on the local system.	
 	ArrayList cards; // of ResourceCard
 	ArrayList allcards; // of ResourceCard
 	ArrayList allunits; // of Unit
@@ -36,6 +36,8 @@ class Game {
 	GpremacyMarket market;
 	GpremacyGUI mainGUI;
 	bool justShuffledResourceCards;
+	
+	public GameLink gameLink; // for net play
 	
 	private static Game instance;
 	private static int numOfReference;	
@@ -95,13 +97,8 @@ class Game {
 			mainGUI.init();
 		} catch (Exception e) {
 			Console.WriteLine("Exception caught!");
-			Console.WriteLine(e.Message);
-			Console.WriteLine("-1-");
-			Console.WriteLine(e.StackTrace);
-			Console.WriteLine("-2-");
-			Console.WriteLine(e.ToString());
-			Console.WriteLine("-3-");
-			mainGUI.ShowError(e.Message+"\n"+e.StackTrace);
+			
+			new ExceptionWindow("Gpremacy", e, GUI.mainWindow);
 		}		
 	}
 	
@@ -125,6 +122,11 @@ class Game {
 	{
 		Game gameObject = Game.GetInstance();	
 		gameObject.init();			
+	}
+	
+	public static int DefaultPort
+	{
+		get { return 34543; }
 	}
 	
 	public Player PlayerNobody

@@ -78,5 +78,13 @@
     <File name="./DeckDealer.cs" subtype="Code" buildaction="Compile" />
     <File name="./CombatView.cs" subtype="Code" buildaction="Compile" />
     <File name="./Support/RandomDie.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Network" subtype="Directory" buildaction="Compile" />
+    <File name="./Network/Server.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Network/Connection.cs" subtype="Code" buildaction="Compile" />
+    <File name="./GameSetupView.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Network/GameLink.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Support/ExceptionWindow.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Network/DataPacket.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Network/Client.cs" subtype="Code" buildaction="Compile" />
   </Contents>
 </Project>
