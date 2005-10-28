@@ -13,7 +13,7 @@ class Client : GameLink {
 	Socket gameSocket;
 	Connection gameConnection;
 	IPEndPoint gameIP;
-	
+	Thread listenData;
 	
 	public Client (string address, int port)
 	{	
@@ -31,8 +31,18 @@ class Client : GameLink {
 			return;
 		}
 		
-		this.sendCommand(new Command());
+		listenData = new Thread(new ThreadStart(listenForData));
+		listenData.Start();
+		
+		DataPacket pkt = new DataPacket("Connected", null);
+		gameConnection.sendObject(pkt);		
 	}
+	
+	public override void stop()
+	{
+		if (listenData != null)
+			listenData.Abort();
+	}	
 	
 	public override bool sendCommand(Command cmd)
 	{
@@ -43,6 +53,32 @@ class Client : GameLink {
 			return true;
 		}
 		return false;
+	}
+	
+	public void listenForData()
+	{
+		DataPacket packet;
+		while(true)
+		{
+			if (gameConnection == null)
+				continue;
+					
+			try {
+				 packet = (DataPacket) gameConnection.getObject();
+			} catch (Exception e)
+			{
+				continue;
+			}
+				
+			if (packet == null) 
+				continue;
+					
+			System.Console.WriteLine("Packet of ["+packet.identifier+"] ");
+			
+			this.parsePacket(packet);
+			
+			Thread.Sleep(10);
+		}
 	}
 	
 }

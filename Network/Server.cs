@@ -43,6 +43,9 @@ class Server : GameLink {
 	ArrayList clients; // of ClientConnection
 	bool acceptingConnections;
 	
+	Thread listenJoins;
+	Thread listenData;
+	
 	public Server (int port)
 	{
 		clients = new ArrayList();
@@ -54,8 +57,8 @@ class Server : GameLink {
 		gameSocket.Bind(ip1);
 		gameSocket.Listen(10);
 						
-		Thread listenJoins = new Thread(new ThreadStart(listenForJoins));
-		Thread listenData = new Thread(new ThreadStart(listenForData));		
+		listenJoins = new Thread(new ThreadStart(listenForJoins));
+		listenData = new Thread(new ThreadStart(listenForData));		
 		
 		listenJoins.Start();
 		listenData.Start();
@@ -82,10 +85,36 @@ class Server : GameLink {
 		return res;
 	}
 
-	public void ready()
+	public void sendBeginGame()
 	{
 		acceptingConnections = false;
+		DataPacket pkt = new DataPacket("BeginGame", null);
+		sendPacket(pkt);
+		Game.GetInstance().State.BeginGame(); // Start it here		
 	}
+	
+	public override void stop()
+	{
+		if (listenJoins != null)
+			listenJoins.Abort();
+		if (listenData != null)
+			listenData.Abort();
+	}
+	
+	public override bool sendCommand(Command cmd)
+	{
+		DataPacket pkt = new DataPacket("Command", cmd);
+		sendPacket(pkt);		
+		return true;
+	}
+	
+	public void sendPacket(DataPacket pkt)
+	{
+		foreach(ClientConnection c in clients)
+		{
+			c.connection.sendObject(pkt);
+		}
+	}	
 
 	public void listenForData()
 	{
@@ -113,6 +142,7 @@ class Server : GameLink {
 					continue;
 					
 				System.Console.WriteLine("Packet of ["+packet.identifier+"] from " + c.ToString());
+				this.parsePacket(packet);
 			}
 
 			/* Cleanup Disconnects */

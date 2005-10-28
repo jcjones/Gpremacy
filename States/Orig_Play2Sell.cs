@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 
 namespace Gpremacy {
@@ -18,6 +19,7 @@ class Orig_Play2Sell : State {
 
 }
 
+[Serializable]
 class Orig_Sell : Command {
 	ArrayList stocks; // of Stock
 	public Orig_Sell(ArrayList res)

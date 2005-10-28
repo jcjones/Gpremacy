@@ -1,5 +1,5 @@
 // created on 09/19/2005 at 21:42
-
+using System;
 using System.Collections;
 
 namespace Gpremacy {
@@ -41,6 +41,8 @@ class Orig_Play1Upkeep : State {
 	}	
 
 }
+
+[Serializable]
 class Orig_Upkeep : Command {
 	ArrayList ResourceCards;
 	Player Play;

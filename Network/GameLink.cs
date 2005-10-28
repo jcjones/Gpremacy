@@ -25,5 +25,25 @@ class GameLink {
 	{
 		return 0;
 	}
+	
+	public virtual void parsePacket(DataPacket pkt)
+	{
+		Game game = Game.GetInstance();
+		
+		System.Console.WriteLine("Parsing packet " + pkt.identifier + ":");
+		switch(pkt.identifier)
+		{
+		case "Command":
+			game.State.NetworkExecute((Command)pkt.obj);
+			break;
+		case "BeginGame":
+			game.State.BeginGame();
+			break;
+		}
+	}
+	
+	public virtual void stop()
+	{
+	} 
 }
 }

@@ -1,7 +1,9 @@
 // created on 08/28/2005 at 09:32
+using System;
 using System.Collections;
 
 namespace Gpremacy {
+[Serializable]
 class TacticalUnit : Unit {
 	protected Territory CurrentLocation;
 

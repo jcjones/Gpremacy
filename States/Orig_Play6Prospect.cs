@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 
 namespace Gpremacy {
@@ -18,6 +19,7 @@ class Orig_Play6Prospect : State {
 	
 }
 
+[Serializable]
 class Orig_AddResourceCard : Command
 {
 	ResourceCard card;
@@ -35,6 +37,7 @@ class Orig_AddResourceCard : Command
 	}
 }
 
+[Serializable]
 class Orig_Buy : Command 
 {
 	ArrayList stocks; // of Stock

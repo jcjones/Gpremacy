@@ -1,5 +1,8 @@
 // created on 08/28/2005 at 15:02
+using System;
+
 namespace Gpremacy {
+[Serializable]
 class ResourceCard {
 	Resource Stuff;
 	Unit knowledge;

@@ -1,8 +1,9 @@
 // created on 08/27/2005 at 21:42
-using System.Collections;
 using System;
+using System.Collections;
 
 namespace Gpremacy {
+[Serializable]
 class Player {
 	int countryID;
 	string name;

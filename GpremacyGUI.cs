@@ -203,8 +203,6 @@ class GpremacyGUI {
 	/* Reset and start a new game */
 	public void on_new1_activate(System.Object obj, EventArgs e) 
 	{
-			game.DistributeResourceCards(); // Should not be in this file..
-			game.GiveInitialUnits(); // Should not be in this file..	
 	}
 	public void on_open1_activate(System.Object obj, EventArgs e) 
 	{}
@@ -264,12 +262,13 @@ class GpremacyGUI {
 		{
 			if (w != MainWindow)
 			{
-				Console.WriteLine("Toplevel window: " + w.Title);
 				w.Hide();
 			}
 		}
 		
-		game.State.nextPlayer();
+		Orig_NextPlayer cmd = new Orig_NextPlayer();
+		game.State.Execute(cmd);
+		
 		updateGUIStatusBoxes();
 	}
 	

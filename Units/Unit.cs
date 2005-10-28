@@ -1,8 +1,10 @@
 // created on 08/28/2005 at 09:31
 using Gdk;
+using System;
 using System.Collections;
 
 namespace Gpremacy {
+[Serializable]
 class Unit {
 
 	protected Player owner;

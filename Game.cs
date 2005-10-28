@@ -18,6 +18,7 @@
  */
 
 // created on 08/28/2005 at 14:54
+using Gtk;
 using System;
 using System.Collections;
 
@@ -200,8 +201,15 @@ class Game {
 		*/			
 	}
 	
+	public void Quit()	
+	{
+		gameLink.stop();
+		Application.Quit();
+	}
+	
 	public void HaltGame(String a)
 	{
+		gameLink.stop();
 		throw new Exception("Game halting because of " + a);
 	}
 	

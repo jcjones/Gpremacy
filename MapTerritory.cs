@@ -1,13 +1,14 @@
 // created on 08/27/2005 at 09:37
-using System;
 using Gtk;
 using Glade;
 using Pango;
 using Gdk;
+using System;
 using System.Collections;
 
-namespace Gpremacy{
+namespace Gpremacy {
 
+[Serializable]
 class MapTerritory
 {
 	public bool isLand;

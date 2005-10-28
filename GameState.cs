@@ -187,14 +187,37 @@ class GameState {
 		}			
 
 	}
+	
+	public void BeginGame()
+	{
+		Game game = Game.GetInstance();
+		
+		game.GUI.GameSetupView.GUI.Hide();
+		game.DistributeResourceCards(); // Should not be in this file..
+		game.GiveInitialUnits(); // Should not be in this file..		
+	}
 
 	public void Execute(Command cmd)
 	{
 		if (cmd.Undoable)
 			commandList.Add(cmd);
 		cmd.Execute(game);
+		
+		/* Send to the network */
+		game.gameLink.sendCommand(cmd);
+		
+		/* Show results */		
 		game.GUI.updateGUIStatusBoxes();
 		//System.Console.WriteLine("Executed - CL:" + commandList.Count);
+	}
+	
+	public void NetworkExecute(Command cmd)
+	{
+		/* No undos */		
+		cmd.Execute(game);
+		System.Console.WriteLine("Network execution of " + cmd);
+		/* Show results */		
+		game.GUI.updateGUIStatusBoxes();		
 	}
 	
 	public bool Unexecute()
@@ -212,4 +235,14 @@ class GameState {
 	}
 
 }
+
+[Serializable]
+class Orig_NextPlayer : Command {
+	public override void Execute(Game game)
+	{
+		System.Console.WriteLine("Next State.");
+		game.State.nextPlayer();
+	}
+}
+
 }

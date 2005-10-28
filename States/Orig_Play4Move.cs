@@ -1,4 +1,5 @@
 // created on 09/19/2005 at 21:42
+using System;
 using System.Collections;
 
 namespace Gpremacy {
@@ -140,6 +141,8 @@ class Orig_Play4Move : State {
 	}
 
 }
+
+[Serializable]
 class Orig_MoveUnit : Command {
 	TacticalUnit unit;
 	Territory next, previous;
@@ -198,6 +201,8 @@ class Orig_MoveUnit : Command {
 		game.GUI.redrawTerritory(previous);
 	}
 }
+
+[Serializable]
 class Orig_LoadUnits : Command {
 	Navy ship;
 	ArrayList troops;
@@ -236,6 +241,8 @@ class Orig_LoadUnits : Command {
 		}
 	}
 }
+
+[Serializable]
 class Orig_UnloadUnits : Command {
 	Navy ship;
 	ArrayList troops;

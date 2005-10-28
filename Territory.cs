@@ -1,13 +1,13 @@
 // created on 08/27/2005 at 21:40
-using System;
 using Gtk;
 using Glade;
 using Pango;
 using Gdk;
+using System;
 using System.Collections;
 
 namespace Gpremacy{
-
+[Serializable]
 class Territory
 {
 	String name;

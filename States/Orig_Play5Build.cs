@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 
 namespace Gpremacy {
@@ -77,6 +78,7 @@ class Orig_Play5Build : State {
 	}
 }
 
+[Serializable]
 class Orig_ChargeMoney : Command {
 	int Cost;
 	Player curPlay;
@@ -90,6 +92,7 @@ class Orig_ChargeMoney : Command {
 	}
 }
 
+[Serializable]
 class Orig_PurchaseUnit : Command {
 	Unit unit;
 	Player curPlay;
@@ -107,6 +110,7 @@ class Orig_PurchaseUnit : Command {
 	}
 }
 
+[Serializable]
 class Orig_BuildUnit : Command {
 	Unit unit;
 	Territory target;

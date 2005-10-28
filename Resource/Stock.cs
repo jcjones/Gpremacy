@@ -1,5 +1,8 @@
 // created on 09/23/2005 at 19:29
+using System;
+
 namespace Gpremacy {
+[Serializable]
 class Stock {
 	Resource good;
 	int number;

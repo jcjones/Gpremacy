@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 
 namespace Gpremacy {
@@ -127,6 +128,7 @@ class NuclearTarget
 	public int icbms;
 }
 
+[Serializable]
 class Orig_AttackStrategicStart : Command
 {
 	Player attacker;
@@ -179,6 +181,7 @@ class Orig_AttackStrategicStart : Command
 	}	
 }
 
+[Serializable]
 class Orig_AttackStrategicDetonate : Command
 {
 	Territory target;
@@ -211,6 +214,7 @@ class Orig_AttackStrategicDetonate : Command
 	}
 }
 
+[Serializable]
 class Orig_AttackConventionalStart : Command
 {
 	Player attacker;
@@ -236,6 +240,7 @@ class Orig_AttackConventionalStart : Command
 	}	
 }
 
+[Serializable]
 class Orig_AttackDeleteUnits : Command
 {
 	ArrayList units;
