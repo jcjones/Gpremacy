@@ -36,7 +36,6 @@
     <File name="./GpremacyMarket.cs" subtype="Code" buildaction="Compile" />
     <File name="./GraphicsStorage.cs" subtype="Code" buildaction="Compile" />
     <File name="./MapTerritory.cs" subtype="Code" buildaction="Compile" />
-    <File name="./MyWindow.cs" subtype="Code" buildaction="Compile" />
     <File name="./PixbufUtils.cs" subtype="Code" buildaction="Compile" />
     <File name="./Player.cs" subtype="Code" buildaction="Compile" />
     <File name="./ResourceCard.cs" subtype="Code" buildaction="Compile" />

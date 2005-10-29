@@ -35,24 +35,31 @@ class Client : GameLink {
 		listenData.Start();
 		
 		DataPacket pkt = new DataPacket("Connected", null);
-		gameConnection.sendObject(pkt);		
+		gameConnection.sendObject(pkt);
+		
+		participants = new ArrayList();
 	}
 	
 	public override void stop()
 	{
 		if (listenData != null)
 			listenData.Abort();
-	}	
+	}
 	
-	public override bool sendCommand(Command cmd)
+	protected override bool sendPacket(DataPacket pkt)
 	{
-		DataPacket pkt = new DataPacket("Command", cmd);
 		if (gameConnection != null)
 		{
 			gameConnection.sendObject(pkt);
 			return true;
 		}
 		return false;
+	}
+	
+	public override bool sendCommand(Command cmd)
+	{
+		DataPacket pkt = new DataPacket("Command", cmd);
+		return sendPacket(pkt);
 	}
 	
 	public void listenForData()

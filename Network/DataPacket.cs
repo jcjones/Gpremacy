@@ -7,6 +7,7 @@ namespace Gpremacy {
 class DataPacket {
 	public string identifier;
 	public System.Object obj;
+	public System.Net.EndPoint endpoint;
 	
 	public DataPacket(string id, System.Object ob)
 	{

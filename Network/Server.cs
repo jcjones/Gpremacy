@@ -43,6 +43,8 @@ class Server : GameLink {
 	ArrayList clients; // of ClientConnection
 	bool acceptingConnections;
 	
+	GameParticipant localhost;
+	
 	Thread listenJoins;
 	Thread listenData;
 	
@@ -62,6 +64,9 @@ class Server : GameLink {
 		
 		listenJoins.Start();
 		listenData.Start();
+		
+		participants = new ArrayList();
+		localhost = new GameParticipant(null, null);		
 	}
 	
 	public override int numPeers()
@@ -69,21 +74,41 @@ class Server : GameLink {
 		return clients.Count;
 	}
 	
-	public override string listPeers()
+	public bool sendParticipantList()
 	{
-		string res = "";
+		participants.Clear();
+		
 		foreach(ClientConnection c in clients)
 		{
-			if (c.player != null)
-				res += c.player.Name + " ";
-			else
-				res += "Unknown Player ";
-				
-			res += c.socket.RemoteEndPoint.ToString()+"\n";
+			GameParticipant gp = new GameParticipant(c.player, c.socket.RemoteEndPoint);
+			participants.Add(gp);
 		}
+		participants.Add(localhost);
 		
-		return res;
+		DataPacket pkt = new DataPacket("ParticipantList", participants);
+		return sendPacket(pkt);
 	}
+	
+	public void updatePlayerCountryName(DataPacket pkt)
+	{
+		foreach(ClientConnection c in clients)
+		{
+			/* we're doing a string compare here, this is moronic. But it works... */
+			if (c.socket.RemoteEndPoint.ToString() == pkt.endpoint.ToString()) 
+			{
+				c.player = Game.GetInstance().PlayerByName((string)pkt.obj);
+				sendParticipantList();
+				return;
+			}
+		}
+	}
+	
+	public override void sendWhoIAm(string name)
+	{
+		/* Keep track of ourself ... */
+		localhost.player = Game.GetInstance().PlayerByName(name);
+		sendParticipantList();
+	}	
 
 	public void sendBeginGame()
 	{
@@ -108,12 +133,13 @@ class Server : GameLink {
 		return true;
 	}
 	
-	public void sendPacket(DataPacket pkt)
+	protected override bool sendPacket(DataPacket pkt)
 	{
 		foreach(ClientConnection c in clients)
 		{
 			c.connection.sendObject(pkt);
 		}
+		return true;
 	}	
 
 	public void listenForData()
@@ -140,6 +166,8 @@ class Server : GameLink {
 				
 				if (packet == null) 
 					continue;
+				
+				packet.endpoint = c.socket.RemoteEndPoint;
 					
 				System.Console.WriteLine("Packet of ["+packet.identifier+"] from " + c.ToString());
 				this.parsePacket(packet);

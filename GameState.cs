@@ -118,7 +118,9 @@ class GameState {
 		//arrowOn = false;
 		game.GUI.clearArrow();
 		
-		currentState.donePlayer(currentPlayer);
+		/* Run action if this is a local player */
+		if (game.LocalPlayers.Contains(currentPlayer))
+			currentState.donePlayer(currentPlayer);
 		
 		do
 		{
@@ -133,7 +135,9 @@ class GameState {
 			
 		} while (!currentPlayer.Active);
 		
-		currentState.beginPlayer(currentPlayer);
+		/* Run action if this is a local player */
+		if (game.LocalPlayers.Contains(currentPlayer))
+			currentState.beginPlayer(currentPlayer);
 		
 		return currentPlayer;		
 	}
@@ -144,11 +148,18 @@ class GameState {
 		stateList.MoveNext();
 		if ( ((State)stateList.Current).MyOrder == next )
 		{
-			currentState.donePlayer(currentPlayer); //TODO: See if these are needed.
+			/* Run action if this is a local player */
+			if (game.LocalPlayers.Contains(currentPlayer))			
+				currentState.donePlayer(currentPlayer); //TODO: See if these are needed.
+				
 			currentState.doneState();
 			currentState = (Gpremacy.State)stateList.Current;
 			currentState.beginState();
-			currentState.beginPlayer(currentPlayer); //TODO: See if these are needed.
+			
+			/* Run action if this is a local player */
+			if (game.LocalPlayers.Contains(currentPlayer))			
+				currentState.beginPlayer(currentPlayer); //TODO: See if these are needed.
+				
 			return next;
 		}
 		/* Next state in list is not the next state, so search for it. */
@@ -161,11 +172,17 @@ class GameState {
 			stateList.MoveNext();
 		}
 			
-		currentState.donePlayer(currentPlayer); //TODO: See if these are needed.
+		/* Run action if this is a local player */
+		if (game.LocalPlayers.Contains(currentPlayer))			
+			currentState.donePlayer(currentPlayer); //TODO: See if these are needed.
+			
 		currentState.doneState();
 		currentState = (Gpremacy.State)stateList.Current;
 		currentState.beginState();
-		currentState.beginPlayer(currentPlayer); //TODO: See if these are needed.
+		
+		/* Run action if this is a local player */
+		if (game.LocalPlayers.Contains(currentPlayer))		
+			currentState.beginPlayer(currentPlayer); //TODO: See if these are needed.
 		
 		/* Count Turn */
 		if (currentState.MyOrder == 1) turnNumber++;
@@ -197,6 +214,33 @@ class GameState {
 		Game game = Game.GetInstance();
 		
 		game.GUI.GameSetupView.GUI.Hide();
+		bool singlePlayer = false;
+		
+		/* Setup participants */
+		if (game.gameLink != null)
+		{
+			/* Multi Player */
+			foreach (GameParticipant gp in game.gameLink.participants)
+			{
+				if (gp.player != null)
+				{
+					Player them = game.PlayerByName(gp.player.Name);
+					Console.WriteLine("Activaiing " + them.Name);
+					them.Active = true;
+				}
+			}
+			singlePlayer = false;
+			
+		} else {
+			/* Single Player */
+			singlePlayer = true;			
+		}
+		
+		/* Setup ourselves */
+		Player us = game.PlayerByName(game.GUI.GameSetupView.whoAmI(singlePlayer));
+		game.LocalPlayers.Add(us);
+		us.Active = true;
+				
 		game.DistributeResourceCards(); // Should not be in this file..
 		game.GiveInitialUnits(); // Should not be in this file..		
 	}
@@ -262,8 +306,8 @@ class GameState {
 class Orig_NextPlayer : Command {
 	public override void Execute(Game game)
 	{
-		System.Console.WriteLine("Next State.");
 		game.State.nextPlayer();
+		System.Console.WriteLine("Next Player: " + game.State.CurrentPlayer.Name + " in " + game.State.CurrentState.Name());
 	}
 }
 

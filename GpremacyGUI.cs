@@ -802,7 +802,7 @@ class GpremacyGUI {
 			i++;			
 		}
 		int tripleAmt = (int)Math.Ceiling((double)numTripleTacticalUnits/3);
-		System.Console.WriteLine("TripleAmt: " + tripleAmt + " NumTriple:" + numTripleTacticalUnits);
+		//System.Console.WriteLine("TripleAmt: " + tripleAmt + " NumTriple:" + numTripleTacticalUnits);
 		costMoney += tripleAmt*300;
 		bill.IncValue(new Oil(), -1*tripleAmt);
 		bill.IncValue(new Minerals(), -1*tripleAmt);
