@@ -13,7 +13,8 @@ class Player {
 	long money;
 	ArrayList resourceCards; // of ResourceCards
 	bool isActive;
-	Gdk.Color color;
+	byte colorBlue, colorRed, colorGreen;
+	
 	
 	public Player (int id, string n, Gdk.Color c)
 	{
@@ -35,7 +36,7 @@ class Player {
 		//availableUnits.Add(new Nuke(this));
 		//availableUnits.Add(new LSat(this));
 		
-		color = c;
+		Color = c; // use function Color
 	}
 	
 	public string toString ()
@@ -82,8 +83,14 @@ class Player {
 	}
 	public Gdk.Color Color
 	{
-		get { return color; }
-		set { color = value; }
+		get { 
+			return new Gdk.Color(colorRed, colorGreen, colorBlue); 
+		}
+		set { 
+			colorRed = (byte)value.Red;
+			colorBlue = (byte)value.Blue;
+			colorGreen = (byte)value.Green; 
+		}
 	}
 		
 	public int CalculateUpkeep()

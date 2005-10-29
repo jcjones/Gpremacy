@@ -31,15 +31,18 @@ class GameLink {
 		Game game = Game.GetInstance();
 		
 		System.Console.WriteLine("Parsing packet " + pkt.identifier + ":");
+		/* Acquire semaphore, we're about to mess with the game state. */
+		
 		switch(pkt.identifier)
 		{
 		case "Command":
-			game.State.NetworkExecute((Command)pkt.obj);
+			game.State.NetworkExecuteQueue((Command)pkt.obj);
 			break;
 		case "BeginGame":
 			game.State.BeginGame();
 			break;
 		}
+		/* Release semaphore */
 	}
 	
 	public virtual void stop()

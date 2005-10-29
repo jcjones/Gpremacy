@@ -41,6 +41,7 @@ class GameState {
 	State currentState;
 	Player currentPlayer;
 	ArrayList commandList; // of Command, for undo/redo
+	Queue networkCommands; // of Command	
 	int turnNumber;
 	
 	public GameState (Game game_i)
@@ -55,6 +56,7 @@ class GameState {
 		//arrowOn = false;
 		
 		commandList = new ArrayList();
+		networkCommands = new Queue();
 		
 		states = new ArrayList();
 		states.Add(new Orig_Play1Upkeep(game));
@@ -79,6 +81,8 @@ class GameState {
 		turnNumber = 1;		
 		//nextPlayer();
 		//nextState();
+		
+		GLib.Timeout.Add (1000, new GLib.TimeoutHandler (NetworkExecuteRun));
 	}
 	
 	public string StateIDName
@@ -211,8 +215,25 @@ class GameState {
 		//System.Console.WriteLine("Executed - CL:" + commandList.Count);
 	}
 	
-	public void NetworkExecute(Command cmd)
+	public void NetworkExecuteQueue(Command cmd)
 	{
+		networkCommands.Enqueue(cmd);	
+	}
+	
+	/* This routine is called every 1000 ms by Glib.Timeout, setup in the constructor */
+	public bool NetworkExecuteRun()
+	{
+		Command cmd;
+		while (networkCommands.Count > 0)
+		{
+			cmd = (Command)networkCommands.Dequeue();
+			NetworkExecute(cmd);	
+		}
+		return true; // Returning false would stop the timeout from ever running again
+	}
+	
+	public void NetworkExecute(Command cmd)
+	{		
 		/* No undos */		
 		cmd.Execute(game);
 		System.Console.WriteLine("Network execution of " + cmd);

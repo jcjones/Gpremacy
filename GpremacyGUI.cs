@@ -79,7 +79,7 @@ class GpremacyGUI {
 	
 	public void init() 
 	{
-		Application.Init ();
+		Gtk.Application.Init ();
 		
 		// Initialize map
 		MapArea = new GpremacyMap(game);

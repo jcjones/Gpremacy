@@ -26,7 +26,7 @@ namespace Gpremacy
 					
 			
           	Gtk.TextView messageView = new Gtk.TextView ();
-	        messageView.Buffer.Text = GLib.Markup.EscapeText(exception.Message);
+	        messageView.Buffer.Text = exception.Message;
 	        Gtk.ScrolledWindow messageViewSW = new Gtk.ScrolledWindow();
 	        messageViewSW.HscrollbarPolicy = Gtk.PolicyType.Automatic;
 	        messageViewSW.VscrollbarPolicy = Gtk.PolicyType.Automatic;
@@ -34,7 +34,7 @@ namespace Gpremacy
 	        messageViewSW.Add(messageView);
 	        
           	Gtk.TextView traceView = new Gtk.TextView ();
-	        traceView.Buffer.Text = GLib.Markup.EscapeText(exception.StackTrace);
+	        traceView.Buffer.Text = exception.StackTrace;
 	        Gtk.ScrolledWindow traceViewSW = new Gtk.ScrolledWindow();
 	        traceViewSW.HscrollbarPolicy = Gtk.PolicyType.Automatic;
 	        traceViewSW.VscrollbarPolicy = Gtk.PolicyType.Automatic;

@@ -203,13 +203,15 @@ class Game {
 	
 	public void Quit()	
 	{
-		gameLink.stop();
+		if (gameLink != null)
+			gameLink.stop();
 		Application.Quit();
 	}
 	
 	public void HaltGame(String a)
 	{
-		gameLink.stop();
+		if (gameLink != null)
+			gameLink.stop();
 		throw new Exception("Game halting because of " + a);
 	}
 	
