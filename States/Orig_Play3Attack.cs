@@ -120,6 +120,7 @@ class Orig_Play3Attack : State {
 	}
 }
 
+[Serializable]
 class NuclearTarget
 {
 	public NuclearTarget(Territory t, int i)
