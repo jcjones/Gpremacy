@@ -1065,26 +1065,7 @@ class GpremacyGUI {
 		combatView.Attacker = Attacker;
 		combatView.Defender = Defender;
 		combatView.showConventionalBattle();
-	}	
-		
-	/* Strategic Target Selection Options */
-	public void on_StrategicTargetSelection_delete_event(System.Object obj, EventArgs e)
-	{
-	}	
-	public void on_StratTargetOkay_clicked(System.Object obj, EventArgs e)
-	{
 	}
-	public void on_StratTargetCancel_clicked(System.Object obj, EventArgs e)
-	{
-	}
-	
-	/* Strategic Battle Selection Options */
-	public void on_StrategicBattle_delete_event(System.Object obj, EventArgs e)
-	{
-	}	
-	public void on_StratBattle_clicked(System.Object obj, EventArgs e)
-	{
-	}	
 			
 }
 }

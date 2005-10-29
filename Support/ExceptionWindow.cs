@@ -9,7 +9,7 @@ namespace Gpremacy
 	{
 		Exception exception;
 		
-		public ExceptionWindow (String name, Exception exp, Gtk.Window winToHide) : base ("Exception Caught: Application Must Close")
+		public ExceptionWindow (String name, Exception exp, Gtk.Window winToHide) : base ("Exception Caught: " + name + " Must Close")
 		{
 			//e.Message
 			//e.StackTrace
@@ -70,7 +70,8 @@ namespace Gpremacy
 			{
 				winToHide.Hide();
 			}
-				
+
+			this.SetSizeRequest(600,450);				
 			this.ShowAll();			
 			Application.Run();
 		}

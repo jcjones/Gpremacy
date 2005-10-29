@@ -30,6 +30,10 @@ class Game {
 	ArrayList allcards; // of ResourceCard
 	ArrayList allunits; // of Unit
 	ArrayList allresources; // of Resource
+	
+    Hashtable mapTerritoryHash; // of MapTerritory
+    Hashtable territoryHash; // of Territory
+	
 	IEnumerator cardsIterator;
 	Player playerNobody;
 	Territory placeNowhere;
@@ -56,7 +60,7 @@ class Game {
 		allresources = new ArrayList();
 
 		playerNobody = new Player(-1, "Nobody", new Gdk.Color(123,123,123));
-		placeNowhere = new Territory(-1, "Nowhere", playerNobody.CountryID, playerNobody, false, null, null);
+		placeNowhere = new Territory(-1, "Nowhere", playerNobody.CountryID, playerNobody);
 
 		allunits.Add(new Army(playerNobody, placeNowhere));
 		allunits.Add(new Navy(playerNobody, placeNowhere));
@@ -70,6 +74,9 @@ class Game {
 		players = new ArrayList();		
 		setupPlayers();
 		localplayers = new ArrayList();
+		
+		territoryHash = new Hashtable();
+		mapTerritoryHash = new Hashtable();
 		
 		/* Force local setup */
 		((Player)players[0]).Active = true;
@@ -124,11 +131,46 @@ class Game {
 		Game gameObject = Game.GetInstance();	
 		gameObject.init();			
 	}
+
+	/* Static Helpers */
 	
 	public static int DefaultPort
 	{
 		get { return 34543; }
 	}
+		
+	/* End Static Helpers */
+	/* Helping Hashtables */
+	
+	public Hashtable MapTerritoryHashTable
+	{
+		get { return mapTerritoryHash; }
+	}
+	
+	public Hashtable TerritoryHashTable
+	{
+		get { return territoryHash; }
+	}
+
+    public MapTerritory MapTerritoryByID(int id)
+    {
+       	if (!mapTerritoryHash.ContainsKey(id)) {
+       		throw new ArgumentOutOfRangeException("Asked for a MapTerritory with an ID of " + id +  " which is out of range.");
+       	}
+      	return (MapTerritory)mapTerritoryHash.get_Item(id);
+    }
+    
+    public Territory TerritoryByName(string name)
+    {
+       	if (!territoryHash.ContainsKey(name)) {
+       		throw new ArgumentOutOfRangeException("Could not find the territory by name of " + name +". Check your countries.csv file; maybe you mispelled it?");
+       	}
+      	return (Territory)territoryHash.get_Item(name);
+    }    
+	
+	/* End Hashtables */
+
+
 	
 	public Player PlayerNobody
 	{

@@ -208,7 +208,8 @@ class GameState {
 		cmd.Execute(game);
 		
 		/* Send to the network */
-		game.gameLink.sendCommand(cmd);
+		if (game.gameLink != null)
+			game.gameLink.sendCommand(cmd);
 		
 		/* Show results */		
 		game.GUI.updateGUIStatusBoxes();

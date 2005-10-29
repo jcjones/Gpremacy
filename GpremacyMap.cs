@@ -19,6 +19,7 @@ class GpremacyMap : DrawingArea
         {
         	game = igame;
 			territories = new ArrayList();
+			
 			this.Realized += OnRealized;
 			this.ExposeEvent += OnExposed;
 			LoadCountryBoundaries();
@@ -84,6 +85,7 @@ class GpremacyMap : DrawingArea
         	ArrayList subGraph; // of String
         	bool isLand;
         	Territory lastTerritory = null;
+        	MapTerritory mapTerritory = null;
         	
         	try {
 	        	System.IO.StreamReader input = new System.IO.StreamReader(SupportFileLoader.locateGameFile("countries.csv"));
@@ -122,8 +124,16 @@ class GpremacyMap : DrawingArea
 		        				y = Int16.Parse(parts[i+1]); 
 		        				points.Add(new Gdk.Point(x,y));
 		        			} 
-							lastTerritory = new Territory(id++, name, ownerid, owner, isLand, points, this.PangoContext);
+
+							lastTerritory = new Territory(id, name, ownerid, owner);
 							territories.Add(lastTerritory);
+							game.TerritoryHashTable.Add(name, lastTerritory);
+
+							mapTerritory = new MapTerritory(name, isLand, points, this.PangoContext);
+							game.MapTerritoryHashTable.Add(id, mapTerritory);
+							
+							id++;
+							
                         	points.Clear();
 	       				}
 	       			} else {
@@ -153,7 +163,7 @@ class GpremacyMap : DrawingArea
        			
        			for (int i=1; i<graph.Count; i++) {
        				target=(String)graph[i];
-       				targetTerritory = getTerritoryByName(target);
+       				targetTerritory = Game.GetInstance().TerritoryByName(target);
        				if (targetTerritory.IsLand)
        					noLand = false;
        				home.MapTerritory.addConnection(targetTerritory);
@@ -168,14 +178,6 @@ class GpremacyMap : DrawingArea
         {
         	get { return region; }
         }
-        
-        public Territory getTerritoryByName(String name)
-        {
-        	foreach (Territory t in territories)
-        		if (t.Name == name)
-        			return t;
-        	throw new Exception("Could not find the territory by name of " + name +". Check your countries.csv file; maybe you mispelled it?");
-        }        
         
         public ArrayList Territories
         {

@@ -16,18 +16,14 @@ class Territory
 	ArrayList units;
 	ArrayList resources;
 	bool destroyed;	
-	MapTerritory mapTerritory;
 	
-	public Territory(int ID_i, String name_i, int originalOwner_i, Player lord, bool land_i, ArrayList borders_i, Pango.Context pango_context) 
+	public Territory(int ID_i, String name_i, int originalOwner_i, Player lord) 
 	{
 		name = name_i;
 		id = ID_i;
 		originalOwner = originalOwner_i;
 		owner = lord;
-		if (borders_i != null)
-			mapTerritory = new MapTerritory(name_i, land_i, borders_i, pango_context);
-		else
-			mapTerritory = new MapTerritory();
+
 		destroyed = false;
 		units = new ArrayList();
 		resources = new ArrayList();
@@ -47,7 +43,7 @@ class Territory
 	public Gdk.Color Color
 	{
 		get { 
-			if (!mapTerritory.IsLand)
+			if (!MapTerritory.IsLand)
 				return new Gdk.Color(18,100,186);
 			else
 				return Owner.Color;
@@ -118,7 +114,7 @@ class Territory
 	public bool Destroyed
 	{
 		get { return destroyed; }
-		set { if (mapTerritory.IsLand) destroyed = value; }
+		set { if (MapTerritory.IsLand) destroyed = value; }
 		/* You can't destroy the ocean, man... whoa */
 	}
 	
@@ -135,7 +131,7 @@ class Territory
 	
 	public MapTerritory MapTerritory
 	{
-		get { return mapTerritory; }
+		get { return Game.GetInstance().MapTerritoryByID(id); }
 	}
 	
 	public String Name
@@ -162,12 +158,12 @@ class Territory
 	
 	public bool IsLand
 	{
-		get { return mapTerritory.isLand; }
+		get { return MapTerritory.isLand; }
 	}
 	
 	public bool IsDeep
 	{
-		get { return mapTerritory.deepSea; }
+		get { return MapTerritory.deepSea; }
 	}
 		
 	public void showNuke(Gdk.Window win, int frame)
@@ -177,8 +173,8 @@ class Territory
  			 			
  			Gdk.Pixbuf gfx = store.getFrame(store.Detonation, frame, store.DetonationFrames);
 
- 			int x = mapTerritory.centerX - (gfx.Width/2);
- 			int y = mapTerritory.centerY - (gfx.Height/2);
+ 			int x = MapTerritory.centerX - (gfx.Width/2);
+ 			int y = MapTerritory.centerY - (gfx.Height/2);
  			
 			win.DrawPixbuf(whocares, gfx, 0, 0, x, y, gfx.Width, gfx.Height, RgbDither.Normal, 1, 1);	   		
 	}
@@ -191,14 +187,14 @@ class Territory
 	   	string extraLabel = "";
 	   	
 		/* Draw the map */ 
-	   	mapTerritory.draw(win, terr, textcolor);
+	   	MapTerritory.draw(win, terr, textcolor);
 	   	
 	   	/* Show radiation if destroyed */
 	   	if (destroyed)
 	   	{
  			GraphicsStorage store = GraphicsStorage.GetInstance();
- 			int x = mapTerritory.centerX;
- 			int y = mapTerritory.centerY;
+ 			int x = MapTerritory.centerX;
+ 			int y = MapTerritory.centerY;
 			win.DrawPixbuf(textcoloring, store.Radiation, 0, 0, x, y, store.Radiation.Width, store.Radiation.Height, RgbDither.Normal, 1, 1);	   		
 	   	}
 	   	
@@ -226,9 +222,9 @@ class Territory
 			label.GetPixelSize(out szX, out szY);
 
 			/*Redraw*/			
-//			win.InvalidateRect(new Gdk.Rectangle(mapTerritory.centerX, mapTerritory.centerY, szX, szY), true);
+//			win.InvalidateRect(new Gdk.Rectangle(MapTerritory.centerX, MapTerritory.centerY, szX, szY), true);
 			
-			win.DrawLayout (textcoloring, mapTerritory.centerX, mapTerritory.centerY, label);
+			win.DrawLayout (textcoloring, MapTerritory.centerX, MapTerritory.centerY, label);
 	   	}
 
 	}

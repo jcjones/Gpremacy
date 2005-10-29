@@ -10,7 +10,7 @@ class Navy : TacticalUnit {
 
 	public Navy (Player lord, Territory home) : base (lord, home)
 	{
-		hold = new Territory(-1, "Ship hold", lord.CountryID, lord, false, null, null);
+		hold = new Territory(-1, "Ship hold", lord.CountryID, lord);
 	}	
 	override public void draw(Gdk.Window win, int x, int y)
 	{
