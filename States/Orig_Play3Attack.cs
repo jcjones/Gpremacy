@@ -28,6 +28,9 @@ class Orig_Play3Attack : State {
 		selectingTargets = true;
 		Game game = Game.GetInstance();
 		
+		if (!game.LocalPlayers.Contains(game.State.CurrentPlayer))
+			return;
+		
 		combatView = game.GUI.CombatView;
 		
 		combatView.Attacker = game.State.CurrentPlayer;
@@ -123,10 +126,16 @@ class Orig_Play3Attack : State {
 [Serializable]
 class NuclearTarget
 {
-	public NuclearTarget(Territory t, int i)
-	{ territory = t; icbms = i; }
-	public Territory territory;
+	public string tname;
 	public int icbms;
+	
+	public NuclearTarget(Territory t, int i)
+	{ tname = t.Name; icbms = i; }
+	
+	public Territory territory {
+		get { return Game.GetInstance().TerritoryByName(tname); }
+	}
+	
 }
 
 [Serializable]
@@ -185,14 +194,16 @@ class Orig_AttackStrategicStart : Command
 [Serializable]
 class Orig_AttackStrategicDetonate : Command
 {
-	Territory target;
+	String tname;
 	public Orig_AttackStrategicDetonate (Territory a)
 	{
-		target = a;
+		tname = a.Name;
 	}
 	
 	public override void Execute(Game game)
 	{
+		Territory target = game.TerritoryByName(tname);
+		 
 		target.Destroyed = true;
 		ArrayList unitList = (ArrayList)target.Units.Clone();
 		ArrayList playersInTarget = new ArrayList();
@@ -246,17 +257,19 @@ class Orig_AttackDeleteUnits : Command
 {
 	ArrayList units;
 	Player curPlay;
-	Territory land;
+	string tname;
 	
 	public Orig_AttackDeleteUnits(ArrayList us, Player pl, Territory te) 
 	{
 		units = us;
-		land = te;
+		tname = te.Name;
 		curPlay = pl;
 	}
 	
 	public override void Execute(Game game)
 	{
+		Territory land = game.TerritoryByName(tname);
+
 		System.Console.Write("DeleteUnits from " + curPlay.Name + " and " + land.Name + ": "); 
 		foreach(Unit unit in units)
 		{

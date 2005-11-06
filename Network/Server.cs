@@ -30,10 +30,16 @@ class ClientConnection {
 	
 	public override string ToString()
 	{
-		if (socket.Connected)
-			return socket.RemoteEndPoint.ToString();
-		else
-			return "Disconnected: " + socket.RemoteEndPoint.ToString(); 	
+		string str = "";
+		if (!socket.Connected)
+			str += "Disconnected: ";
+			
+		str += socket.RemoteEndPoint.ToString();
+		
+		if (player != null)
+			str += " as Player: " + player.Name;
+		
+		return str;
 	}	
 	
 }
@@ -42,11 +48,11 @@ class Server : GameLink {
 	Socket gameSocket;
 	ArrayList clients; // of ClientConnection
 	bool acceptingConnections;
-	
+
 	GameParticipant localhost;
 	
 	Thread listenJoins;
-	Thread listenData;
+	Thread listenData;	
 	
 	public Server (int port)
 	{
@@ -66,7 +72,9 @@ class Server : GameLink {
 		listenData.Start();
 		
 		participants = new ArrayList();
-		localhost = new GameParticipant(null, null);		
+		localhost = new GameParticipant(null, null);
+		
+        GLib.Timeout.Add (5000, new GLib.TimeoutHandler (sendParticipantList));				
 	}
 	
 	public override int numPeers()
@@ -86,7 +94,9 @@ class Server : GameLink {
 		participants.Add(localhost);
 		
 		DataPacket pkt = new DataPacket("ParticipantList", participants);
-		return sendPacket(pkt);
+		sendPacket(pkt);
+		
+		return acceptingConnections; // Return false when we're done accepting connections
 	}
 	
 	public void updatePlayerCountryName(DataPacket pkt)
@@ -108,6 +118,29 @@ class Server : GameLink {
 		/* Keep track of ourself ... */
 		localhost.player = Game.GetInstance().PlayerByName(name);
 		sendParticipantList();
+	}
+	
+	public override bool playerChoicesValid() 
+	{
+		ArrayList seen = new ArrayList(); // of GameParticipant
+		
+		/* Send out the newest participant list which also ensures that
+		 * participants is as up to date as possible before we validate it.
+		 */
+		 
+		sendParticipantList();
+		
+		foreach (GameParticipant participant in participants)
+		{
+			if (participant.player == null)
+				return false;
+			if (seen.Contains(participant.player))
+				return false;
+			System.Console.WriteLine("Havent seen " + participant.player.Name + " before, adding...");
+			seen.Add(participant.player);
+		}
+		System.Console.WriteLine("Good!");
+		return true;	
 	}	
 
 	public void sendBeginGame()
@@ -119,11 +152,15 @@ class Server : GameLink {
 	}
 	
 	public override void stop()
-	{
+	{			
 		if (listenJoins != null)
 			listenJoins.Abort();
 		if (listenData != null)
 			listenData.Abort();
+			
+		gameSocket.Close();	
+		foreach(ClientConnection c in clients)
+			c.socket.Close();			
 	}
 	
 	public override bool sendCommand(Command cmd)
@@ -137,8 +174,25 @@ class Server : GameLink {
 	{
 		foreach(ClientConnection c in clients)
 		{
-			c.connection.sendObject(pkt);
+			if (c.isConnected())
+				c.connection.sendObject(pkt);
 		}
+		return true;
+	}
+	
+	public virtual bool propagateCommand(DataPacket pkt)
+	{
+		System.Console.Write("[Server] Propagating packet " + pkt.ToString());
+		foreach(ClientConnection c in clients)
+		{
+			/* Do not send back to its incoming host. */
+			if (pkt.endpoint.ToString() != c.socket.RemoteEndPoint.ToString()) {
+				if (c.isConnected())
+					c.connection.sendObject(pkt);
+				System.Console.Write(" to " + c.ToString() + ",");
+			}
+		}
+		System.Console.WriteLine();
 		return true;
 	}	
 
@@ -161,6 +215,7 @@ class Server : GameLink {
 					 packet = (DataPacket) c.connection.getObject();
 				} catch (Exception e)
 				{
+					System.Console.WriteLine("NetworkServer Received Exception: " + e.Message);
 					continue;
 				}
 				
@@ -191,6 +246,11 @@ class Server : GameLink {
 			Socket tmp = gameSocket.Accept();
 			ClientConnection client = new ClientConnection(tmp);
 			clients.Add(client);
+
+        	Gtk.Application.Invoke (delegate {
+              	sendParticipantList();
+        	});
+
 			Thread.Sleep(10);			
 		}
 	}				

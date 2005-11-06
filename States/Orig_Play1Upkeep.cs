@@ -36,7 +36,7 @@ class Orig_Play1Upkeep : State {
 		if (Game.State.TurnNumber == 1)
 			return;
 			
-		Orig_Upkeep cmd = new Orig_Upkeep(Game.State.CurrentPlayer, Game.State.CurrentPlayer.ResourceCards, Game.State.CurrentPlayer.CalculateUpkeep());
+		Orig_Upkeep cmd = new Orig_Upkeep(player, player.ResourceCards, player.CalculateUpkeep());
 		Game.State.Execute(cmd);			
 	}	
 

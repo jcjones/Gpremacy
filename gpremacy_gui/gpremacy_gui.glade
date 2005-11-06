@@ -128,7 +128,7 @@
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Always _March</property>
 		      <property name="use_underline">True</property>
-		      <property name="active">True</property>
+		      <property name="active">False</property>
 		      <signal name="activate" handler="on_always_march1_activate" last_modification_time="Tue, 18 Oct 2005 21:50:36 GMT"/>
 		    </widget>
 		  </child>

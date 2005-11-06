@@ -15,10 +15,12 @@ class GpremacyGUI {
 	DeckDealer deckDealer;
 	CombatView combatView;
 	GameSetupView gameSetupView;
+	Player thisPlayer;
 
 	/* Main Window*/
 	[Glade.Widget] Gtk.Viewport MapViewport;
 	[Glade.Widget] Gtk.Window MainWindow;
+	[Glade.Widget] Gtk.Button endTurnButton;
 	//[Glade.Widget] Gtk.ScrolledWindow MapScrolledWindow2;
 		
 	[Glade.Widget] Gtk.TextView OrderOfPlayTextBox;	
@@ -55,6 +57,7 @@ class GpremacyGUI {
 	[Glade.Widget] Gtk.Window MoveGroundOptions;
 	[Glade.Widget] Gtk.Label MoveGroundLabel;
 	[Glade.Widget] Gtk.Table MoveGroundTable;
+	public bool AlwaysMarch;
 	
 	/* Build Forces and/or Weapons */
 	[Glade.Widget] Gtk.Window UnitBuy;
@@ -73,8 +76,7 @@ class GpremacyGUI {
 			
 	public GpremacyGUI(Game i)
 	{
-		game = i;
-		
+		game = i;		
 	}
 	
 	public void init() 
@@ -94,6 +96,10 @@ class GpremacyGUI {
 		System.Console.WriteLine("Added.");
 		MainWindow.Resize(800,600);
 		MapArea.ShowAll();
+		
+		// Init player
+		thisPlayer = Game.GetInstance().PlayerNobody;
+		AlwaysMarch = false;
 		
 		// Configure Mouse events
 		MapArea.AddEvents((int)EventMask.PointerMotionMask);
@@ -212,7 +218,7 @@ class GpremacyGUI {
 	{}
 	public void on_quit1_activate(System.Object obj, EventArgs e) 
 	{
-		Application.Quit();
+		Game.GetInstance().Quit();
 	}
 	public void on_undo_activate(System.Object obj, EventArgs e) 
 	{
@@ -248,10 +254,11 @@ class GpremacyGUI {
 	}
 	public void on_always_march1_activate(System.Object obj, EventArgs e)
 	{
+		AlwaysMarch = ((Gtk.CheckMenuItem)obj).Active;
 	}
 	public void on_MainWindow_delete_event(System.Object o, DeleteEventArgs args)
 	{
-		Application.Quit();
+		Game.GetInstance().Quit();
 		args.RetVal = true;
 	}
 	
@@ -267,7 +274,7 @@ class GpremacyGUI {
 		}
 		
 		Orig_NextPlayer cmd = new Orig_NextPlayer();
-		game.State.Execute(cmd);
+		Game.GetInstance().State.Execute(cmd);
 		
 		updateGUIStatusBoxes();
 	}
@@ -281,9 +288,18 @@ class GpremacyGUI {
 	
 	public void updateGUIStatusBoxes()
 	{
+		Game game = Game.GetInstance();
+		if (thisPlayer == game.PlayerNobody && game.LocalPlayers.Count > 0) 
+		{
+			thisPlayer = (Player)game.LocalPlayers[0];
+		}
+		
+		writeToWorldMarketTextBox(game.Market.toString());
+		writeToResourcesTextBox("== " + thisPlayer.Name + " ==\n" + thisPlayer.toStringResources());
 		writeToOrderOfPlayTextBox("Turn Number: " + game.State.TurnNumber + "\nCurrent Player:\n" + game.State.CurrentPlayer.toString() + "\nCurrent State:\n" + game.State.StateIDName);								
-		writeToResourcesTextBox(game.State.CurrentPlayer.toStringResources());
-		writeToWorldMarketTextBox(game.Market.toString());	
+		
+		/* Enable/Disable End Turn Button */
+		endTurnButton.Sensitive = thisPlayer == Game.GetInstance().State.CurrentPlayer;		
 	}
 	
 	public void writeToOrderOfPlayTextBox(String a) 
@@ -982,16 +998,14 @@ class GpremacyGUI {
 	
 	/* Resource Card View */
 	public void on_manage_resource_cards1_activate(System.Object obj, EventArgs e) 
-	{
-		Player curPlay = Game.GetInstance().State.CurrentPlayer;
-		
+	{		
 		foreach(Gtk.Widget wid in ResourceCardViewTable)
 		{
 			ResourceCardViewTable.Remove(wid);
 		}
 		
 		uint row = 0;
-		foreach(ResourceCard card in curPlay.ResourceCards)
+		foreach(ResourceCard card in thisPlayer.ResourceCards)
 		{
 			System.Console.WriteLine("Row " + row+ " has " + card.toString());
 			Gtk.Label label = new Gtk.Label(card.toString());
@@ -1004,7 +1018,7 @@ class GpremacyGUI {
 	        	button.Label = "Operating";        	
         	else
         		button.Label = "Idle";
-        	if (card.Place.Owner != curPlay)
+        	if (card.Place.Owner != thisPlayer)
         		button.Sensitive = false;
 			
 			ResourceCardViewTable.Attach(label, 0, 1, row, row+1);
@@ -1022,7 +1036,7 @@ class GpremacyGUI {
         	return;
         Gtk.ToggleButton btn = (Gtk.ToggleButton)obj;
         
-        ArrayList ResourceCards = Game.GetInstance().State.CurrentPlayer.ResourceCards; 
+        ArrayList ResourceCards = thisPlayer.ResourceCards; 
         
 		/* Determine correlation with ResourceCards */
         int cardIt = ResourceCards.Count;
@@ -1043,7 +1057,11 @@ class GpremacyGUI {
 		System.Console.WriteLine("Doing " +card.toString());
 		
 		/* Toggle */
-		card.Active = btn.Active;
+		Orig_ToggleResourceCard cmd = new Orig_ToggleResourceCard(thisPlayer, card, btn.Active);
+		Game.GetInstance().State.Execute(cmd);
+		
+		btn.Active = card.Active; // Update status with results of command
+		
         if (btn.Active)
         	btn.Label = "Operating";        	
         else

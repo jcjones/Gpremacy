@@ -59,6 +59,8 @@ class Army : TacticalUnit {
 		if (dist < 2) {
 			/* If the distance is 1, we can march */
 			r.Add(new Stock(new Grain(), -1));
+			if (dist < 1) // checking minimal move for Always March
+				return r;
 		}
 
 		/* Can always airlift */

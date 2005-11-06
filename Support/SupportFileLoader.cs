@@ -8,8 +8,9 @@ class SupportFileLoader {
 	public static string locateGameFile(string filename)
 	{		
 		string[] paths = new string[] { "/usr/share/gpremacy/",
-										"/usr/local/share/gpremacy/", 
-										".", 
+										"/usr/local/share/gpremacy/",
+										"", 
+										"./", 
 										"../", 
 										"../../"};
 		 

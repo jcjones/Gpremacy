@@ -44,20 +44,12 @@
     <File name="./Resource/Minerals.cs" subtype="Code" buildaction="Compile" />
     <File name="./Resource/Oil.cs" subtype="Code" buildaction="Compile" />
     <File name="./Resource/Resource.cs" subtype="Code" buildaction="Compile" />
-    <File name="./States/Orig_Conv1Supplies.cs" subtype="Code" buildaction="Compile" />
-    <File name="./States/Orig_Conv2Roll.cs" subtype="Code" buildaction="Compile" />
-    <File name="./States/Orig_Conv3Reinforce.cs" subtype="Code" buildaction="Compile" />
-    <File name="./States/Orig_Conv4CounterAttack.cs" subtype="Code" buildaction="Compile" />
     <File name="./States/Orig_Play1Upkeep.cs" subtype="Code" buildaction="Compile" />
     <File name="./States/Orig_Play2Sell.cs" subtype="Code" buildaction="Compile" />
     <File name="./States/Orig_Play3Attack.cs" subtype="Code" buildaction="Compile" />
     <File name="./States/Orig_Play4Move.cs" subtype="Code" buildaction="Compile" />
     <File name="./States/Orig_Play5Build.cs" subtype="Code" buildaction="Compile" />
     <File name="./States/Orig_Play6Prospect.cs" subtype="Code" buildaction="Compile" />
-    <File name="./States/Orig_Strat1Tactics.cs" subtype="Code" buildaction="Compile" />
-    <File name="./States/Orig_Strat2LStar.cs" subtype="Code" buildaction="Compile" />
-    <File name="./States/Orig_Strat3Detonation.cs" subtype="Code" buildaction="Compile" />
-    <File name="./States/Orig_Strat4CounterAttack.cs" subtype="Code" buildaction="Compile" />
     <File name="./States/State.cs" subtype="Code" buildaction="Compile" />
     <File name="./Support/Dictionary.cs" subtype="Code" buildaction="Compile" />
     <File name="./Support/SupportFileLoader.cs" subtype="Code" buildaction="Compile" />

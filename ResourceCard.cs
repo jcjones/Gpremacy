@@ -5,8 +5,8 @@ namespace Gpremacy {
 [Serializable]
 class ResourceCard {
 	Resource Stuff;
-	Unit knowledge;
-	Territory Location;
+	Unit knowledge;	
+	string locName;
 	string Text;
 	bool isActive;
 	bool hasBeenActive;
@@ -17,7 +17,9 @@ class ResourceCard {
 	}
 	public Territory Place
 	{
-		get { return Location; }
+		get { 
+			return Game.GetInstance().TerritoryByName(locName); 
+		}
 	}
 	public string FlavorText
 	{
@@ -42,14 +44,14 @@ class ResourceCard {
 	}
 	public bool isResource() 
 	{
-		return (Location != null);
+		return locName.Length > 0;
 	}
 	
 	public ResourceCard(Resource r, Territory l, string t)
 	{
 		Stuff = r;
 		knowledge = null;
-		Location = l;
+		locName = l.Name;
 		Text = t;
 		isActive = false;
 		hasBeenActive = false;
@@ -59,10 +61,14 @@ class ResourceCard {
 	{
 		Stuff = null;
 		knowledge = u;
-		Location = l;
 		Text = t;
 		isActive = false;
 		hasBeenActive = false;
+		
+		if (l == null)
+			locName = "";
+		else
+			locName = l.Name;
 	}	
 		
 	public string toString()
@@ -72,7 +78,7 @@ class ResourceCard {
 		return ret;
 */
 		if (Stuff != null)
-			return Text + " in " + Location.Name + " produces " + Stuff.toString() + " per turn.";
+			return Text + " in " + locName + " produces " + Stuff.toString() + " per turn.";
 		else
 			return Text;
 	}
@@ -91,4 +97,35 @@ class ResourceCard {
 	}
 	
 }
+
+[Serializable] 
+class Orig_ToggleResourceCard : Command {
+	ResourceCard card;
+	bool nextState;
+	Player player;
+	
+	public Orig_ToggleResourceCard(Player p, ResourceCard c, bool s)
+	{
+		player = p;
+		card = c;
+		nextState = s;
+	}
+	public override void Execute(Game game) 
+	{
+		if (nextState) 
+		{
+			/* Make sure they can activate */
+			if (card.Place.Owner == player)
+			{
+				card.Active = nextState;
+			}
+		
+		} else {
+			/* Always allow disabling */
+			card.Active = nextState;
+		}
+	}
+
+}
+
 }

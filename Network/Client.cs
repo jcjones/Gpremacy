@@ -17,22 +17,46 @@ class Client : GameLink {
 	
 	public Client (string address, int port)
 	{	
-		try
+		GameSetupView gsv = Game.GetInstance().GUI.GameSetupView;
+		 
+		try 
 		{
 			gameIP = new IPEndPoint(IPAddress.Parse(address),port);
+		} 
+		catch (System.FormatException e) 
+		{
+			gsv.addStatusText("Looking up " + address + " ...");
+			try {
+				gameIP = new IPEndPoint(System.Net.Dns.GetHostByName(address).AddressList[0], port);
+			}
+			catch (Exception ex)
+			{
+				gsv.addStatusText("Could not lookup " + address + " on port " + port + ": " + ex.Message);
+				return;
+			}
+			
+		} catch (Exception e) {
+			gsv.addStatusText("Unknown error parsing address " + address + " on port " + port + ": " + e.Message);
+			return;
+		}
+
+		try
+		{
 			gameSocket = new Socket(System.Net.Sockets.AddressFamily.InterNetwork,System.Net.Sockets.SocketType.Stream,System.Net.Sockets.ProtocolType.Tcp);
 			gameSocket.Connect(gameIP);
 			gameConnection = new Connection(gameSocket);			
 		}
 		catch (Exception e)
 		{
-			GameSetupView gsv = Game.GetInstance().GUI.GameSetupView;
 			gsv.addStatusText("Could not connect to " + address + " on port " + port + ": " + e.Message);
 			return;
 		}
 		
 		listenData = new Thread(new ThreadStart(listenForData));
 		listenData.Start();
+
+		gsv.addStatusText("Connected.");
+
 		
 		DataPacket pkt = new DataPacket("Connected", null);
 		gameConnection.sendObject(pkt);
@@ -44,6 +68,7 @@ class Client : GameLink {
 	{
 		if (listenData != null)
 			listenData.Abort();
+		gameSocket.Close();
 	}
 	
 	protected override bool sendPacket(DataPacket pkt)
@@ -65,7 +90,7 @@ class Client : GameLink {
 	public void listenForData()
 	{
 		DataPacket packet;
-		while(true)
+		while(gameSocket.Connected)
 		{
 			if (gameConnection == null)
 				continue;
@@ -74,6 +99,7 @@ class Client : GameLink {
 				 packet = (DataPacket) gameConnection.getObject();
 			} catch (Exception e)
 			{
+				System.Console.WriteLine("NetworkClient Received Exception: " + e.Message);
 				continue;
 			}
 				
@@ -86,6 +112,10 @@ class Client : GameLink {
 			
 			Thread.Sleep(10);
 		}
+		System.Console.WriteLine("Disconnected.");
+        Gtk.Application.Invoke (delegate {
+           	Game.GetInstance().GUI.ShowError("Connection to server lost.");
+        });		
 	}
 	
 }

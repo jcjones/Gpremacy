@@ -67,6 +67,16 @@ class Orig_Play4Move : State {
 						if (!Game.GetInstance().hasSufficientWeath(Game.State.CurrentPlayer, moveCost, 0))
 						{
 							break; 
+						}
+						
+						if (Game.GetInstance().GUI.AlwaysMarch && moveCost.Count > 1)
+						{
+							/* Just march... Get the move cost for a minimal move */
+							moveCost = unit.calculateMovementCost(previousTerritory);
+							/* Execute */
+							Orig_MoveUnit cmd_always = new Orig_MoveUnit(Game.State.CurrentPlayer, unit, target, previousTerritory, moveCost);
+							Game.State.Execute(cmd_always);
+							return true;
 						}						
 						
 						Orig_MoveUnit cmd = new Orig_MoveUnit(Game.State.CurrentPlayer, unit, target, previousTerritory, moveCost);												
@@ -145,18 +155,25 @@ class Orig_Play4Move : State {
 [Serializable]
 class Orig_MoveUnit : Command {
 	TacticalUnit unit;
-	Territory next, previous;
+	string nextName, previousName;
 	Player curPlay;
 	public ArrayList moveCost; // allow GUI to set this value.
 
 	public Orig_MoveUnit(Player p, TacticalUnit aunit, Territory anext, Territory aprevious, ArrayList acost) {
 		curPlay = p;
-		unit = aunit; next = anext; previous = aprevious;
+		unit = aunit;
+		
+		nextName = anext.Name; 
+		previousName = aprevious.Name;
+		
 		moveCost = acost;
 		undoable = true;
 	}
 	
-	public override void Execute(Game game) {		
+	public override void Execute(Game game) {
+		Territory next = game.TerritoryByName(nextName);
+		Territory previous = game.TerritoryByName(previousName);
+		
 		/* Confirm we can move here ... don't bother for unexecute */
 		if (unit.canMoveTo(next)) 
 		{
@@ -176,6 +193,8 @@ class Orig_MoveUnit : Command {
 			{
 				curPlay.changeResourceStockpile(s);
 			}
+			
+			System.Console.WriteLine("Moving unit " + unit.toString() );
 
 			previous.removeUnit(unit);
 			next.addUnit(unit);			
@@ -186,6 +205,9 @@ class Orig_MoveUnit : Command {
 		game.GUI.redrawTerritory(previous);
 	}
 	public override void Unexecute(Game game) {
+		Territory next = game.TerritoryByName(nextName);
+		Territory previous = game.TerritoryByName(previousName);
+	
 		next.removeUnit(unit);
 		previous.addUnit(unit);			
 		unit.moveTo(previous);
@@ -206,19 +228,22 @@ class Orig_MoveUnit : Command {
 class Orig_LoadUnits : Command {
 	Navy ship;
 	ArrayList troops;
-	Territory port;
-	Territory sea;
+	string portName, seaName;
+	
 	public Orig_LoadUnits(Navy aship, ArrayList atroops, Territory aport, Territory asea)
 	{
 		ship = aship;
 		troops = atroops;
-		port = aport;
-		sea = asea;
+		portName = aport.Name;
+		seaName = asea.Name;
 		undoable = true;
 	}
 	
 	public override void Execute(Game game)
 	{
+		Territory port = game.TerritoryByName(portName);
+		Territory sea = game.TerritoryByName(seaName);
+	
 		foreach(TacticalUnit joe in troops)
 		{
 			ship.loadUnit(joe);
@@ -231,6 +256,9 @@ class Orig_LoadUnits : Command {
 	
 	public override void Unexecute(Game game)
 	{
+		Territory port = game.TerritoryByName(portName);
+		Territory sea = game.TerritoryByName(seaName);
+			
 		foreach(TacticalUnit joe in troops)
 		{
 			ship.unloadUnit(joe);
@@ -246,19 +274,22 @@ class Orig_LoadUnits : Command {
 class Orig_UnloadUnits : Command {
 	Navy ship;
 	ArrayList troops;
-	Territory port;
-	Territory sea;
+	string portName, seaName;
+	
 	public Orig_UnloadUnits(Navy aship, ArrayList atroops, Territory aport, Territory asea)
 	{
 		ship = aship;
 		troops = atroops;
-		port = aport;
-		sea = asea;
+		portName = aport.Name;
+		seaName = asea.Name;
 		undoable = true;
 	}
 	
 	public override void Execute(Game game)
 	{
+		Territory port = game.TerritoryByName(portName);
+		Territory sea = game.TerritoryByName(seaName);
+	
 		foreach(TacticalUnit joe in troops)
 		{
 			ship.unloadUnit(joe);
@@ -271,6 +302,9 @@ class Orig_UnloadUnits : Command {
 	
 	public override void Unexecute(Game game)
 	{
+		Territory port = game.TerritoryByName(portName);
+		Territory sea = game.TerritoryByName(seaName);
+	
 		foreach(TacticalUnit joe in troops)
 		{
 			ship.loadUnit(joe);

@@ -6,12 +6,19 @@ using System.Collections;
 namespace Gpremacy {
 [Serializable]
 class Unit {
+	int serial;
 
 	protected Player owner;
 	
 	public Unit(Player lord)
 	{
-		owner = lord;	
+		owner = lord;
+	}
+	
+	public int ID
+	{
+		get { return serial; }
+		set { serial = value; }
 	}
 	
 	public Player Owner
@@ -39,7 +46,7 @@ class Unit {
 	public virtual string toString()
 	{
 		string ret;
-		ret = Name + " of " + owner.toString() + ".\n";
+		ret = Name + " of " + owner.toString() + " [#" + ID + "].\n";
 		return ret;
 	}
 	
@@ -67,6 +74,19 @@ class Unit {
 	{
 		get { return new ArrayList(); }
 	}
+
+
+	/* Since we won't have exactly the same objects on client systems, 
+	 * we must do pattern equality matching based on serial number. */
+	override public int GetHashCode() 
+	{
+		return serial.GetHashCode();
+	}
+	override public bool Equals(object o)
+	{
+		return serial == ((Unit)o).ID;
+	}
+	/* Done screwing with equality matching */
 	
 	public virtual string Costs
 	{

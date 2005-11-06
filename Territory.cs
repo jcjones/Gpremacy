@@ -146,8 +146,15 @@ class Territory
 	
 	public void removeUnit(Unit joe)
 	{
-		if (!units.Contains(joe))
+		if (!units.Contains(joe)) {
+			System.Console.WriteLine("Attempt to remove unit " + joe.toString() + " has failed. Here is:");
+			foreach(Unit u in units)
+			{
+				System.Console.WriteLine("U: " + u.toString());
+			}
+			
 			throw new Exception("Removing unit which isn't here!");
+		}
 		units.Remove(joe);
 	}
 	

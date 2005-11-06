@@ -20,16 +20,13 @@ class Connection {
 	{
 		try
 		{
-			//StreamWriter sw = new StreamWriter(ns[n]);
-			//StreamReader sr = new StreamReader(ns[n]);
 			ns.Flush();
 			IFormatter sender = new BinaryFormatter();
 			sender.Serialize(ns,o);
-		}
+		}		
 		catch(Exception er)
 		{
-			//MessageBox.Show("Problem ... while sending object");
-			Game.GetInstance().GUI.ShowError("Problem while sending object: " + er.Message);
+			Game.GetInstance().GUI.ShowError("Problem while sending object: " + er.Message + " to " + ns.ToString());
 		}
 
 	}

@@ -113,17 +113,23 @@ class Orig_PurchaseUnit : Command {
 [Serializable]
 class Orig_BuildUnit : Command {
 	Unit unit;
-	Territory target;
+	string tname;
 	Player curPlay;
+	int ID;
 
 	public Orig_BuildUnit(Unit aunit, Territory atarget, Player p) 
 	{
-		unit = aunit; target = atarget; curPlay = p;
+		unit = aunit; tname = atarget.Name; curPlay = p;
 		undoable = true;
+		/* Mark it */
+		ID = Game.nextUnitCount() + curPlay.CountryID*10000;
+		unit.ID = ID;
 	}
 	
 	public override void Execute(Game game) 
 	{
+		Territory target = game.TerritoryByName(tname);
+		
 		if (target != null) {
 			target.addUnit(unit);   			
 			game.GUI.redrawTerritory(target);
@@ -132,6 +138,8 @@ class Orig_BuildUnit : Command {
 	}
 	public override void Unexecute(Game game) 
 	{
+		Territory target = game.TerritoryByName(tname);
+			
 		if (target != null) {
 			target.removeUnit(unit);   			
 			game.GUI.redrawTerritory(target);

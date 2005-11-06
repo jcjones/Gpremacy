@@ -65,14 +65,6 @@ class GameState {
 		states.Add(new Orig_Play4Move(game));
 		states.Add(new Orig_Play5Build(game));
 		states.Add(new Orig_Play6Prospect(game));
-		states.Add(new Orig_Conv1Supplies(game));
-		states.Add(new Orig_Conv2Roll(game));
-		states.Add(new Orig_Conv3Reinforce(game));
-		states.Add(new Orig_Conv4CounterAttack(game));
-		states.Add(new Orig_Strat1Tactics(game));
-		states.Add(new Orig_Strat2LStar(game));
-		states.Add(new Orig_Strat3Detonation(game));
-		states.Add(new Orig_Strat4CounterAttack(game));
 
   		stateList = states.GetEnumerator();
   		stateList.MoveNext();
@@ -145,7 +137,13 @@ class GameState {
 	public int nextState ()
 	{	
 		int next = currentState.NextOrder;
-		stateList.MoveNext();
+		if (stateList.MoveNext() == false) 
+		{
+			/* New turn! */
+			stateList.Reset();
+			stateList.MoveNext();			
+		}
+		
 		if ( ((State)stateList.Current).MyOrder == next )
 		{
 			/* Run action if this is a local player */
@@ -198,7 +196,10 @@ class GameState {
 	
 	public void mouseClick(Territory target, uint Button)
 	{
-		currentState.mouseClick(target, Button);
+		if (game.LocalPlayers.Contains(currentPlayer))
+			currentState.mouseClick(target, Button);
+		else
+			System.Console.WriteLine("Could not find " + currentPlayer.Name + " in localPlayers: " +((Player)game.LocalPlayers[0]).Name); 
    							
    		if (Button == 3)
 		{			
@@ -225,16 +226,39 @@ class GameState {
 				if (gp.player != null)
 				{
 					Player them = game.PlayerByName(gp.player.Name);
-					Console.WriteLine("Activaiing " + them.Name);
+					Console.WriteLine("Activating " + them.Name);
 					them.Active = true;
 				}
 			}
 			singlePlayer = false;
 			
+			if (game.gameLink is Server)
+				game.GiveInitialUnits(); // Should not be in this file..
 		} else {
 			/* Single Player */
-			singlePlayer = true;			
+			singlePlayer = true;	
+			Player self = game.PlayerByName(game.GUI.GameSetupView.whoAmI(true));
+			Console.WriteLine("Local Game starting with player " + self.Name);
+			self.Active = true; // This needs to be here, despite the us.Active below. 
+			game.GiveInitialUnits(); // Should not be in this file..					
 		}
+		
+		/* Current Player is the first one active */
+		playerList.Reset();
+		playerList.MoveNext();		
+		do
+		{
+			if ( playerList.MoveNext() == false) 
+			{
+				playerList.Reset();
+				playerList.MoveNext();
+			}
+			currentPlayer = (Gpremacy.Player)playerList.Current;
+			Console.WriteLine("BeginGame: CurrentPlayer = " + currentPlayer.Name);
+			
+		} while (!currentPlayer.Active);
+		
+		Console.WriteLine("BeginGame: Selected player = " + currentPlayer.Name);
 		
 		/* Setup ourselves */
 		Player us = game.PlayerByName(game.GUI.GameSetupView.whoAmI(singlePlayer));
@@ -242,13 +266,33 @@ class GameState {
 		us.Active = true;
 				
 		game.DistributeResourceCards(); // Should not be in this file..
-		game.GiveInitialUnits(); // Should not be in this file..		
+		
+		/* If we make an immediate statusbox update, we'll crash occasionally 
+		 * because of a gtktextview bug. So we set a timer. */
+		GLib.Timeout.Add (600, new GLib.TimeoutHandler (performBeginGameStatusUpdate));
+	}
+	
+	private bool performBeginGameStatusUpdate() {
+		Game game = Game.GetInstance();
+
+		string str = "You are playing ";
+		for (int i=0; i<game.LocalPlayers.Count; ++i)
+		{
+			str += ((Player)game.LocalPlayers[i]).Name;
+			if (i+1 == game.LocalPlayers.Count)
+				str += ".";
+			else
+				str += ", ";
+		}
+		
+		game.GUI.updateGUIStatusBoxes();		
+		game.GUI.writeToLog(str);
+		return false;
 	}
 
 	public void Execute(Command cmd)
 	{
-		if (cmd.Undoable)
-			commandList.Add(cmd);
+		commandList.Add(cmd);
 		cmd.Execute(game);
 		
 		/* Send to the network */
@@ -274,16 +318,19 @@ class GameState {
 			cmd = (Command)networkCommands.Dequeue();
 			NetworkExecute(cmd);	
 		}
+		
+		/* Show results... makes sure the client stays up to date */		
+		game.GUI.updateGUIStatusBoxes();
 		return true; // Returning false would stop the timeout from ever running again
 	}
 	
 	public void NetworkExecute(Command cmd)
 	{		
-		/* No undos */		
-		cmd.Execute(game);
+		commandList.Add(cmd);
+		
 		System.Console.WriteLine("Network execution of " + cmd);
-		/* Show results */		
-		game.GUI.updateGUIStatusBoxes();		
+		cmd.Execute(game);
+				
 	}
 	
 	public bool Unexecute()
@@ -291,11 +338,15 @@ class GameState {
 		int pt = commandList.Count-1;
 		if (pt < 0)
 			return false;
-			
-		((Command)commandList[pt]).Unexecute(game);
-		commandList.RemoveAt(pt);
+		Command cmd = (Command)commandList[pt];
 		
-		game.GUI.updateGUIStatusBoxes();
+		if (cmd.Undoable) {
+			/* Only if it's marked as undoable do we allow an undo */
+			cmd.Unexecute(game);
+			commandList.RemoveAt(pt);
+		
+			game.GUI.updateGUIStatusBoxes();
+		}
 		
 		return (pt >= 1); // disable the menu item
 	}
@@ -304,6 +355,10 @@ class GameState {
 
 [Serializable]
 class Orig_NextPlayer : Command {
+	public Orig_NextPlayer() 
+	{
+	}
+	
 	public override void Execute(Game game)
 	{
 		game.State.nextPlayer();

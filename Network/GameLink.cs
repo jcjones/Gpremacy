@@ -61,6 +61,9 @@ class GameLink {
 	
 	public virtual int numPeers()
 	{
+		if (participants == null)
+			return 0;
+
 		return participants.Count;
 	}
 	
@@ -80,11 +83,13 @@ class GameLink {
 		Game game = Game.GetInstance();
 		
 		System.Console.WriteLine("Parsing packet " + pkt.identifier + ":");
-		/* Acquire semaphore, we're about to mess with the game state. */
 		
 		switch(pkt.identifier)
 		{
 		case "Command":
+			if (this is Server)
+				((Server)this).propagateCommand(pkt);
+				
 			game.State.NetworkExecuteQueue((Command)pkt.obj);
 			break;
 		case "BeginGame":
@@ -104,5 +109,10 @@ class GameLink {
 	public virtual void stop()
 	{
 	} 
+	
+	public virtual bool playerChoicesValid() 
+	{
+		return false;
+	}
 }
 }

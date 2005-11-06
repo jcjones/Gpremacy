@@ -175,7 +175,10 @@ class Player {
 		foreach(ResourceCard card in resourceCards)
 		{
 			if (card.Place.Owner != this)
-				card.Active = false;
+			{
+				Orig_ToggleResourceCard cmd = new Orig_ToggleResourceCard(this, card, false);
+				Game.GetInstance().State.Execute(cmd);
+			}
 		}
 	}
 	
@@ -294,6 +297,18 @@ class Player {
 		
 		availableUnits.Add(u);
 	}
+
+	/* Since we won't have exactly the same objects on client systems, 
+	 * we must do pattern equality matching based on serial number. */
+	override public int GetHashCode() 
+	{
+		return countryID.GetHashCode();
+	}
+	override public bool Equals(object o)
+	{
+		return countryID == ((Player)o).countryID;
+	}
+	/* Done screwing with equality matching */	
 	
 }
 }

@@ -16,6 +16,8 @@ class DataPacket {
 	}
 	
 	public override string ToString() {
+		if (endpoint != null)
+			return identifier + " from " + endpoint.ToString();
 		return identifier;
 	}
 

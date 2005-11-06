@@ -45,11 +45,13 @@ class Game {
 	public GameLink gameLink; // for net play
 	
 	private static Game instance;
-	private static int numOfReference;	
+	private static int numOfReference;
+	private static int unitCounter;	
 	
 	private Game()
 	{
-		numOfReference = 0;		
+		numOfReference = 0;
+		unitCounter = 0;		
 	}
 	
 	public void init()
@@ -99,7 +101,7 @@ class Game {
 		try {
 			mainGUI.init();
 		} catch (Exception e) {
-			Console.WriteLine("Exception caught!");
+			Console.WriteLine(e + " caught!");
 			
 			new ExceptionWindow("Gpremacy", e, GUI.mainWindow);
 		}		
@@ -133,7 +135,13 @@ class Game {
 	{
 		get { return 34543; }
 	}
-		
+	
+	public static int nextUnitCount()
+	{
+		System.Console.WriteLine("nextUnitCount: Handing out unit id of " + unitCounter);
+		return unitCounter++;
+	}
+	
 	/* End Static Helpers */
 	/* Helping Hashtables */
 	
@@ -306,6 +314,7 @@ class Game {
 			if (territory.IsLand && territory.Owner != PlayerNobody && territory.Owner.Active)
 			{				
 				unit = new Army(territory.Owner, territory);
+				unit.ID += 9000; // Note that it was given by the server at start.
 				Orig_BuildUnit cmd = new Orig_BuildUnit(unit, territory, territory.Owner);
 				state.Execute(cmd);
 			}
