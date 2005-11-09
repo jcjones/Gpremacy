@@ -1,0 +1,29 @@
+Requirements:
+
+Mono 1.1.9 or later with Gtk# 2.4.0 or later. Gpremacy will run on any system on which Mono can run, including Windows 2000, XP, Solaris, Linux and Mac OS X.
+
+Compiling:
+
+You shouldn't need to. The distribution you received should have a bin/Debug or bin/Release directory with a .exe file. Look below at "Running the game". If you really want to compile the game, you will need a recent copy of MonoDevelop. Open the Gpremacy.mds file in MonoDevelop and hit Compile.
+
+Running the game:
+
+Gpremacy requires Mono be installed. If your computer has not caught Mono, visit http://go-mono.com/ .  Once you have momo, all you need to do is run the game executable with your mono environment. An example would be:
+       
+  mono bin/Debug/gpremacy-mono.exe
+
+
+Acknowledgements:
+
+Chris Jones for demanding I write this.
+My parents for smiling and nodding.
+Larry Ewing for the profile image of Tux used in the logo.
+The Free Software Foundation for hosting Gpremacy.
+Richard Stallman for starting the Free Software movement.
+Richard Stallman for taking the time to insult Gpremacy over Christmas 2001.
+Novell and the Mono team for a great framework.
+Dave Small for acting as taskmaster for this project.
+James Pollard for repeating that the GUI doesn't make sense.
+Katie Piburn for wanting to push the button.
+
+
