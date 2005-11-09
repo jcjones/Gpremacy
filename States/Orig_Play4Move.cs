@@ -36,14 +36,16 @@ class Orig_Play4Move : State {
 			previousTerritory = null;			
 			return false;
 		}
-		
+		System.Console.WriteLine("1");
 		if (previousTerritory == null && target.occupiedBy(Game.State.CurrentPlayer))
 		{
+			System.Console.WriteLine("2");
 			/* Picking first selection */
 			
 			arrowOn = true;
 			previousTerritory = target;
 		} else if (previousTerritory != null && previousTerritory != target) {
+			System.Console.WriteLine("3");
 			/* Picking target selection */			
 			arrowOn = false;
 						
@@ -52,6 +54,7 @@ class Orig_Play4Move : State {
 
 			if (target.IsLand == previousTerritory.IsLand)
 			{
+				System.Console.WriteLine("4");
 				ArrayList moveCost;								
 				
 				// move units from previousTerritory to target.
@@ -97,6 +100,7 @@ class Orig_Play4Move : State {
 					}
 				}
 			} else {
+				System.Console.WriteLine("5");
 				/* Diseperate land/sea areas, so we should load/unload! */
 				Territory land, sea;
 				
@@ -132,9 +136,11 @@ class Orig_Play4Move : State {
 				Game.GUI.showLoadNavalOptions(land, sea);
 				
 			}
+			System.Console.WriteLine("6");
 
 			previousTerritory = null;
 		}
+		System.Console.WriteLine("7");
 		return true;   			
 	}
 	
@@ -157,6 +163,7 @@ class Orig_MoveUnit : Command {
 	TacticalUnit unit;
 	string nextName, previousName;
 	Player curPlay;
+	
 	public ArrayList moveCost; // allow GUI to set this value.
 
 	public Orig_MoveUnit(Player p, TacticalUnit aunit, Territory anext, Territory aprevious, ArrayList acost) {
@@ -171,6 +178,8 @@ class Orig_MoveUnit : Command {
 	}
 	
 	public override void Execute(Game game) {
+		curPlay = game.GetLocalCopyOfPlayer(curPlay);
+		
 		Territory next = game.TerritoryByName(nextName);
 		Territory previous = game.TerritoryByName(previousName);
 		
@@ -205,6 +214,8 @@ class Orig_MoveUnit : Command {
 		game.GUI.redrawTerritory(previous);
 	}
 	public override void Unexecute(Game game) {
+		curPlay = game.GetLocalCopyOfPlayer(curPlay);
+		
 		Territory next = game.TerritoryByName(nextName);
 		Territory previous = game.TerritoryByName(previousName);
 	
@@ -216,7 +227,7 @@ class Orig_MoveUnit : Command {
 		foreach (Stock s in moveCost)
 		{
 			Stock a = new Stock(s.Good, -1*s.Number);
-			game.State.CurrentPlayer.changeResourceStockpile(a);
+			curPlay.changeResourceStockpile(a);
 		}
 			
 		game.GUI.redrawTerritory(next);

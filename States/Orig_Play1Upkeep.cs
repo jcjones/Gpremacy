@@ -56,6 +56,8 @@ class Orig_Upkeep : Command {
 	
 	public override void Execute(Game game) 
 	{
+		Play = game.GetLocalCopyOfPlayer(Play);
+		
 		Play.Money -= Cost;
 		foreach (ResourceCard card in ResourceCards)
 		{

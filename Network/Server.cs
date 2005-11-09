@@ -20,7 +20,7 @@ class ClientConnection {
 		socket = s;
 		connection = new Connection(s);
 		player = null;
-		System.Console.WriteLine("Found new connection from " + s.RemoteEndPoint.ToString());
+		System.Console.WriteLine("Found new connection from " + s.RemoteEndPoint.ToString());		
 	}	
 
 	public bool isConnected()
@@ -34,7 +34,12 @@ class ClientConnection {
 		if (!socket.Connected)
 			str += "Disconnected: ";
 			
-		str += socket.RemoteEndPoint.ToString();
+		try {
+			str += socket.RemoteEndPoint.ToString();
+		} catch (Exception e)
+		{
+			str += "somewhere?";
+		}
 		
 		if (player != null)
 			str += " as Player: " + player.Name;
@@ -47,6 +52,7 @@ class ClientConnection {
 class Server : GameLink {
 	Socket gameSocket;
 	ArrayList clients; // of ClientConnection
+	ArrayList clientsToRemove;
 	bool acceptingConnections;
 
 	GameParticipant localhost;
@@ -57,6 +63,7 @@ class Server : GameLink {
 	public Server (int port)
 	{
 		clients = new ArrayList();
+		clientsToRemove= new ArrayList();
 		
 		acceptingConnections = true;
 		
@@ -74,7 +81,8 @@ class Server : GameLink {
 		participants = new ArrayList();
 		localhost = new GameParticipant(null, null);
 		
-        GLib.Timeout.Add (5000, new GLib.TimeoutHandler (sendParticipantList));				
+        GLib.Timeout.Add (700, new GLib.TimeoutHandler (sendParticipantList));
+		GLib.Timeout.Add (1000, new GLib.TimeoutHandler (cleanClients));
 	}
 	
 	public override int numPeers()
@@ -86,11 +94,17 @@ class Server : GameLink {
 	{
 		participants.Clear();
 		
+		// Acquire mutex for clients
+		Monitor.Enter(clients);
 		foreach(ClientConnection c in clients)
 		{
+			if (!c.isConnected())
+				continue;
 			GameParticipant gp = new GameParticipant(c.player, c.socket.RemoteEndPoint);
 			participants.Add(gp);
 		}
+		Monitor.Exit(clients);
+		
 		participants.Add(localhost);
 		
 		DataPacket pkt = new DataPacket("ParticipantList", participants);
@@ -101,6 +115,7 @@ class Server : GameLink {
 	
 	public void updatePlayerCountryName(DataPacket pkt)
 	{
+		Monitor.Enter(clients);
 		foreach(ClientConnection c in clients)
 		{
 			/* we're doing a string compare here, this is moronic. But it works... */
@@ -108,9 +123,11 @@ class Server : GameLink {
 			{
 				c.player = Game.GetInstance().PlayerByName((string)pkt.obj);
 				sendParticipantList();
+				Monitor.Exit(clients);
 				return;
 			}
 		}
+		Monitor.Exit(clients);
 	}
 	
 	public override void sendWhoIAm(string name)
@@ -158,9 +175,36 @@ class Server : GameLink {
 		if (listenData != null)
 			listenData.Abort();
 			
-		gameSocket.Close();	
+		gameSocket.Close();
+			
+		Monitor.Enter(clients);
 		foreach(ClientConnection c in clients)
-			c.socket.Close();			
+			c.socket.Close();
+		Monitor.Exit(clients);			
+	}
+	
+	public bool cleanClients()
+	{
+		if (clientsToRemove.Count < 1)
+			return true;
+			
+		/* Cleanup Disconnects */
+		Monitor.Enter(clients);
+		foreach (ClientConnection c in clientsToRemove)
+		{
+			if (clients.Contains(c)) 
+			{
+				System.Console.WriteLine("Disconnected from " + c);
+				clients.Remove(c);
+			}
+		}
+		Monitor.Exit(clients);
+		
+		Monitor.Enter(clientsToRemove);
+		clientsToRemove.Clear();
+		Monitor.Exit(clientsToRemove);
+		
+		return true;
 	}
 	
 	public override bool sendCommand(Command cmd)
@@ -172,11 +216,18 @@ class Server : GameLink {
 	
 	protected override bool sendPacket(DataPacket pkt)
 	{
+		Monitor.Enter(clients);
 		foreach(ClientConnection c in clients)
 		{
-			if (c.isConnected())
+			if (!c.isConnected())
+				continue;
+			try {
 				c.connection.sendObject(pkt);
+			} catch (Exception e) {
+				System.Console.WriteLine("Could not send packet " + pkt + " to " + c);
+			}
 		}
+		Monitor.Exit(clients);
 		return true;
 	}
 	
@@ -198,23 +249,31 @@ class Server : GameLink {
 
 	public void listenForData()
 	{
-		ArrayList toRemove = new ArrayList();
-		DataPacket packet;
+		DataPacket packet = null;
 		while(true)
 		{
-			toRemove.Clear();			
-		
+			// Acquire mutex for clients
+			Monitor.Enter(clients);
 			foreach (ClientConnection c in clients)
-			{
+			{				
 				if (c.connection == null)
 					continue;
 				if (!c.isConnected())
-					toRemove.Add(c);
+				{
+					clientsToRemove.Add(c);
+					continue;
+				}
 					
 				try {
 					 packet = (DataPacket) c.connection.getObject();
+				} catch (SocketException e) 
+				{
+					System.Console.WriteLine("Disconnecting " + c.ToString());
+					clientsToRemove.Add(c);
+					packet = null;
 				} catch (Exception e)
 				{
+					clientsToRemove.Add(c);
 					System.Console.WriteLine("NetworkServer Received Exception: " + e.Message);
 					continue;
 				}
@@ -227,13 +286,7 @@ class Server : GameLink {
 				System.Console.WriteLine("Packet of ["+packet.identifier+"] from " + c.ToString());
 				this.parsePacket(packet);
 			}
-
-			/* Cleanup Disconnects */
-			foreach (ClientConnection c in toRemove)
-			{
-				System.Console.WriteLine("Disconnected from " + c.socket.RemoteEndPoint.ToString());
-				clients.Remove(c);
-			}
+			Monitor.Exit(clients);
 			
 			Thread.Sleep(10);
 		}
@@ -245,7 +298,10 @@ class Server : GameLink {
 		{
 			Socket tmp = gameSocket.Accept();
 			ClientConnection client = new ClientConnection(tmp);
+			
+			Monitor.Enter(clients);
 			clients.Add(client);
+			Monitor.Exit(clients);
 
         	Gtk.Application.Invoke (delegate {
               	sendParticipantList();

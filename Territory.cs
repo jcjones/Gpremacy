@@ -55,7 +55,7 @@ class Territory
 		ArrayList friends = new ArrayList();
 		foreach (TacticalUnit joe in units)
 		{
-			if (joe.Owner == bob)
+			if (joe.Owner.Equals(bob))
 			{
 				Console.WriteLine("Added unit " + joe.Name + " to friendlies list.");
 				friends.Add(joe);
@@ -75,7 +75,7 @@ class Territory
 	{
 		foreach (TacticalUnit joe in units)
 		{
-			if (joe.Owner != IFF)
+			if (!joe.Owner.Equals(IFF))
 				return false;
 		}
 		System.Console.WriteLine("Appears to be occupiable.");

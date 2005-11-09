@@ -200,6 +200,14 @@ class Game {
 				return p;
 		return null;
 	}
+	
+	public Player GetLocalCopyOfPlayer(Player p)
+	{
+		foreach (Player a in players)
+			if (p == a)
+				return a;
+		return null;
+	}
 		
 	public GpremacyGUI GUI
 	{

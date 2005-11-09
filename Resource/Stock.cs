@@ -30,5 +30,10 @@ class Stock {
   		return temp;
  	}
  	
+ 	public override string ToString()
+ 	{
+ 		return number + " of " + Good.Name;
+ 	}
+ 	
 }
 }

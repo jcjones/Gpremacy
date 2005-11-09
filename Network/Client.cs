@@ -92,6 +92,8 @@ class Client : GameLink {
 		DataPacket packet;
 		while(gameSocket.Connected)
 		{
+			Thread.Sleep(10);
+		
 			if (gameConnection == null)
 				continue;
 					
@@ -108,9 +110,7 @@ class Client : GameLink {
 					
 			System.Console.WriteLine("Packet of ["+packet.identifier+"] ");
 			
-			this.parsePacket(packet);
-			
-			Thread.Sleep(10);
+			this.parsePacket(packet);			
 		}
 		System.Console.WriteLine("Disconnected.");
         Gtk.Application.Invoke (delegate {

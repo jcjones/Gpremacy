@@ -152,6 +152,8 @@ class Orig_AttackStrategicStart : Command
 	
 	public override void Execute(Game game)
 	{
+		attacker = game.GetLocalCopyOfPlayer(attacker);
+		
 		game.GUI.CombatView.Attacker = attacker;
 		Nuke nuke = new Nuke(attacker);
 		ArrayList nukes = attacker.getActiveUnitsOfType(nuke);
@@ -168,16 +170,21 @@ class Orig_AttackStrategicStart : Command
 		
 		/* Open battle */
 		foreach(Player player in defenders)
-			if (game.LocalPlayers.Contains(player))
+		{
+			Player curPlay = game.GetLocalCopyOfPlayer(player);
+
+			if (game.LocalPlayers.Contains(curPlay))
 			{
-				System.Console.WriteLine("Opening strategic battle window for " + player.Name);
-				game.GUI.CombatView.showStrategicBattle(nuclearTargetList, player);
+				System.Console.WriteLine("Opening strategic battle window for " + curPlay.Name);
+				game.GUI.CombatView.showStrategicBattle(nuclearTargetList, curPlay);
 				break;
 			} else {
-				if (!player.Active)
+				if (!curPlay.Active)
 				{
+					/*TODO: ?*/
 				}
 			}
+		}
 		
 		if (defenders.Count < 1)
 		{
@@ -242,6 +249,9 @@ class Orig_AttackConventionalStart : Command
 	
 	public override void Execute(Game game)
 	{
+		attacker = game.GetLocalCopyOfPlayer(attacker);
+		defender = game.GetLocalCopyOfPlayer(defender);
+		
 		foreach (Resource r in Game.GetInstance().AllResources)
 		{		
 			attacker.changeResourceStockpile(r, -1);
@@ -268,6 +278,7 @@ class Orig_AttackDeleteUnits : Command
 	
 	public override void Execute(Game game)
 	{
+		curPlay = game.GetLocalCopyOfPlayer(curPlay);
 		Territory land = game.TerritoryByName(tname);
 
 		System.Console.Write("DeleteUnits from " + curPlay.Name + " and " + land.Name + ": "); 

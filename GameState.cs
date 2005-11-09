@@ -196,10 +196,17 @@ class GameState {
 	
 	public void mouseClick(Territory target, uint Button)
 	{
+		System.Console.WriteLine("STATE: Registered click on " + target.Name);
+			
 		if (game.LocalPlayers.Contains(currentPlayer))
+		{
+			System.Console.WriteLine("STATE: passed on click " + target.Name);
 			currentState.mouseClick(target, Button);
+		}
 		else
-			System.Console.WriteLine("Could not find " + currentPlayer.Name + " in localPlayers: " +((Player)game.LocalPlayers[0]).Name); 
+		{
+			System.Console.WriteLine("Could not find " + currentPlayer.Name + " in localPlayers: " +((Player)game.LocalPlayers[0]).Name);
+		} 
    							
    		if (Button == 3)
 		{			

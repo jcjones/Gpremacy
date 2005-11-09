@@ -32,6 +32,7 @@ class Orig_AddResourceCard : Command
 	
 	public override void Execute(Game game) 
 	{
+		player = game.GetLocalCopyOfPlayer(player);
 		player.addResourceCard(card);
 		game.RemoveResourceCard(card);
 	}
@@ -41,17 +42,20 @@ class Orig_AddResourceCard : Command
 class Orig_Buy : Command 
 {
 	ArrayList stocks; // of Stock
-	public Orig_Buy(ArrayList res)
+	Player curPlay;
+	public Orig_Buy(ArrayList res, Player p)
 	{
 		stocks = res;
+		curPlay = p;
 	}
 
 	public override void Execute(Game game) 
 	{
+		curPlay = game.GetLocalCopyOfPlayer(curPlay);
 		foreach (Stock stuff in stocks) 
 		{
-			game.State.CurrentPlayer.changeResourceStockpile(stuff);
-			game.State.CurrentPlayer.Money += -1*stuff.Number*game.Market.getCommodityCost(stuff.Good);
+			curPlay.changeResourceStockpile(stuff);
+			curPlay.Money += -1*stuff.Number*game.Market.getCommodityCost(stuff.Good);
 			game.Market.changeCommodityValue(stuff.Good, -1*stuff.Number);
 		}
 	}

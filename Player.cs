@@ -65,10 +65,6 @@ class Player {
 	{
 		get { return activeUnits; }
 	}
-	public ArrayList Stockpile
-	{
-		get { return stockpile; }
-	}	
 	public ArrayList AvailableUnits
 	{
 		get { return availableUnits; }
@@ -250,12 +246,22 @@ class Player {
 	
 	public int changeResourceStockpile(Stock a)
 	{
+		System.Console.WriteLine("+++++");
+		foreach(Stock stockgood in stockpile)
+			if (stockgood.Good.Name == a.Good.Name)
+				System.Console.WriteLine(Name+" "+stockgood);
+		System.Console.WriteLine(Name+" chgBy " +a);		
+		System.Console.WriteLine("=====");
+		
 		foreach (Stock stockgood in stockpile)
 		{
 			if (stockgood.Good.Name == a.Good.Name)
 			{
 				stockgood.Number += a.Number;
 				if (stockgood.Number > MaximumStockpile) stockgood.Number = MaximumStockpile;
+
+				System.Console.WriteLine(Name+" res "+stockgood);
+				
 				if (stockgood.Number < 0) throw new ArgumentOutOfRangeException("Resource " + stockgood.Good.Name + " has gone negative " + stockgood.Number + " after taking " + a.Number);
 				return stockgood.Number;
 			}
@@ -306,7 +312,27 @@ class Player {
 	}
 	override public bool Equals(object o)
 	{
-		return countryID == ((Player)o).countryID;
+		try {
+			return countryID == ((Player)o).countryID;
+		} catch {
+			return false;
+		}
+	}
+	public static bool operator ==(Player a, Player b)
+ 	{	
+		try {
+			return a.countryID == b.countryID;
+		} catch {
+			if (!(a is object) && !(b is object))
+			{
+				return true;
+			}
+			return false;
+		}
+	}
+	public static bool operator !=(Player a, Player b)
+	{
+ 		return !(a==b);
 	}
 	/* Done screwing with equality matching */	
 	

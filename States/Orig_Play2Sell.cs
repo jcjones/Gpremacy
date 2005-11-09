@@ -22,17 +22,21 @@ class Orig_Play2Sell : State {
 [Serializable]
 class Orig_Sell : Command {
 	ArrayList stocks; // of Stock
-	public Orig_Sell(ArrayList res)
+	Player curPlay;
+	
+	public Orig_Sell(ArrayList res, Player p)
 	{
 		stocks = res;
+		curPlay = p;
 	}
 
 	public override void Execute(Game game) 
 	{
+		curPlay = game.GetLocalCopyOfPlayer(curPlay);
 		foreach (Stock stuff in stocks) 
 		{
-			game.State.CurrentPlayer.changeResourceStockpile(stuff);
-			game.State.CurrentPlayer.Money += -1*stuff.Number*game.Market.getCommodityCost(stuff.Good);
+			curPlay.changeResourceStockpile(stuff);
+			curPlay.Money += -1*stuff.Number*game.Market.getCommodityCost(stuff.Good);
 			game.Market.changeCommodityValue(stuff.Good, -1*stuff.Number);
 		}
 	}

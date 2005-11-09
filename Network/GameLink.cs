@@ -2,6 +2,7 @@
 using System;
 using System.Net;
 using System.Collections;
+using System.Threading;
 
 namespace Gpremacy {
 
@@ -53,10 +54,14 @@ class GameLink {
 	
 	public virtual void parseParticipantList(ArrayList list)
 	{
-		if ( (list.Count > 0) && (list[0] is GameParticipant) ) 
+		if ( (list != null) && (list.Count > 0) && (list[0] is GameParticipant) )
+		{
+			Monitor.Enter(participants); 
 			participants = list;
-		else
+			Monitor.Exit(participants);
+		} else {
 			System.Console.WriteLine("Received a bad participant list.");
+		}
 	}
 	
 	public virtual int numPeers()
@@ -102,8 +107,7 @@ class GameLink {
 		case "ParticipantList":
 			parseParticipantList((ArrayList)pkt.obj);
 			break;
-		}
-		/* Release semaphore */
+		}		
 	}
 	
 	public virtual void stop()

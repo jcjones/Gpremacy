@@ -88,6 +88,7 @@ class Orig_ChargeMoney : Command {
 	}
 	public override void Execute(Game game)
 	{
+		curPlay = game.GetLocalCopyOfPlayer(curPlay);
 		curPlay.Money -= Cost;
 	}
 }
@@ -102,6 +103,7 @@ class Orig_PurchaseUnit : Command {
 	}
 	public override void Execute(Game game)
 	{
+		curPlay = game.GetLocalCopyOfPlayer(curPlay);
 		foreach(Stock s in unit.CostResources)
 		{		
 			curPlay.changeResourceStockpile(s);
@@ -128,6 +130,7 @@ class Orig_BuildUnit : Command {
 	
 	public override void Execute(Game game) 
 	{
+		curPlay = game.GetLocalCopyOfPlayer(curPlay);	
 		Territory target = game.TerritoryByName(tname);
 		
 		if (target != null) {
@@ -138,6 +141,7 @@ class Orig_BuildUnit : Command {
 	}
 	public override void Unexecute(Game game) 
 	{
+		curPlay = game.GetLocalCopyOfPlayer(curPlay);
 		Territory target = game.TerritoryByName(tname);
 			
 		if (target != null) {

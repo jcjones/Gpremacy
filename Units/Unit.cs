@@ -84,8 +84,28 @@ class Unit {
 	}
 	override public bool Equals(object o)
 	{
-		return serial == ((Unit)o).ID;
+		try {
+			return serial == ((Unit)o).ID;
+		} catch {
+			return false;
+		}
 	}
+	public static bool operator ==(Unit a, Unit b)
+ 	{
+ 		try {
+			return a.ID == b.ID;
+		} catch {
+			if (!(a is object) && !(b is object))
+			{
+				return true;
+			}
+			return false;
+		}				
+	}
+	public static bool operator !=(Unit a, Unit b)
+	{
+		return !(a==b);
+	}	
 	/* Done screwing with equality matching */
 	
 	public virtual string Costs

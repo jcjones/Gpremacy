@@ -160,7 +160,7 @@ class GpremacyGUI {
    		game.State.mouseMotion(x, y, target);   		
    }
    
-   public void OnButtonPress (object o, ButtonPressEventArgs args)
+   protected void OnButtonPress (object o, ButtonPressEventArgs args)
    {
 	   /* Print Coordinates in countries.csv form*/
 	   /*
@@ -192,6 +192,8 @@ class GpremacyGUI {
 	   	if (target == null)
 	   		return;
 	   		
+	   	Console.WriteLine("Registered click on " + target.Name);
+	   		
 	   	game.State.mouseClick(target, args.Event.Button);
    		
    		/* Redraw that region */
@@ -207,20 +209,27 @@ class GpremacyGUI {
 	}
 	
 	/* Reset and start a new game */
-	public void on_new1_activate(System.Object obj, EventArgs e) 
+	protected void on_new1_activate(System.Object obj, EventArgs e) 
 	{
+		ShowWarning("... I haven't figured out what this should do yet.");
 	}
-	public void on_open1_activate(System.Object obj, EventArgs e) 
-	{}
-	public void on_save1_activate(System.Object obj, EventArgs e) 
-	{}
-	public void on_save_as1_activate(System.Object obj, EventArgs e) 
-	{}
-	public void on_quit1_activate(System.Object obj, EventArgs e) 
+	protected void on_open1_activate(System.Object obj, EventArgs e) 
+	{
+		ShowWarning("Game Save/Load is not yet implemented.");
+	}
+	protected void on_save1_activate(System.Object obj, EventArgs e) 
+	{
+		ShowWarning("Game Save/Load is not yet implemented.");
+	}
+	protected void on_save_as1_activate(System.Object obj, EventArgs e) 
+	{
+		ShowWarning("Game Save/Load is not yet implemented.");
+	}
+	protected void on_quit1_activate(System.Object obj, EventArgs e) 
 	{
 		Game.GetInstance().Quit();
 	}
-	public void on_undo_activate(System.Object obj, EventArgs e) 
+	protected void on_undo_activate(System.Object obj, EventArgs e) 
 	{
 		if (!game.State.Unexecute())
 		{
@@ -228,7 +237,7 @@ class GpremacyGUI {
 			// figure out how to renable it first, doofus!
 		}
 	}
-	public void on_about1_activate(System.Object obj, EventArgs e) 
+	protected void on_about1_activate(System.Object obj, EventArgs e) 
 	{
 	/* Requires GTK# 2.6 */
 	/*
@@ -252,17 +261,22 @@ class GpremacyGUI {
 			dialog.ShowAll();
 	*/			
 	}
-	public void on_always_march1_activate(System.Object obj, EventArgs e)
+	protected void on_always_march1_activate(System.Object obj, EventArgs e)
 	{
 		AlwaysMarch = ((Gtk.CheckMenuItem)obj).Active;
 	}
-	public void on_MainWindow_delete_event(System.Object o, DeleteEventArgs args)
+	protected void on_MainWindow_delete_event(System.Object o, DeleteEventArgs args)
 	{
 		Game.GetInstance().Quit();
 		args.RetVal = true;
 	}
 	
-	public void on_endTurnButton_pressed(System.Object obj, EventArgs e)
+	protected void on_endTurnButton_pressed(System.Object obj, EventArgs e)
+	{
+		endTurn();
+	}
+	
+	public void endTurn() 
 	{
 		/* Hide All Windows. This is more of a "just in case", since all windows are modal. */
 		foreach (Gtk.Window w in Gtk.Window.ListToplevels())
@@ -276,7 +290,7 @@ class GpremacyGUI {
 		Orig_NextPlayer cmd = new Orig_NextPlayer();
 		Game.GetInstance().State.Execute(cmd);
 		
-		updateGUIStatusBoxes();
+		updateGUIStatusBoxes();	
 	}
 	
 	public void on_strategic_attack1_activate(System.Object obj, EventArgs e)
@@ -496,10 +510,12 @@ class GpremacyGUI {
 		forSale.Add(new Stock(new Grain(), -1*((int)GrainScroll.Value)));
 		
 		Console.WriteLine("ExeSell!");
-		Orig_Sell cmd = new Orig_Sell(forSale);
+		Orig_Sell cmd = new Orig_Sell(forSale, game.State.CurrentPlayer);
 		game.State.Execute(cmd);			
 
 		MarketBuySell.Hide();
+		
+		endTurn();
 	}
 	
     public void on_MarketBuyOkay_clicked(System.Object obj, EventArgs e)
@@ -511,10 +527,12 @@ class GpremacyGUI {
 		ticket.Add(new Stock(new Grain(), ((int)GrainScroll.Value)));
 		
 		Console.WriteLine("ExeBuy!");
-		Orig_Buy cmd = new Orig_Buy(ticket);
+		Orig_Buy cmd = new Orig_Buy(ticket, game.State.CurrentPlayer);
 		game.State.Execute(cmd);			
 
 		MarketBuySell.Hide();
+		
+		endTurn();
 	}
 		
 	public void on_MarketBuySell_delete_event(System.Object obj, EventArgs e)
@@ -1029,7 +1047,7 @@ class GpremacyGUI {
 		ResourceCardView.ShowAll();
 	}
 	
-	void ResourceCardViewTableButton_toggled (object obj, EventArgs args)
+	protected void ResourceCardViewTableButton_toggled (object obj, EventArgs args)
     {
         Console.WriteLine ("Button Toggled");
         if (!(obj is Gtk.ToggleButton))
