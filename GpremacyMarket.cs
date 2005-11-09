@@ -49,7 +49,7 @@ class GpremacyMarket {
 			{
 //				System.Console.WriteLine("Changing " + r.Name + " by " + change + " ");
 				com.TablePosition -= change;
-				if (com.TablePosition > marketTable.Length)
+				if (com.TablePosition >= marketTable.Length)
 					com.TablePosition = marketTable.Length-1;
 				if (com.TablePosition < 0)
 					com.TablePosition = 0;
