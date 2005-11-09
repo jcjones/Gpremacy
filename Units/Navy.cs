@@ -48,7 +48,7 @@ class Navy : TacticalUnit {
 	public override string toString()
 	{
 		string ret;
-		ret = Name + " of " + owner.toString() + " with " + UnitsAboardCount + " units aboard.\n";
+		ret = Name + " of " + owner.toString()  + " [#" + ID + "] with " + UnitsAboardCount + " units aboard.\n";
 		return ret;
 	}
 	

@@ -254,9 +254,10 @@ class GpremacyMap : DrawingArea
 
         public int distanceBetween(Territory a, Territory b)
         {
-        	if (a.MapTerritory.ConnectionDistances == null)
-				updatePathsFrom(a);
-        	return a.MapTerritory.ConnectionDistances[b.ID];
+        	Territory localTerr = Game.GetInstance().TerritoryByName(a.Name);        	
+        	if (localTerr.MapTerritory.ConnectionDistances == null)
+				updatePathsFrom(localTerr);
+        	return localTerr.MapTerritory.ConnectionDistances[b.ID];
         }
         
         public int distanceFromClosestHomeTerritory(Territory a, Player p)

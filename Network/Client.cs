@@ -14,10 +14,14 @@ class Client : GameLink {
 	Connection gameConnection;
 	IPEndPoint gameIP;
 	Thread listenData;
+	GameSetupView gsv;
 	
 	public Client (string address, int port)
 	{	
-		GameSetupView gsv = Game.GetInstance().GUI.GameSetupView;
+		gsv = Game.GetInstance().GUI.GameSetupView;
+
+		Console.WriteLine("Connecting to " + address + " at " + port);
+		gsv.addStatusText("Connecting to " + address + " at " + port);
 		 
 		try 
 		{
@@ -31,11 +35,13 @@ class Client : GameLink {
 			}
 			catch (Exception ex)
 			{
+				gsv.reenableConnectButton();
 				gsv.addStatusText("Could not lookup " + address + " on port " + port + ": " + ex.Message);
 				return;
 			}
 			
 		} catch (Exception e) {
+			gsv.reenableConnectButton();
 			gsv.addStatusText("Unknown error parsing address " + address + " on port " + port + ": " + e.Message);
 			return;
 		}
@@ -48,6 +54,7 @@ class Client : GameLink {
 		}
 		catch (Exception e)
 		{
+			gsv.reenableConnectButton();
 			gsv.addStatusText("Could not connect to " + address + " on port " + port + ": " + e.Message);
 			return;
 		}
@@ -56,7 +63,6 @@ class Client : GameLink {
 		listenData.Start();
 
 		gsv.addStatusText("Connected.");
-
 		
 		DataPacket pkt = new DataPacket("Connected", null);
 		gameConnection.sendObject(pkt);
@@ -69,6 +75,7 @@ class Client : GameLink {
 		if (listenData != null)
 			listenData.Abort();
 		gameSocket.Close();
+		gsv.reenableConnectButton();
 	}
 	
 	protected override bool sendPacket(DataPacket pkt)

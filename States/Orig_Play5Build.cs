@@ -121,17 +121,34 @@ class Orig_BuildUnit : Command {
 
 	public Orig_BuildUnit(Unit aunit, Territory atarget, Player p) 
 	{
-		unit = aunit; tname = atarget.Name; curPlay = p;
+		if (atarget != null)
+			tname = atarget.Name;
+		else
+			tname = "";
+		
+		unit = aunit; curPlay = p;
 		undoable = true;
 		/* Mark it */
 		ID = Game.nextUnitCount() + curPlay.CountryID*10000;
 		unit.ID = ID;
 	}
 	
+	public void addToID(int i)
+	{
+		/* Mark it */
+		ID += i;
+		unit.ID = ID;
+	}
+	
 	public override void Execute(Game game) 
 	{
-		curPlay = game.GetLocalCopyOfPlayer(curPlay);	
-		Territory target = game.TerritoryByName(tname);
+		Territory target = null;
+		curPlay = game.GetLocalCopyOfPlayer(curPlay);
+		
+		game.UnitHashTable.Add(ID, unit);	
+
+		if (tname != "")		
+			target = game.TerritoryByName(tname);
 		
 		if (target != null) {
 			target.addUnit(unit);   			
@@ -141,8 +158,13 @@ class Orig_BuildUnit : Command {
 	}
 	public override void Unexecute(Game game) 
 	{
+		Territory target = null;
 		curPlay = game.GetLocalCopyOfPlayer(curPlay);
-		Territory target = game.TerritoryByName(tname);
+		
+		game.UnitHashTable.Remove(unit);
+		
+		if (tname != "")		
+			target = game.TerritoryByName(tname);
 			
 		if (target != null) {
 			target.removeUnit(unit);   			

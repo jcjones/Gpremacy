@@ -228,6 +228,9 @@ class Orig_AttackStrategicDetonate : Command
 			game.State.Execute(cmd);
 		}
 		
+		/* Disable any resources in that area */
+		/*TODO: disable resources here and check Destroyed in RC interface */
+		
 		/* Show detonation */
 		game.GUI.showNuclearDetonationAnimation(target);
 	}
@@ -284,15 +287,16 @@ class Orig_AttackDeleteUnits : Command
 		System.Console.Write("DeleteUnits from " + curPlay.Name + " and " + land.Name + ": "); 
 		foreach(Unit unit in units)
 		{
+			Unit bob = game.GetLocalCopyOfUnit(unit);
 			if (land != null) {
-				land.removeUnit(unit);   			
+				land.removeUnit(bob);   			
 			}
-			curPlay.ActiveUnits.Remove(unit);
-			System.Console.Write(unit.Name + " ");
-			if (unit is TacticalUnit)
+			curPlay.ActiveUnits.Remove(bob);
+			System.Console.Write(bob.Name + " ");
+			if (bob is TacticalUnit)
 			{
-				if (((TacticalUnit)unit).CanHoldTroops)
-					((TacticalUnit)unit).DeleteUnitsAboard(-1);
+				if (((TacticalUnit)bob).CanHoldTroops)
+					((TacticalUnit)bob).DeleteUnitsAboard(-1);
 			}
 		}
 		System.Console.WriteLine(".");

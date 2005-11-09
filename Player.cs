@@ -245,23 +245,13 @@ class Player {
 	}	
 	
 	public int changeResourceStockpile(Stock a)
-	{
-		System.Console.WriteLine("+++++");
-		foreach(Stock stockgood in stockpile)
-			if (stockgood.Good.Name == a.Good.Name)
-				System.Console.WriteLine(Name+" "+stockgood);
-		System.Console.WriteLine(Name+" chgBy " +a);		
-		System.Console.WriteLine("=====");
-		
+	{		
 		foreach (Stock stockgood in stockpile)
 		{
 			if (stockgood.Good.Name == a.Good.Name)
 			{
 				stockgood.Number += a.Number;
 				if (stockgood.Number > MaximumStockpile) stockgood.Number = MaximumStockpile;
-
-				System.Console.WriteLine(Name+" res "+stockgood);
-				
 				if (stockgood.Number < 0) throw new ArgumentOutOfRangeException("Resource " + stockgood.Good.Name + " has gone negative " + stockgood.Number + " after taking " + a.Number);
 				return stockgood.Number;
 			}

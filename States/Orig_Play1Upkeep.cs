@@ -37,7 +37,7 @@ class Orig_Play1Upkeep : State {
 			return;
 			
 		Orig_Upkeep cmd = new Orig_Upkeep(player, player.ResourceCards, player.CalculateUpkeep());
-		Game.State.Execute(cmd);			
+		Game.State.Execute(cmd);
 	}	
 
 }

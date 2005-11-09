@@ -58,10 +58,14 @@ class Server : GameLink {
 	GameParticipant localhost;
 	
 	Thread listenJoins;
-	Thread listenData;	
+	Thread listenData;
+		
+	GameSetupView gsv;
 	
 	public Server (int port)
 	{
+		gsv = Game.GetInstance().GUI.GameSetupView;
+		
 		clients = new ArrayList();
 		clientsToRemove= new ArrayList();
 		
@@ -80,6 +84,9 @@ class Server : GameLink {
 		
 		participants = new ArrayList();
 		localhost = new GameParticipant(null, null);
+		
+		Console.WriteLine("Listening on port " + port);
+		gsv.addStatusText("Listening on port " + port);
 		
         GLib.Timeout.Add (700, new GLib.TimeoutHandler (sendParticipantList));
 		GLib.Timeout.Add (1000, new GLib.TimeoutHandler (cleanClients));
@@ -180,7 +187,10 @@ class Server : GameLink {
 		Monitor.Enter(clients);
 		foreach(ClientConnection c in clients)
 			c.socket.Close();
-		Monitor.Exit(clients);			
+		Monitor.Exit(clients);
+		
+		gsv.reenableConnectButton();
+		gsv.addStatusText("Stopped server.");		
 	}
 	
 	public bool cleanClients()

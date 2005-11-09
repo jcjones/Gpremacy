@@ -179,6 +179,7 @@ class Orig_MoveUnit : Command {
 	
 	public override void Execute(Game game) {
 		curPlay = game.GetLocalCopyOfPlayer(curPlay);
+		unit = (TacticalUnit)game.GetLocalCopyOfUnit(unit);
 		
 		Territory next = game.TerritoryByName(nextName);
 		Territory previous = game.TerritoryByName(previousName);
@@ -215,6 +216,7 @@ class Orig_MoveUnit : Command {
 	}
 	public override void Unexecute(Game game) {
 		curPlay = game.GetLocalCopyOfPlayer(curPlay);
+		unit = (TacticalUnit)game.GetLocalCopyOfUnit(unit);
 		
 		Territory next = game.TerritoryByName(nextName);
 		Territory previous = game.TerritoryByName(previousName);
@@ -253,13 +255,16 @@ class Orig_LoadUnits : Command {
 	public override void Execute(Game game)
 	{
 		Territory port = game.TerritoryByName(portName);
-		Territory sea = game.TerritoryByName(seaName);
+		Territory sea = game.TerritoryByName(seaName);	
+		ship = (Navy)game.GetLocalCopyOfUnit(ship);
 	
 		foreach(TacticalUnit joe in troops)
 		{
-			ship.loadUnit(joe);
-			port.removeUnit(joe);
-			joe.moveTo(ship.Hold);
+			TacticalUnit bob = (TacticalUnit)game.GetLocalCopyOfUnit(joe);
+			
+			ship.loadUnit(bob);
+			port.removeUnit(bob);
+			bob.moveTo(ship.Hold);
 			game.GUI.redrawTerritory(sea);
 			game.GUI.redrawTerritory(port);
 		}
@@ -269,12 +274,15 @@ class Orig_LoadUnits : Command {
 	{
 		Territory port = game.TerritoryByName(portName);
 		Territory sea = game.TerritoryByName(seaName);
+		ship = (Navy)game.GetLocalCopyOfUnit(ship);
 			
 		foreach(TacticalUnit joe in troops)
 		{
-			ship.unloadUnit(joe);
-			port.addUnit(joe);
-			joe.moveTo(port);
+			TacticalUnit bob = (TacticalUnit)game.GetLocalCopyOfUnit(joe);
+
+			ship.unloadUnit(bob);
+			port.addUnit(bob);
+			bob.moveTo(port);
 			game.GUI.redrawTerritory(sea);
 			game.GUI.redrawTerritory(port);
 		}
@@ -300,12 +308,15 @@ class Orig_UnloadUnits : Command {
 	{
 		Territory port = game.TerritoryByName(portName);
 		Territory sea = game.TerritoryByName(seaName);
+		ship = (Navy)game.GetLocalCopyOfUnit(ship);
 	
 		foreach(TacticalUnit joe in troops)
 		{
-			ship.unloadUnit(joe);
-			port.addUnit(joe);
-			joe.moveTo(port);
+			TacticalUnit bob = (TacticalUnit)game.GetLocalCopyOfUnit(joe);
+			
+			ship.unloadUnit(bob);
+			port.addUnit(bob);
+			bob.moveTo(port);
 			game.GUI.redrawTerritory(sea);
 			game.GUI.redrawTerritory(port);			
 		}
@@ -315,12 +326,15 @@ class Orig_UnloadUnits : Command {
 	{
 		Territory port = game.TerritoryByName(portName);
 		Territory sea = game.TerritoryByName(seaName);
+		ship = (Navy)game.GetLocalCopyOfUnit(ship);
 	
 		foreach(TacticalUnit joe in troops)
 		{
-			ship.loadUnit(joe);
-			port.removeUnit(joe);
-			joe.moveTo(ship.Hold);
+			TacticalUnit bob = (TacticalUnit)game.GetLocalCopyOfUnit(joe);
+			
+			ship.loadUnit(bob);
+			port.removeUnit(bob);
+			bob.moveTo(ship.Hold);
 			game.GUI.redrawTerritory(sea);
 			game.GUI.redrawTerritory(port);			
 		}

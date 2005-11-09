@@ -33,6 +33,7 @@ class Game {
 	
     Hashtable mapTerritoryHash; // of MapTerritory
     Hashtable territoryHash; // of Territory
+    Hashtable unitHash; // of Unit
 	
 	IEnumerator cardsIterator;
 	Player playerNobody;
@@ -79,6 +80,7 @@ class Game {
 		
 		territoryHash = new Hashtable();
 		mapTerritoryHash = new Hashtable();
+		unitHash = new Hashtable();
 		
 		/* Force local setup */		
 		for (int i=0; i<12; i++)
@@ -154,6 +156,24 @@ class Game {
 	{
 		get { return territoryHash; }
 	}
+	
+	public Hashtable UnitHashTable
+	{
+		get { return unitHash; }
+	}
+	
+	public Unit UnitByID(int id)
+	{		
+       	if (!unitHash.ContainsKey(id)) {
+       		throw new ArgumentOutOfRangeException("Asked for a Unit with an ID of " + id +  " which is out of range.");
+       	}
+      	return (Unit)unitHash.get_Item(id);		
+	}
+	
+	public Unit GetLocalCopyOfUnit(Unit u)
+	{				
+		return UnitByID(u.ID);
+	}
 
     public MapTerritory MapTerritoryByID(int id)
     {
@@ -170,6 +190,22 @@ class Game {
        	}
       	return (Territory)territoryHash.get_Item(name);
     }    
+	
+	public Player PlayerByName(string name)
+	{
+		foreach(Player p in players)
+			if (p.Name == name)
+				return p;
+		return null;
+	}
+	
+	public Player GetLocalCopyOfPlayer(Player p)
+	{
+		foreach (Player a in players)
+			if (p == a)
+				return a;
+		return null;
+	}		
 	
 	/* End Hashtables */
 
@@ -193,22 +229,6 @@ class Game {
 		get { return localplayers; }
 	}
 	
-	public Player PlayerByName(string name)
-	{
-		foreach(Player p in players)
-			if (p.Name == name)
-				return p;
-		return null;
-	}
-	
-	public Player GetLocalCopyOfPlayer(Player p)
-	{
-		foreach (Player a in players)
-			if (p == a)
-				return a;
-		return null;
-	}
-		
 	public GpremacyGUI GUI
 	{
 		get { return mainGUI; }
@@ -321,9 +341,10 @@ class Game {
 		{
 			if (territory.IsLand && territory.Owner != PlayerNobody && territory.Owner.Active)
 			{				
-				unit = new Army(territory.Owner, territory);
-				unit.ID += 9000; // Note that it was given by the server at start.
+				unit = new Army(territory.Owner, territory);				
 				Orig_BuildUnit cmd = new Orig_BuildUnit(unit, territory, territory.Owner);
+				
+				cmd.addToID(9000); // Note that it was given by the server at start.
 				state.Execute(cmd);
 			}
 		}
