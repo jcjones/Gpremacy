@@ -3,6 +3,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 using System.Net.Sockets;
 using System.Collections;
+using System.Threading;
 using System.IO;
 using System;
 
@@ -18,6 +19,8 @@ class Connection {
 		
 	public void sendObject(object o)
 	{
+		Monitor.Enter(ns);
+
 		try
 		{
 			ns.Flush();
@@ -28,6 +31,10 @@ class Connection {
 		{
 			Game.GetInstance().GUI.ShowError("Problem while sending object: " + er.Message + " to " + ns.ToString());
 		}
+		finally
+		{
+			Monitor.Exit(ns);
+		}
 
 	}
 	
@@ -36,13 +43,19 @@ class Connection {
 		object data;
 		
 		IFormatter getter = new BinaryFormatter();
+		
+		Monitor.Enter(ns);		
 		if(ns.DataAvailable)
 		{
 			data = (object) getter.Deserialize(ns);
 			ns.Flush();
+			
+			Monitor.Exit(ns);
 			return data;
 		}
 		ns.Flush();
+		Monitor.Exit(ns);
+		
 		return null;
 	}
 	

@@ -102,11 +102,12 @@ class Orig_Play3Attack : State {
 		}
 		
 		
-		Game.GetInstance().GUI.showConventionalBattle(currentTerritory, previousTerritory, player, defender);
+		Orig_AttackConventionalStart cmd = new Orig_AttackConventionalStart(player, defender, currentTerritory, previousTerritory);
+		Game.GetInstance().State.Execute(cmd);
+		
 		previousTerritory = currentTerritory = null;
 		arrowOn = false;
 
-		//Game.GetInstance().GUI.showConventionalBattle(target, attacker, defender);
 		return true;
 	}
 	
@@ -241,9 +242,74 @@ class Orig_AttackConventionalStart : Command
 {
 	Player attacker;
 	Player defender;
+	string curTerrName, prevTerrName;
+	
+	public Orig_AttackConventionalStart(Player a, Player d, Territory c, Territory p)
+	{
+		attacker = a;
+		defender = d;
+		curTerrName = c.Name;
+		prevTerrName = p.Name;
+	}
+	
+	public override void Execute(Game game)
+	{
+		attacker = game.GetLocalCopyOfPlayer(attacker);
+		defender = game.GetLocalCopyOfPlayer(defender);
+		Territory prevTerr = game.TerritoryByName(prevTerrName);
+		Territory curTerr = game.TerritoryByName(curTerrName);
+		
+		if (game.LocalPlayers.Contains(attacker) || game.LocalPlayers.Contains(defender))
+		{
+			System.Console.WriteLine("Opening conventional battle window for battle between " + attacker.Name + " and " + defender.Name + " and " + prevTerr.Name + " and " + curTerr.Name);
+			
+			game.GUI.CombatView.Attacker = attacker;
+			game.GUI.CombatView.Defender = defender;
+			game.GUI.CombatView.BattleLocation = curTerr;
+			game.GUI.CombatView.StagingLocation = prevTerr;			
+			
+			game.GUI.CombatView.showConventionalBattle();
+		}
+		
+	}	
+}
+
+[Serializable]
+class Orig_AttackConventionalDefenderReady : Command
+{
+	Player attacker;
+	Player defender;
+	bool fullDefense;
+
+	public Orig_AttackConventionalDefenderReady(Player a, Player d, bool fd)
+	{
+		attacker = a;
+		defender = d;
+		fullDefense = fd;
+	}
+	
+	public override void Execute(Game game)
+	{
+		attacker = game.GetLocalCopyOfPlayer(attacker);
+		defender = game.GetLocalCopyOfPlayer(defender);
+		
+		if (game.LocalPlayers.Contains(attacker) || game.LocalPlayers.Contains(defender))
+		{	
+			System.Console.WriteLine("Defender is ready, [" + fullDefense + "]");
+			game.GUI.CombatView.conventionalDefenderReady(fullDefense);			
+		}
+	}
+	
+}
+
+[Serializable]
+class Orig_AttackConventionalSupplies : Command
+{
+	Player attacker;
+	Player defender;
 	bool fullDefense;
 	
-	public Orig_AttackConventionalStart(Player a, Player d, bool fd)
+	public Orig_AttackConventionalSupplies(Player a, Player d, bool fd)
 	{
 		attacker = a;
 		defender = d;
@@ -261,9 +327,45 @@ class Orig_AttackConventionalStart : Command
 			
 			if (fullDefense)
 				defender.changeResourceStockpile(r, -1);
-		}		
-	}	
+		}	
+	}
 }
+
+[Serializable]
+class Orig_AttackConventionalRoll : Command
+{
+	Player attacker;
+	Player defender;
+	Territory battleLocation;
+	int attackerDice;
+	int defenderDice;
+	int attackerRoll;
+	int defenderRoll;
+	
+	public Orig_AttackConventionalRoll(Player a, Player d, Territory t, int ad, int dd, int ar, int dr)
+	{
+		attacker = a;
+		defender = d;
+		battleLocation = t;
+		attackerDice = ad;
+		defenderDice = dd;
+		attackerRoll = ar;
+		defenderRoll = dr;
+	}
+	
+	public override void Execute(Game game)
+	{
+		if ( (game.LocalPlayers.Contains(attacker)) || (game.LocalPlayers.Contains(defender)))
+		{
+			game.GUI.CombatView.conventionalDiceResults(attackerDice, defenderDice, attackerRoll, defenderRoll);
+		}
+		
+		Game.GetInstance().GUI.writeToLog("Battle for " +battleLocation.Name+ ": Attacker ("+attacker.Name+") kills " + (attackerRoll/3) + " and Defender ("+defender.Name+") kills " + (defenderRoll/3) + ".");
+
+	}
+	
+}
+	
 
 [Serializable]
 class Orig_AttackDeleteUnits : Command
@@ -292,7 +394,7 @@ class Orig_AttackDeleteUnits : Command
 				land.removeUnit(bob);   			
 			}
 			curPlay.ActiveUnits.Remove(bob);
-			System.Console.Write(bob.Name + " ");
+			System.Console.Write(bob.Name + "[" + bob.ID + "] ");
 			if (bob is TacticalUnit)
 			{
 				if (((TacticalUnit)bob).CanHoldTroops)

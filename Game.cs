@@ -55,6 +55,11 @@ class Game {
 		unitCounter = 0;		
 	}
 	
+	public string VersionString
+	{
+		get { return "20051109: Multiplay Release 1"; }
+	}
+	
 	public void init()
 	{
 		cards = new ArrayList();

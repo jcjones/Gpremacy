@@ -23,11 +23,13 @@ class Orig_Play5Build : State {
 		
 		if (target.MapTerritory.isLand)
 		{
-			if (target.Owner != me)
+			if ((target.Owner != me) || (target.OriginalOwner != me.CountryID))
 				return false;
 			nu = new Army(me, target);
 		} else {
 			if (Game.GetInstance().GUI.Map.distanceFromClosestHomeTerritory(target, me) > 1)
+				return false;
+			if (!target.occupiable(me))
 				return false;
 			nu = new Navy(me, target);
 		}

@@ -30,6 +30,11 @@ class GpremacyGUI {
 //	[Glade.Widget] Gtk.TextView StatsTextBox;
 //	[Glade.Widget] Gtk.TextView MiscTextBox;
 
+	/* About Dialog */
+	[Glade.Widget] Gtk.Window About;
+	[Glade.Widget] Gtk.Label AboutLabel;
+	[Glade.Widget] Gtk.Image AboutImage;
+		
 	/* Naval Options */	
 	[Glade.Widget] Gtk.Window LoadNavalOptions;
 	//[Glade.Widget] Gtk.DrawingArea UnitLegendNaval;
@@ -259,8 +264,25 @@ class GpremacyGUI {
 			dialog.Website = "http://gpremacy.nongnu.org/";
 			dialog.WebsiteLabel = "Gpremacy on the Web";
 			dialog.ShowAll();
-	*/			
+	*/
+	
+		AboutLabel.Markup = "<span foreground=\"#FFFF00\" variant=\"smallcaps\" size=\"x-large\">Gpremacy: The Game of the Superpowers</span>\n" +
+				"<span foreground=\"#FFFF00\" size=\"large\">Version " + Game.GetInstance().VersionString +"</span>\n"+
+				"(C) 2005 J.C. \"Pug\" Jones\n" +
+				"Licensed under the GNU GPL version 2 or later\n" +
+				"<u>http://gpremacy.nongnu.org/</u>";
+		AboutLabel.Justify = Gtk.Justification.Center;
+		About.ModifyBg(Gtk.StateType.Normal, new Gdk.Color(0, 0x99, 0xf0));
+		
+		/* This is going to re-load each call of About... that's odd. */
+		AboutImage.Pixbuf = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/logo.png"));
+		About.ShowAll();
 	}
+	protected void on_AboutOkay_clicked(System.Object obj, EventArgs e)
+	{
+		About.Hide();
+	}
+	
 	protected void on_always_march1_activate(System.Object obj, EventArgs e)
 	{
 		AlwaysMarch = ((Gtk.CheckMenuItem)obj).Active;

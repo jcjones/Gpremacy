@@ -59,6 +59,7 @@ class CombatView {
 	Dictionary defendingUnitsDictionary;
 	
 	bool battleResolved;
+	bool defenderReady;
 	bool fullDefense;
 	
 	public CombatView() {
@@ -139,11 +140,15 @@ class CombatView {
 		LSat lsat = new LSat(attacker); // Doesn't matter whose it is...
 		
 		battleResolved = false;
+		defenderReady = false;
 		attackingUnits = stageLocation.Friendlies(attacker);
 		attackingUnits.AddRange(attacker.getActiveUnitsOfType(lsat));
 		
 		defendingUnits = battleLocation.Friendlies(defender);
 		defendingUnits.AddRange(defender.getActiveUnitsOfType(lsat));
+		
+		ConvBattleAttackerDice.Text = "";
+		ConvBattleDefenderDice.Text = "";
 		
 		attackingUnitsDictionary = new Dictionary();
 		defendingUnitsDictionary = new Dictionary();
@@ -172,11 +177,14 @@ class CombatView {
 		attacker = defender = null; // Invalidate Players	
 		attackingUnits = defendingUnits = null; // Invalidate lists
 		ConvBattleFullDefense.Active = true;
-		fullDefense = true;		
+		fullDefense = true;
+		defenderReady = false;		
 	}
 		
 	private void conventionalDecideDice() 
 	{
+		if (attacker == null)
+			return;
 		/* Define dice 
 		 * Attacker gets 1, Def gets 2, most units gets +1, most lstars gets +1
 		 */
@@ -186,14 +194,21 @@ class CombatView {
 		if (fullDefense)
 			defenderDice++;
 
-		Console.WriteLine("1Attacker gets " + attackerDice + " dice, defender gets " + defenderDice);
-				
-		if (attackingUnits.Count > defendingUnits.Count)
+		/* Now we see who has the most units in battle. We discount 
+		 * any Strategic units present, because this is all about
+		 * the ground warfare. */
+		int atkCount = 0, defCount = 0;
+		foreach (Unit u in attackingUnits)
+			if (u is TacticalUnit)
+				atkCount++;
+		foreach (Unit u in defendingUnits)
+			if (u is TacticalUnit)
+				defCount++;				
+						
+		if (atkCount > defCount)
 			attackerDice++;
-		else if (attackingUnits.Count < defendingUnits.Count)
+		else if (atkCount < defCount)
 			defenderDice++;
-
-		Console.WriteLine("2Attacker gets " + attackerDice + " dice, defender gets " + defenderDice);
 		
 		int attackLsat, defendLsat;
 		attackLsat = attacker.countActiveUnits(new LSat(attacker));
@@ -204,19 +219,14 @@ class CombatView {
 		else if (attackLsat < defendLsat)
 			defenderDice++;		
 		
-		Console.WriteLine("3Attacker gets " + attackerDice + " dice, defender gets " + defenderDice);
 		ConvBattleAttackerDice.Text = attackerDice + " d6's ";
-		ConvBattleDefenderDice.Text = defenderDice + " d6's ";	
-		
-		/* Remove set of supplies */
-		Orig_AttackConventionalStart cmd = new Orig_AttackConventionalStart(attacker, defender, fullDefense);
-		Game.GetInstance().State.Execute(cmd);
-		
+		ConvBattleDefenderDice.Text = defenderDice + " d6's ";					
 	}
 	
 	public void removeUnits(int akills, int dkills)
 	{
-		ArrayList list = new ArrayList();
+		ArrayList attackerDead = new ArrayList(); // of TacticalUnit
+		ArrayList defenderDead = new ArrayList(); // of TacticalUnit
 		Orig_AttackDeleteUnits cmd;
 		
 		for (int i=0; (i<dkills) && (i<attackingUnits.Count); i++)
@@ -224,24 +234,35 @@ class CombatView {
 			if (attackingUnits[i] is TacticalUnit)
 		    {
 				TacticalUnit unit = (TacticalUnit)attackingUnits[i];
-				list.Add(unit);
+				attackerDead.Add(unit);
 			}
 		}
 			
-		cmd = new Orig_AttackDeleteUnits(list, attacker, stageLocation);
+		cmd = new Orig_AttackDeleteUnits(attackerDead, attacker, stageLocation);
+		
+		System.Console.Write("AtkDelete: " + attacker.Name + " - " + stageLocation.Name);
+		foreach(TacticalUnit u in attackerDead)
+			System.Console.Write(u.Name + "[" + u.ID + "],");			
+		System.Console.WriteLine();
+				 
 		Game.GetInstance().State.Execute(cmd);
 		
-		list.Clear();
+		
 		
 		for (int i=0; (i<akills) && (i<defendingUnits.Count); i++)
 		{
 			if (defendingUnits[i] is TacticalUnit)
 			{
 				TacticalUnit unit = (TacticalUnit)defendingUnits[i];
-				list.Add(unit);
+				defenderDead.Add(unit);
 			}
 		}
-		cmd = new Orig_AttackDeleteUnits(list, defender, battleLocation);
+		cmd = new Orig_AttackDeleteUnits(defenderDead, defender, battleLocation);
+		System.Console.Write("DefDelete: " + defender.Name + " - " + battleLocation.Name);
+		foreach(TacticalUnit u in defenderDead)
+			System.Console.Write(u.Name + "[" + u.ID + "],");			
+		System.Console.WriteLine();
+		
 		Game.GetInstance().State.Execute(cmd);
 		
 		battleResolved = true;
@@ -258,36 +279,104 @@ class CombatView {
 		attackerKills = attack/3;
 		defenderKills = defend/3;
 
-		ConvBattleAttackerDice.Text += "= " + attack + "\n Killed "+ attackerKills; 
-		ConvBattleDefenderDice.Text += "= " + defend + "\n Killed "+ defenderKills;
+		Orig_AttackConventionalRoll cmd = new Orig_AttackConventionalRoll(attacker, defender, battleLocation, attackerDice, defenderDice, attack, defend);
+		Game.GetInstance().State.Execute(cmd);
 		
-		Game.GetInstance().GUI.writeToLog("Battle for " +battleLocation.Name+ ": Attacker ("+attacker.Name+") kills " + attackerKills + " and Defender ("+defender.Name+") kills " + defenderKills + "."); 
 		removeUnits(attackerKills, defenderKills);
+	}
+	
+	public void conventionalDiceResults(int attackerDice, int defenderDice, int attackerRoll, int defenderRoll)
+	{
+		attackerKills = attackerRoll/3;
+		defenderKills = defenderRoll/3;
+			
+		ConvBattleAttackerDice.Text = attackerDice + "d6 = " + attackerRoll + "\n Killed "+ attackerKills; 
+		ConvBattleDefenderDice.Text = defenderDice + "d6 = " + defenderRoll + "\n Killed "+ defenderKills;
+				
+		 battleResolved = true;
+		 ConvBattleOkay.Label = "Close Battle";
+		 ConvBattleOkay.Sensitive = true;
+		 ConvBattleCancel.Sensitive = false;
 	}
 	
 	public void showConventionalBattle()
 	{
-		if ((battleLocation == null) || (attacker == null) || (defender == null))
+		if ((battleLocation == null) || (stageLocation == null) || (attacker == null) || (defender == null))
 			throw new ArgumentException("Battle is not well-defined, has null inputs.");
 
 		setupConventional();
+		
+		if (Game.GetInstance().LocalPlayers.Contains(attacker)) 
+		{
+			ConvBattleOkay.Sensitive = false;
+			ConvBattleCancel.Sensitive = true;
+			ConvBattleFullDefense.Sensitive = false;
+			ConvBattleOkay.Label = "Begin Attack";		
+		} 
+		else if (Game.GetInstance().LocalPlayers.Contains(defender)) 
+		{
+			ConvBattleCancel.Sensitive = false;
+			ConvBattleOkay.Sensitive = true;				
+			ConvBattleOkay.Label = "Prepare Defense";
+			
+			/* Only allow a full defense iff we have the resources */
+			if ((defender.getStockpileAmount(new Oil()) > 0) &&
+				(defender.getStockpileAmount(new Grain()) > 0) &&
+				(defender.getStockpileAmount(new Minerals()) > 0) )
+			{
+				ConvBattleFullDefense.Sensitive = true;
+			}
+			else
+			{
+				ConvBattleFullDefense.Sensitive = false;
+				conventionalDefenderReady(false);											
+			}
+		}
 			
 		ConvBattleLabel.Text = "Battle for " + battleLocation.Name;
+		conventionalDecideDice();
 		ConventionalBattle.ShowAll();
+	}
+	
+	public void conventionalDefenderReady(bool fd)	
+	{
+		ConvBattleFullDefense.Active = fd;
+		fullDefense = fd;
+		defenderReady = true;
+		if (Game.GetInstance().LocalPlayers.Contains(attacker)) 
+		{
+			ConvBattleOkay.Sensitive = true;
+		}
+		conventionalDecideDice();
 	}
 	
 	private void on_ConvBattleFullDefense_toggled(System.Object obj, EventArgs e)
 	{
 		fullDefense = ConvBattleFullDefense.Active;
+		conventionalDecideDice();
 	}	
 
 	public void on_ConvBattleOkay_clicked(System.Object obj, EventArgs e)
 	{
 		if (!battleResolved)
 		{
-			conventionalDecideDice(); 
-			/* Begin the combat */
-			conventionalRollDice();
+			if (defenderReady && Game.GetInstance().LocalPlayers.Contains(attacker))
+			{
+				conventionalDecideDice();
+				
+		 		/* Remove set of supplies */
+				Orig_AttackConventionalSupplies cmd = new Orig_AttackConventionalSupplies(attacker, defender, fullDefense);
+				Game.GetInstance().State.Execute(cmd);
+
+				/* Begin the combat */
+				conventionalRollDice();
+			} else if (Game.GetInstance().LocalPlayers.Contains(defender))
+			{
+				Orig_AttackConventionalDefenderReady cmd = new Orig_AttackConventionalDefenderReady(attacker, defender, fullDefense);
+				Game.GetInstance().State.Execute(cmd);
+			}
+		} else {
+			resetBattleAndHide();
 		}
 	}
 	

@@ -121,10 +121,14 @@ class Orig_Play4Move : State {
 					/* No ships! */
 					return false;
 				}
+
 				/* Confirm that they're adjacent */
-				if (Game.GUI.Map.distanceBetween(land, sea) > 1) {
-					return false;
-				}				
+				if (Game.GUI.Map.distanceBetween(land, sea) > 1) 
+					return false;				
+				
+				/* Don't allow an unload into an occupied territory */
+				if (!land.occupiable(Game.GetInstance().State.CurrentPlayer))
+					return false;				
 				
 				ArrayList b = new ArrayList();				 
 				b.Insert(0,sea.Friendlies(Game.State.CurrentPlayer));

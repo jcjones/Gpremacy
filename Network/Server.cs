@@ -49,16 +49,29 @@ class ClientConnection {
 	
 }
 
+class OutPacket {
+	public Connection connection;
+	public DataPacket packet;
+	
+	public OutPacket (Connection c, DataPacket p) 
+	{
+		connection = c; packet = p;
+	}
+}
+
 class Server : GameLink {
 	Socket gameSocket;
 	ArrayList clients; // of ClientConnection
-	ArrayList clientsToRemove;
+	ArrayList clientsToRemove; // of ClientConnection
 	bool acceptingConnections;
+	
+	Queue outboundPackets; // of OutPacket
 
 	GameParticipant localhost;
 	
 	Thread listenJoins;
 	Thread listenData;
+	Thread sendData;
 		
 	GameSetupView gsv;
 	
@@ -67,7 +80,7 @@ class Server : GameLink {
 		gsv = Game.GetInstance().GUI.GameSetupView;
 		
 		clients = new ArrayList();
-		clientsToRemove= new ArrayList();
+		clientsToRemove = new ArrayList();
 		
 		acceptingConnections = true;
 		
@@ -77,13 +90,17 @@ class Server : GameLink {
 		gameSocket.Listen(10);
 						
 		listenJoins = new Thread(new ThreadStart(listenForJoins));
-		listenData = new Thread(new ThreadStart(listenForData));		
+		listenData = new Thread(new ThreadStart(listenForData));
+		sendData = new Thread(new ThreadStart(sendQueuedData));
 		
 		listenJoins.Start();
 		listenData.Start();
+		sendData.Start();
 		
-		participants = new ArrayList();
+		participants = new ArrayList(); // of GameParticipant
 		localhost = new GameParticipant(null, null);
+		
+		outboundPackets = new Queue(); // of OutPacket
 		
 		Console.WriteLine("Listening on port " + port);
 		gsv.addStatusText("Listening on port " + port);
@@ -227,16 +244,18 @@ class Server : GameLink {
 	protected override bool sendPacket(DataPacket pkt)
 	{
 		Monitor.Enter(clients);
+		Monitor.Enter(outboundPackets);
 		foreach(ClientConnection c in clients)
 		{
 			if (!c.isConnected())
 				continue;
 			try {
-				c.connection.sendObject(pkt);
+				outboundPackets.Enqueue(new OutPacket(c.connection, pkt));
 			} catch (Exception e) {
 				System.Console.WriteLine("Could not send packet " + pkt + " to " + c);
 			}
 		}
+		Monitor.Exit(outboundPackets);
 		Monitor.Exit(clients);
 		return true;
 	}
@@ -244,24 +263,52 @@ class Server : GameLink {
 	public virtual bool propagateCommand(DataPacket pkt)
 	{
 		System.Console.Write("[Server] Propagating packet " + pkt.ToString());
+		
+		Monitor.Enter(outboundPackets);				
 		foreach(ClientConnection c in clients)
 		{
 			/* Do not send back to its incoming host. */
 			if (pkt.endpoint.ToString() != c.socket.RemoteEndPoint.ToString()) {
-				if (c.isConnected())
-					c.connection.sendObject(pkt);
 				System.Console.Write(" to " + c.ToString() + ",");
+				if (c.isConnected())				
+					outboundPackets.Enqueue(new OutPacket(c.connection, pkt));
 			}
-		}
+		}				
+		Monitor.Exit(outboundPackets);
+		
 		System.Console.WriteLine();
 		return true;
 	}	
+
+	public void sendQueuedData()
+	{
+		while (true)
+		{
+			Thread.Sleep(10);
+				
+			Monitor.Enter(outboundPackets);
+		
+			if (outboundPackets.Count > 0)
+			{
+				OutPacket pk = (OutPacket)outboundPackets.Dequeue();
+		 
+				try {
+					pk.connection.sendObject(pk.packet);
+				} catch {
+					Console.WriteLine("Failed a send. Expect packet loss.");
+				}
+			}
+		
+			Monitor.Exit(outboundPackets);
+		}
+	}
+	
 
 	public void listenForData()
 	{
 		DataPacket packet = null;
 		while(true)
-		{
+		{	
 			// Acquire mutex for clients
 			Monitor.Enter(clients);
 			foreach (ClientConnection c in clients)

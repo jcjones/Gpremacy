@@ -1,7 +1,10 @@
 Amphibious assault
 Blind bid
 Counterattacks
-can build ships in occupied seas
-can unload ships into occupied areas
-lstars count as units
-attack screen does not show for defender
+Loans
+transfer ownership of resource cards on conquering a territory
+movement into a territory does not conquer it if it's homeland
+still possible for the deckdealer to screw up and charge extra cash
+should disable Research button in prospect after successful research
+flee button doesn't work in conventional battle
+nucleardetonation uses too much cputime

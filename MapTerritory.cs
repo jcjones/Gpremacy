@@ -91,7 +91,6 @@ class MapTerritory
 
 	   	/* Translate */ 	   	
 	   	int tx = minx-ox, ty = miny-oy;
-	   	System.Console.WriteLine("Tx, ty="+tx+","+ty+" MinX,MinY="+minx+","+miny+" MaxX,MaxY="+maxx+","+maxy);	 
 	   		   	
 	   	maxx = maxy = 0;
 	   	for(int i=0; i<borders.Length; i++)
@@ -108,8 +107,6 @@ class MapTerritory
 	   	/* Scale uniformly */
 	   	double scaleX = (double)(szx)/maxx;
 	   	double scaleY = (double)(szy)/maxy;
-
-	   	System.Console.WriteLine("Sx, Sy="+scaleX+","+scaleY+" MaxX,MaxY="+maxx+","+maxy);	 
 	   	
 	   	if (scaleX > scaleY)
 	   		scaleX = scaleY;
@@ -121,13 +118,10 @@ class MapTerritory
 	   		x = (int)(translated_borders[i].X*scaleX);
 	   		y = (int)(translated_borders[i].Y*scaleY);
 
-			if (true)	   			   		
-	   			System.Console.WriteLine(i+":(x,y)=("+x+","+y+")");
 	   		translated_borders[i] = new Point(x,y);
 
 	   	}
 	   	  	
-		System.Console.WriteLine("End Sample x: " + x+ " y:" + y);
 		
 		/* Draw */
 		win.DrawPolygon(field, true, translated_borders);
