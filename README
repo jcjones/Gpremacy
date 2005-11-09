@@ -10,14 +10,14 @@ Running the game:
 
 Gpremacy requires Mono be installed. If your computer has not caught Mono, visit http://go-mono.com/ .  Once you have momo, all you need to do is run the game executable with your mono environment. An example would be:
        
-  mono bin/Debug/gpremacy-mono.exe
-
+mono bin/Debug/gpremacy-mono.exe
 
 Acknowledgements:
 
 Chris Jones for demanding I write this.
 My parents for smiling and nodding.
 Larry Ewing for the profile image of Tux used in the logo.
+The Freeciv project for their GPL'd unit and flag graphics.
 The Free Software Foundation for hosting Gpremacy.
 Richard Stallman for starting the Free Software movement.
 Richard Stallman for taking the time to insult Gpremacy over Christmas 2001.
@@ -25,5 +25,6 @@ Novell and the Mono team for a great framework.
 Dave Small for acting as taskmaster for this project.
 James Pollard for repeating that the GUI doesn't make sense.
 Katie Piburn for wanting to push the button.
+Supremacy Games, Inc., for being the inspiration.
 
 
