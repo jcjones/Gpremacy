@@ -144,45 +144,19 @@ class GameState {
 			stateList.MoveNext();			
 		}
 		
-		if ( ((State)stateList.Current).MyOrder == next )
-		{
-			/* Run action if this is a local player */
-			if (game.LocalPlayers.Contains(currentPlayer))			
-				currentState.donePlayer(currentPlayer); //TODO: See if these are needed.
-				
-			currentState.doneState();
-			currentState = (Gpremacy.State)stateList.Current;
-			currentState.beginState();
-			
-			/* Run action if this is a local player */
-			if (game.LocalPlayers.Contains(currentPlayer))			
-				currentState.beginPlayer(currentPlayer); //TODO: See if these are needed.
-				
-			return next;
-		}
-		/* Next state in list is not the next state, so search for it. */
-		
+		/* Next state in list is not the next state, so search for it. */		
 		stateList.Reset();
 		stateList.MoveNext();
 		while ( ((State)stateList.Current).MyOrder != next )
 		{
-			System.Console.WriteLine("Searching for " + next + " @ " + ((State)stateList.Current).MyOrder);
+			//System.Console.WriteLine("Searching for " + next + " @ " + ((State)stateList.Current).MyOrder);
 			stateList.MoveNext();
 		}
-			
-		/* Run action if this is a local player */
-		if (game.LocalPlayers.Contains(currentPlayer))			
-			currentState.donePlayer(currentPlayer); //TODO: See if these are needed.
-			
+				
 		currentState.doneState();
 		currentState = (Gpremacy.State)stateList.Current;
 		currentState.beginState();
 		
-		/* Run action if this is a local player */
-		if (game.LocalPlayers.Contains(currentPlayer))		
-			currentState.beginPlayer(currentPlayer); //TODO: See if these are needed.
-		
-		/* Count Turn */
 		if (currentState.MyOrder == 1) turnNumber++;
 		
 		return next;						
