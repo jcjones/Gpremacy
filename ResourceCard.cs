@@ -71,7 +71,7 @@ class ResourceCard {
 			locName = l.Name;
 	}	
 		
-	public string toString()
+	public override String ToString()
 	{
 /*		string ret = Stuff.toString() + " at " + Location.toString() + "\n";
 		ret += "\tFT: \"" + Text + "\"";

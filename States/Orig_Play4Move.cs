@@ -191,16 +191,32 @@ class Orig_MoveUnit : Command {
 		/* Confirm we can move here ... don't bother for unexecute */
 		if (unit.canMoveTo(next)) 
 		{
-			/* Claim territory */
 			Player oldOwner = next.Owner;
-			next.Owner = curPlay;			
-			oldOwner.updateResourceCards(); // deactivate
+			
+			if (oldOwner != curPlay) {			
+				/* Claim territory */
+				next.Owner = curPlay;						
+				oldOwner.updateResourceCards(); // deactivate cards
+				
+				/* Acquire all ever-active resource cards in play for this territory */
+				
+				foreach (ResourceCard card in game.AllCards)
+				{
+					if (card.isResource() && card.Place == next && card.HasBeenActive)
+					{
+						oldOwner.removeResourceCard(card);
+						curPlay.addResourceCard(card);
+						game.GUI.writeToLog(curPlay.Name + " captures " + card + " from " + oldOwner.Name);
+					}
+				}
+			}
+			
 			/* If owner has this resource card and it's never been active before, notify */
 			foreach (ResourceCard card in curPlay.ResourceCards)
 			{
 				if (card.isResource() && card.Place == next && !card.HasBeenActive)
 					game.GUI.writeToLog("Resource card " + card.FlavorText + " now available.");
-			}
+			}			
 						
 			/* Charge Movement Cost */
 			foreach (Stock s in moveCost)

@@ -1047,8 +1047,8 @@ class GpremacyGUI {
 		uint row = 0;
 		foreach(ResourceCard card in thisPlayer.ResourceCards)
 		{
-			System.Console.WriteLine("Row " + row+ " has " + card.toString());
-			Gtk.Label label = new Gtk.Label(card.toString());
+			System.Console.WriteLine("Row " + row+ " has " + card);
+			Gtk.Label label = new Gtk.Label(card.ToString());
 			Gtk.ToggleButton button = new Gtk.ToggleButton("VOID");
 			button.Active = card.Active;
 			button.Toggled += ResourceCardViewTableButton_toggled;
@@ -1094,7 +1094,7 @@ class GpremacyGUI {
 
 		/* We're dealing with cardIt */
 		ResourceCard card = (ResourceCard)ResourceCards[cardIt];
-		System.Console.WriteLine("Doing " +card.toString());
+		System.Console.WriteLine("Doing " +card);
 		
 		/* Toggle */
 		Orig_ToggleResourceCard cmd = new Orig_ToggleResourceCard(thisPlayer, card, btn.Active);

@@ -174,7 +174,7 @@ class DeckDealer {
         if (!Game.GetInstance().JustShuffledResourceCards)
         {
         	/* Don't show a card after shuffling until the user flips one */
-        	layout.SetText(Game.GetInstance().CurrentResourceCard.toString());
+        	layout.SetText(Game.GetInstance().CurrentResourceCard.ToString());
 	        DeckDealerDrawRight.GdkWindow.DrawLayout(textcolor, 15, 20, layout);
         }
         								
