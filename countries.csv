@@ -1,3 +1,10 @@
+# Gpremacy Countries Data File
+# This is a comma separated value file. The format is as follows:
+# [Territory Name],[CountryID of owner],[is Land],[x],[y],[x],[y]...
+#       %[Adjacent Territory Name],[Adjacent Territory Name]...
+#
+#
+
 #North America = 0
 Northern Canada,0,true,180,58,167,72,181,104,268,105,280,93,293,93,314,73,339,73,328,53,298,54,281,70,263,70,260,64,198,65,195,59,181,58
 	%Alaska,Western Canada,Hudson Strait,Greenland

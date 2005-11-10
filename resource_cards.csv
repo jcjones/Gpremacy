@@ -1,3 +1,8 @@
+# This is the Gpremacy default resource card data file.
+# This file is a comma separated value file whose format is as follows:
+#
+#    "[Flavor Text of Card]","[Country Name]","[Resource Name]",[Resource production]
+
 "Manhattan Project: Allows Nuclear Weapons for $500M and 1 Mineral","","Nuke",1
 "Manhattan Project: Allows Nuclear Weapons for $500M and 1 Mineral","","Nuke",1
 "Manhattan Project: Allows Nuclear Weapons for $500M and 1 Mineral","","Nuke",1

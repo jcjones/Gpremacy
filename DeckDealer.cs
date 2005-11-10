@@ -57,6 +57,12 @@ class DeckDealer {
 		costPerCard = 200; 
 		targetResource = null;
 		targetUnit = null;
+
+		DeckDealerWindow.DeleteEvent += on_DeckDealer_delete_event;
+		DeckDealerWindow.ExposeEvent += on_DeckDealer_exposed;
+		
+		DeckDealerOkay.Clicked += on_DeckDealerOkay_clicked;
+		DeckDealerFlip.Clicked += on_DeckDealerFlip_clicked;
 	}
 	
 	public int CostPerCard
@@ -100,13 +106,7 @@ class DeckDealer {
 		
 		DeckDealerWindow.SetSizeRequest(400,300);
 		
-		DeckDealerFlip.Sensitive = true; // default on
-		
-		DeckDealerWindow.DeleteEvent += on_DeckDealer_delete_event;
-		DeckDealerWindow.ExposeEvent += on_DeckDealer_exposed;
-		
-		DeckDealerOkay.Clicked += on_DeckDealerOkay_clicked;
-		DeckDealerFlip.Clicked += on_DeckDealerFlip_clicked;
+		DeckDealerFlip.Sensitive = true; // default on		
 		
 		DeckDealerWindow.ShowAll();
 		updateStatusBoxes();		
