@@ -399,7 +399,8 @@
 		  <property name="can_focus">True</property>
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
 		  <property name="focus_on_click">True</property>
-		  <signal name="pressed" handler="on_endTurnButton_pressed" last_modification_time="Thu, 15 Sep 2005 12:50:29 GMT"/>
+		  <signal name="activate" handler="on_endTurnButton_pressed" last_modification_time="Fri, 11 Nov 2005 15:31:42 GMT"/>
+		  <signal name="pressed" handler="on_endTurnButton_pressed" last_modification_time="Fri, 11 Nov 2005 15:32:30 GMT"/>
 
 		  <child>
 		    <widget class="GtkAlignment" id="alignment22">
