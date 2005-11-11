@@ -461,9 +461,9 @@ class GpremacyGUI {
     		MarketBuySellProspect.Sensitive = false;
     		MarketBuySellProspect.Clicked -= on_MarketBuyProspect_clicked;
     	} else {  /* Buy Stage */
-	    	MineralsScroll.SetRange(0.0, 99.0);
-	    	OilScroll.SetRange(0.0, 99.0);
-	    	GrainScroll.SetRange(0.0, 99.0);
+	    	MineralsScroll.SetRange(0.0, 20.0);
+	    	OilScroll.SetRange(0.0, 20.0);
+	    	GrainScroll.SetRange(0.0, 20.0);
 
     		MineralsScroll.ValueChanged += MarketBuyProfitCalculation;
     		GrainScroll.ValueChanged += MarketBuyProfitCalculation;
