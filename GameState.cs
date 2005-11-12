@@ -31,6 +31,7 @@ Strategic:
 
 using System;
 using System.Collections;
+using Gpremacy.Network;
  
 namespace Gpremacy {
 class GameState {
@@ -199,23 +200,25 @@ class GameState {
 		bool singlePlayer = false;
 		
 		/* Setup participants */
-		if (game.gameLink != null)
+		if (game.gameLink == null)
+			throw new Exception("GameLink is null. This should never happen.");
+
+		/* Multi Player */
+		foreach (GameParticipant gp in game.gameLink.participants)
 		{
-			/* Multi Player */
-			foreach (GameParticipant gp in game.gameLink.participants)
+			if (gp.player != null)
 			{
-				if (gp.player != null)
-				{
-					Player them = game.PlayerByName(gp.player.Name);
-					Console.WriteLine("Activating " + them.Name);
-					them.Active = true;
-				}
+				Player them = game.PlayerByName(gp.player.Name);
+				Console.WriteLine("Activating " + them.Name + " for " + gp.endpoint);
+				them.Active = true;
 			}
-			singlePlayer = false;
-			
-			if (game.gameLink is Server)
-				game.GiveInitialUnits(); // Should not be in this file..
-		} else {
+		}
+		
+		if (game.gameLink is Server)
+			game.GiveInitialUnits(); // Should not be in this file..
+				 
+		if (game.gameLink is LocalLink) 
+		{
 			/* Single Player */
 			singlePlayer = true;	
 			Player self = game.PlayerByName(game.GUI.GameSetupView.whoAmI(true));

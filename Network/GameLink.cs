@@ -3,32 +3,28 @@ using System;
 using System.Net;
 using System.Collections;
 using System.Threading;
+using Gpremacy.AI;
 
-namespace Gpremacy {
+namespace Gpremacy.Network {
 
 [Serializable]
 class GameParticipant{
 	public Player player;
-	public System.Net.EndPoint endpoint;
+	public string endpoint;
 	
-	public GameParticipant(Player p, System.Net.EndPoint e)
+	public GameParticipant(Player p, string e)
 	{ player = p; endpoint = e; }
 }
 
 class GameLink {
-	public ArrayList participants;
+	public ArrayList participants; // of GameParticipant
+	public AIManager BrainManager;
+	
+	public GameLink() 
+	{
+	}
 			
 	public virtual bool sendCommand(Command cmd)
-	{
-		return false;
-	}
-	
-	public virtual Command getNextCommand()
-	{
-		return null;
-	}
-	
-	public virtual bool isCommandWaiting()
 	{
 		return false;
 	}
@@ -43,8 +39,8 @@ class GameLink {
 			else
 				res += "Unknown Player ";
 			
-			if (c.endpoint != null)
-				res += c.endpoint.ToString()+"\n";
+			if (c.endpoint != "")
+				res += c.endpoint+"\n";
 			else
 				res += "Server\n";
 		}
@@ -112,6 +108,8 @@ class GameLink {
 	
 	public virtual void stop()
 	{
+		if (BrainManager != null)
+			BrainManager.stop();	
 	} 
 	
 	public virtual bool playerChoicesValid() 

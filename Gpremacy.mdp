@@ -77,5 +77,14 @@
     <File name="./Support/ExceptionWindow.cs" subtype="Code" buildaction="Compile" />
     <File name="./Network/DataPacket.cs" subtype="Code" buildaction="Compile" />
     <File name="./Network/Client.cs" subtype="Code" buildaction="Compile" />
+    <File name="./AI" subtype="Directory" buildaction="Compile" />
+    <File name="./AI/AIManager.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Network/LocalLink.cs" subtype="Code" buildaction="Compile" />
+    <File name="./AI/Processor.cs" subtype="Code" buildaction="Compile" />
+    <File name="./AI/Goal.cs" subtype="Code" buildaction="Compile" />
+    <File name="./AI/Goal_Composite.cs" subtype="Code" buildaction="Compile" />
+    <File name="./AI/Goals" subtype="Directory" buildaction="Compile" />
+    <File name="./AI/Goals/Goal_Cogitate.cs" subtype="Code" buildaction="Compile" />
+    <File name="./AI/Goals/Goal_Defend.cs" subtype="Code" buildaction="Compile" />
   </Contents>
 </Project>

@@ -7,8 +7,9 @@ using System.Collections;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+using Gpremacy;
 
-namespace Gpremacy {
+namespace Gpremacy.Network {
 
 class ClientConnection {
 	public Connection connection;
@@ -98,7 +99,7 @@ class Server : GameLink {
 		sendData.Start();
 		
 		participants = new ArrayList(); // of GameParticipant
-		localhost = new GameParticipant(null, null);
+		localhost = new GameParticipant(null, "Server");
 		
 		outboundPackets = new Queue(); // of OutPacket
 		
@@ -124,7 +125,7 @@ class Server : GameLink {
 		{
 			if (!c.isConnected())
 				continue;
-			GameParticipant gp = new GameParticipant(c.player, c.socket.RemoteEndPoint);
+			GameParticipant gp = new GameParticipant(c.player, c.socket.RemoteEndPoint.ToString());
 			participants.Add(gp);
 		}
 		Monitor.Exit(clients);
@@ -268,7 +269,7 @@ class Server : GameLink {
 		foreach(ClientConnection c in clients)
 		{
 			/* Do not send back to its incoming host. */
-			if (pkt.endpoint.ToString() != c.socket.RemoteEndPoint.ToString()) {
+			if (pkt.endpoint != c.socket.RemoteEndPoint.ToString()) {
 				System.Console.Write(" to " + c.ToString() + ",");
 				if (c.isConnected())				
 					outboundPackets.Enqueue(new OutPacket(c.connection, pkt));
@@ -338,7 +339,7 @@ class Server : GameLink {
 				if (packet == null) 
 					continue;
 				
-				packet.endpoint = c.socket.RemoteEndPoint;
+				packet.endpoint = c.socket.RemoteEndPoint.ToString();
 					
 				System.Console.WriteLine("Packet of ["+packet.identifier+"] from " + c.ToString());
 				this.parsePacket(packet);

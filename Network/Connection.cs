@@ -7,7 +7,7 @@ using System.Threading;
 using System.IO;
 using System;
 
-namespace Gpremacy {
+namespace Gpremacy.Network {
 
 class Connection {
 	private NetworkStream ns;

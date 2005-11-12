@@ -142,9 +142,9 @@ class NuclearTarget
 [Serializable]
 class Orig_AttackStrategicStart : Command
 {
-	Player attacker;
-	ArrayList defenders; // of Player
-	ArrayList nuclearTargetList; // of NuclearTarget
+	public Player attacker;
+	public ArrayList defenders; // of Player
+	public ArrayList nuclearTargetList; // of NuclearTarget
 	
 	public Orig_AttackStrategicStart(Player a, ArrayList b, ArrayList c)
 	{
@@ -240,9 +240,9 @@ class Orig_AttackStrategicDetonate : Command
 [Serializable]
 class Orig_AttackConventionalStart : Command
 {
-	Player attacker;
-	Player defender;
-	string curTerrName, prevTerrName;
+	public Player attacker;
+	public Player defender;
+	public string curTerrName, prevTerrName;
 	
 	public Orig_AttackConventionalStart(Player a, Player d, Territory c, Territory p)
 	{

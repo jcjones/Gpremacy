@@ -1,13 +1,13 @@
 // created on 10/27/2005 at 18:29
 using System;
 
-namespace Gpremacy {
+namespace Gpremacy.Network {
 
 [Serializable]
 class DataPacket {
 	public string identifier;
 	public System.Object obj;
-	public System.Net.EndPoint endpoint;
+	public string endpoint;
 	
 	public DataPacket(string id, System.Object ob)
 	{

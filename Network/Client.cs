@@ -7,8 +7,9 @@ using System.Collections;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+using Gpremacy;
 
-namespace Gpremacy {
+namespace Gpremacy.Network {
 class Client : GameLink {
 	Socket gameSocket;
 	Connection gameConnection;

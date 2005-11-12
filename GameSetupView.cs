@@ -5,6 +5,7 @@ using System.Threading;
 using Gtk;
 using Pango;
 using Gdk;
+using Gpremacy.Network;
 
 namespace Gpremacy {
 class GameSetupView {
@@ -131,6 +132,12 @@ class GameSetupView {
 	}		
 	private void on_GameSetupSingleStart_clicked (System.Object obj, EventArgs e)
 	{
+		LocalLink link = new LocalLink();
+		Game.GetInstance().gameLink = link;
+		
+		Player p = Game.GetInstance().PlayerByName("Confederacy of South America");
+		link.startAIPlayer(1, p); 
+		
 		Game.GetInstance().State.BeginGame();
 	}
 	private void on_GameSetupConnectButton_clicked (System.Object obj, EventArgs e)

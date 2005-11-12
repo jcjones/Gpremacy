@@ -21,6 +21,7 @@
 using Gtk;
 using System;
 using System.Collections;
+using Gpremacy.Network;
 
 namespace Gpremacy {
 class Game {
