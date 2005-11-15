@@ -15,7 +15,7 @@ abstract class Goal {
 	
 	public override string ToString() 
 	{
-		return name;
+		return spinalCord.myPlayer.Name + "::" + name + " ";
 	}
 	
 	public virtual bool HandleCommand(Command cmd) 

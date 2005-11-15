@@ -416,10 +416,10 @@ class CombatView {
 
 N = -1;
 
-		label.SetMarkup ( attackingUnitsDictionary.toString() );						
+		label.SetMarkup ( attackingUnitsDictionary.ToString() );						
 		ConvBattleAttackerUnits.GdkWindow.DrawLayout (textcolor, 25, 40, label);
 		
-		label.SetMarkup ( defendingUnitsDictionary.toString() );						
+		label.SetMarkup ( defendingUnitsDictionary.ToString() );						
 		ConvBattleDefenderUnits.GdkWindow.DrawLayout (textcolor, 25, 40, label);		
 			
 	}

@@ -129,7 +129,7 @@ class Player {
 				}
 			}
 		}
-		ret += rTypes.toString();
+		ret += rTypes.ToString();
 		
 		//ret += " [" + rTypes.Data.Count + "]\n ";
 		
@@ -140,7 +140,7 @@ class Player {
 		{
 			rTypes.Add(goods.Good.Name, (Int32)goods.Number);
 		}
-		ret += rTypes.toString();
+		ret += rTypes.ToString();
 		
 		//ret += " [" + rTypes.Data.Count + "]\n ";
 		
@@ -156,7 +156,7 @@ class Player {
 				rTypes.IncValue(unit.Name);
 			}
 		}
-		ret += rTypes.toString();
+		ret += rTypes.ToString();
 		
 		//ret += " [" + rTypes.Data.Count + "]\n ";
 		

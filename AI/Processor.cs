@@ -60,11 +60,36 @@ class Processor {
 		}
 	}
 	
+	/* Useful little functions */
+	
 	protected bool itsMyTurn()
 	{
 		/* @TODO Take into account processing delays... */
 		return theGame.State.CurrentPlayer == myPlayer;
 	}
+	
+	public void getIdleTacticalUnit(out TacticalUnit idleUnit, out Territory idleHome )
+	{
+		idleUnit = null;
+		idleHome = null;
+		
+		foreach (Gpremacy.Territory terr in Processor.theGame.GUI.Map.Territories)
+		{
+			if ( terr.Owner == myPlayer ) 
+			{
+				ArrayList friends = terr.Friendlies(myPlayer);
+				if (friends.Count > 0)
+				{
+					idleUnit = (TacticalUnit)friends[0];
+					idleHome = terr;
+					return;
+				}
+			}
+		}
+	}
+	
+	
+	/* Thread */
 	
 	protected void main() {
 		/* This routine basically pulls commands from the queue and 

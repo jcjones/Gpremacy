@@ -59,7 +59,7 @@ class Orig_Play5Build : State {
 			dict.IncValue(u);
 		}
 		
-		Game.GetInstance().GUI.writeToResourcesTextBox(dict.toString());
+		Game.GetInstance().GUI.writeToResourcesTextBox(dict.ToString());
 	}
 	
 	public override void beginPlayer(Player p) {

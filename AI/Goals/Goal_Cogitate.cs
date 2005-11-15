@@ -7,6 +7,9 @@ class Goal_Cogitate  : Goal_Composite {
 	public Goal_Cogitate(Processor bot) : base("Cogitate", bot)
 	{
 		this.AddSubgoal(new Goal_Defend(bot));
+		this.AddSubgoal(new Goal_Expand(bot));
+		this.AddSubgoal(new Goal_Attack(bot));
+		this.AddSubgoal(new Goal_Profit(bot));
 	}
 
 	/*public override void Arbitrate()

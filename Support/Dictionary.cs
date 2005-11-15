@@ -100,8 +100,13 @@ class Dictionary {
 	{
 		data.Clear();
 	}
+	
+	public int Count
+	{
+		get { return data.Count; }
+	}
 
-	public string toString()
+	public override string ToString()
 	{
 		string ret = "";
 		foreach (DictionaryEntry de in data)

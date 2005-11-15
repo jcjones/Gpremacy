@@ -60,12 +60,9 @@ class Goal_Defend  : Goal {
 		
 		if (spinalCord.myPlayer.getStockpileNumberFullSets() < 2)
 			return;
-		if (spinalCord.myPlayer.Money < unitTest.CostMoney);
+		if (spinalCord.myPlayer.Money < unitTest.CostMoney)
 			return;
-			
-		Command cmd = new Orig_PurchaseUnit(unitTest, spinalCord.myPlayer);
-		spinalCord.sendCommand(cmd);
-		
+					
 		Gpremacy.Dictionary dictionary = new Gpremacy.Dictionary();
 
 		foreach (Gpremacy.Territory terr in Processor.theGame.GUI.Map.Territories)
@@ -76,6 +73,13 @@ class Goal_Defend  : Goal {
 				dictionary.Add(terr, terr.Friendlies(spinalCord.myPlayer).Count);
 			}
 		}
+		
+		if (dictionary.Count < 1)
+			return;
+
+
+		Command cmd = new Orig_PurchaseUnit(unitTest, spinalCord.myPlayer);
+		spinalCord.sendCommand(cmd);
 			
 		for (int i=0; i<3; ++i)
 		{	

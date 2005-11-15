@@ -86,5 +86,8 @@
     <File name="./AI/Goals" subtype="Directory" buildaction="Compile" />
     <File name="./AI/Goals/Goal_Cogitate.cs" subtype="Code" buildaction="Compile" />
     <File name="./AI/Goals/Goal_Defend.cs" subtype="Code" buildaction="Compile" />
+    <File name="./AI/Goals/Goal_Attack.cs" subtype="Code" buildaction="Compile" />
+    <File name="./AI/Goals/Goal_Expand.cs" subtype="Code" buildaction="Compile" />
+    <File name="./AI/Goals/Goal_Profit.cs" subtype="Code" buildaction="Compile" />
   </Contents>
 </Project>
