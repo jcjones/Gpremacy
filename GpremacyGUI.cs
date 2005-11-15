@@ -289,8 +289,8 @@ class GpremacyGUI {
 	}
 	protected void on_MainWindow_delete_event(System.Object o, DeleteEventArgs args)
 	{
-		Game.GetInstance().Quit();
 		args.RetVal = true;
+		Game.GetInstance().Quit();
 	}
 	
 	protected void on_endTurnButton_pressed(System.Object obj, EventArgs e)
@@ -557,8 +557,9 @@ class GpremacyGUI {
 		endTurn();
 	}
 		
-	public void on_MarketBuySell_delete_event(System.Object obj, EventArgs e)
+	public void on_MarketBuySell_delete_event(System.Object obj, DeleteEventArgs e)
 	{	
+		e.RetVal = true;
 		MarketBuySell.Hide();
 	}
 	
@@ -700,9 +701,10 @@ class GpremacyGUI {
 	{
 		LoadNavalOptions.Hide();	
 	}
-	public void on_LoadNavalOptions_delete_event(System.Object obj, EventArgs e)
+	public void on_LoadNavalOptions_delete_event(System.Object obj, DeleteEventArgs e)
 	{	
-		LoadNavalOptions.Hide();	
+		e.RetVal = true;	
+		LoadNavalOptions.Hide();
 	}	
 	
 	/* Ground Movement Options */
@@ -764,8 +766,9 @@ class GpremacyGUI {
 	{
 		MoveGroundOptions.Hide();
 	}
-	public void on_MoveGroundOptions_delete_event(System.Object obj, EventArgs e)
+	public void on_MoveGroundOptions_delete_event(System.Object obj, DeleteEventArgs e)
 	{
+		e.RetVal = true;
 		MoveGroundOptions.Hide();
 	}	
 	
@@ -887,8 +890,9 @@ class GpremacyGUI {
 		Console.WriteLine("Researching " + str);
 		showDeckDealer(str);
 	}
-	public void on_UnitBuy_delete_event(System.Object obj, EventArgs e)
+	public void on_UnitBuy_delete_event(System.Object obj, DeleteEventArgs e)
 	{
+		e.RetVal = true;
 		UnitBuy.Hide();
 	}	
 	public void  on_UnitBuyOkay_clicked (System.Object obj, EventArgs e)
@@ -1027,8 +1031,9 @@ class GpremacyGUI {
 			dd.show();
 		}
 	}
-	public void on_ProspectSelection_delete_event(System.Object obj, EventArgs e)
+	public void on_ProspectSelection_delete_event(System.Object obj, DeleteEventArgs e)
 	{
+		e.RetVal = true;
 		ProspectSelection.Hide();
 	}	
 	public void on_ProspectSelectionDone_clicked(System.Object obj, EventArgs e)
@@ -1114,6 +1119,12 @@ class GpremacyGUI {
 	{
 		ResourceCardView.Hide();
 	}
+	
+	public void on_ResourceCardView_delete_event(System.Object obj, DeleteEventArgs e)
+	{
+		e.RetVal = true;
+		ResourceCardView.Hide();
+	}	
 		
 	/* Conventional Battle Display */
 	public void showConventionalBattle(Territory Target, Territory Stage, Player Attacker, Player Defender) 

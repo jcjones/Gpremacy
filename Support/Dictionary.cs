@@ -17,6 +17,11 @@ class Dictionary {
 	{
 		get { return data; }
 	}
+	
+	public System.Collections.IEnumerator GetEnumerator()
+	{
+		return data.GetEnumerator();
+	}	
 
 	public void Add(object key, object val)
 	{

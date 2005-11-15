@@ -87,14 +87,7 @@ class Game {
 		territoryHash = new Hashtable();
 		mapTerritoryHash = new Hashtable();
 		unitHash = new Hashtable();
-		
-		/* Force local setup */		
-		for (int i=0; i<12; i++)
-			((Player)players[0]).ActiveUnits.Add(new Nuke((Player)players[0]));
-		for (int i=0; i<3; i++)
-			((Player)players[1]).ActiveUnits.Add(new LSat((Player)players[1]));
-		/* Done forcing local setup */
-				
+						
 		market = new GpremacyMarket();
 				
 		foreach (Resource r in allresources)

@@ -3335,6 +3335,7 @@ Price&lt;/b&gt;</property>
   <property name="skip_pager_hint">False</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
+  <signal name="delete_event" handler="on_ResourceCardView_delete_event" last_modification_time="Mon, 14 Nov 2005 00:59:07 GMT"/>
 
   <child>
     <widget class="GtkVBox" id="vbox14">

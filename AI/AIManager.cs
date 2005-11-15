@@ -21,6 +21,10 @@ class AIManager {
 	
 	public void stop()
 	{
+		foreach(Processor p in AI_Clients)
+		{
+			p.stop();
+		}
 	}
 	
 	public void deliverPacket(DataPacket pkt)

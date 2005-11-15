@@ -136,6 +136,9 @@ class GameSetupView {
 		Game.GetInstance().gameLink = link;
 		
 		Player p = Game.GetInstance().PlayerByName("Confederacy of South America");
+		//link.startAIPlayer(1, p); 
+
+		p = Game.GetInstance().PlayerByName("People's Republic of China");
 		link.startAIPlayer(1, p); 
 		
 		Game.GetInstance().State.BeginGame();

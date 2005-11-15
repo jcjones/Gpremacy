@@ -274,8 +274,9 @@ class DeckDealer {
 		}
 		DeckDealerWindow.Hide();
 	}
-	private void on_DeckDealer_delete_event(System.Object obj, EventArgs e)
+	private void on_DeckDealer_delete_event(System.Object obj, DeleteEventArgs e)
 	{
+		e.RetVal = true; // True == do not allow delete	
 		if (cardsFlipped > 0) {
 			Orig_ChargeMoney cmd = new Orig_ChargeMoney(cardsFlipped*costPerCard, Game.GetInstance().State.CurrentPlayer);
 			Game.GetInstance().State.Execute(cmd);

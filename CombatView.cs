@@ -166,6 +166,8 @@ class CombatView {
 		Nuke nuke = new Nuke(attacker);
 		//LSat lsat = new LSat(attacker); // Doesn't matter whose it is...
 		
+		strategicTargets.Clear();
+		
 		attackingUnits = attacker.getActiveUnitsOfType(nuke);
 		//defendingUnits = defender.getActiveUnitsOfType(lsat);
 	}
@@ -430,9 +432,9 @@ N = -1;
 
 	public void on_ConventionalBattle_delete_event(System.Object obj, DeleteEventArgs e)
 	{
+		e.RetVal = !battleResolved; // True == do not allow delete
 		if (battleResolved)
 			resetBattleAndHide();
-		e.RetVal = !battleResolved; // True == do not allow delete
 	}	
 
 	/* Strategic Target Selection */
@@ -584,8 +586,9 @@ N = -1;
 			resetStrategicTargetSelectionAndHide();
 	}	
 
-	public void on_StrategicTargetSelection_delete_event(System.Object obj, EventArgs e)
+	public void on_StrategicTargetSelection_delete_event(System.Object obj, DeleteEventArgs e)
 	{
+			e.RetVal = true;
 			resetStrategicTargetSelectionAndHide();
 	}
 	
@@ -612,7 +615,7 @@ N = -1;
 		{
 			Gtk.Label label = new Gtk.Label(target.territory.Name);
 			Gtk.Label numIncoming = new Gtk.Label(target.icbms.ToString());
-			Gtk.SpinButton lstarsToFire = new Gtk.SpinButton(0.0, (double)numLstars, 1.0);
+			Gtk.SpinButton lstarsToFire = new Gtk.SpinButton(0.0, (double)numLstars+0.1f, 1.0);
 			
 			lstarsToFire.ValueChanged += on_StrategicBattle_spun;
 			
@@ -724,9 +727,9 @@ N = -1;
 				
 	private void on_StrategicBattle_delete_event(System.Object obj, DeleteEventArgs e)
 	{
+		e.RetVal = !battleResolved; // True == do not allow delete
 		if (battleResolved)
 			resetStrategicTargetSelectionAndHide();	
-		e.RetVal = !battleResolved; // True == do not allow delete
 	}
 	
 	private void on_StrategicBattle_exposed(System.Object obj, ExposeEventArgs e)

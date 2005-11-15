@@ -4,27 +4,26 @@ using System.Collections;
 namespace Gpremacy.AI {
 class Goal_Composite : Goal {
 
-	protected Stack Subgoals; // of Goal
+	protected ArrayList Subgoals; // of Goal
 
 	public Goal_Composite(string name, Processor bot) : base(name, bot)
 	{
-		Subgoals = new Stack();
+		Subgoals = new ArrayList();
 	}
 	
-	public override void Activate()
+	public override bool HandleState(Gpremacy.State state)
 	{
-		/* Ensure we have no stale goals */
-		Subgoals.Clear();
+		bool SubgoalStatus = ProcessSubgoals(state);
+		
+		return SubgoalStatus;
 	}
-	
-	public override GoalStatus Process()
+
+	public override void Arbitrate()
 	{
-		return GoalStatus.Inactive;
-	}
-	
-	public override void Terminate()
-	{
-		RemoveAllSubgoals();
+		foreach (Goal g in Subgoals)
+    	{
+			g.Arbitrate();
+		}
 	}
 	
 	public override bool HandleCommand(Gpremacy.Command cmd)
@@ -36,60 +35,33 @@ class Goal_Composite : Goal {
 		 * give it a shot. */
 		foreach (Goal g in Subgoals)
 		{
-			/*@TODO: Confirm this is going in stack order */
-			handled = g.HandleCommand(cmd);
-			if (handled)
-				return true;	
+			if (g.HandleCommand(cmd))
+				handled = true;
 		}
 			
-		/* See if we can handle this since our subgoals didn't. */
-		return false;			
+		/* See if we can handle this ourselves.. */
+
+		/* Done */
+		return handled;			
 	}
 	
-	public override void AddSubgoal(Goal g)
+	public virtual void AddSubgoal(Goal g)
 	{
-		Subgoals.Push(g);
+		Subgoals.Add(g);
 	}
 	
 	public void RemoveAllSubgoals()
 	{
-		while (Subgoals.Count > 0)
-		{
-			Goal g = (Goal)Subgoals.Pop();
-			g.Terminate();
-		}
 		Subgoals.Clear();
 	}
 	
-	public GoalStatus ProcessSubgoals()
+	public bool ProcessSubgoals(Gpremacy.State state)
 	{
-		while (Subgoals.Count > 0 && 
-			( ((Goal)Subgoals.Peek()).IsComplete() || 
-			   ((Goal)Subgoals.Peek()).HasFailed() ) )
+		foreach (Goal thisSubGoal in Subgoals)			
 		{
-			/* Remove all completed and failed goals */
-			Goal rmGoal = (Goal)Subgoals.Pop();
-			rmGoal.Terminate();			
-		} 
-		
-		if (Subgoals.Count > 0)
-		{
-			GoalStatus StatusOfGoals = ((Goal)Subgoals.Peek()).Process();
-			/* Handle special case where the topmost subgoal reports completed 
-			 * and the list contains additional goals. In this case, to ensure
-			 * the parent keeps processing this subgoal list we return "Active"
-			 * status. */
-			 if (StatusOfGoals == GoalStatus.Completed && Subgoals.Count > 1)
-			 {
-			 	return GoalStatus.Active;
-			 } 
-			 
-			 return StatusOfGoals;
-			
-		} else {
-			/* No subgoals left, we're done */
-			return GoalStatus.Completed;
+			thisSubGoal.HandleState(state);
 		}
+		return true;
 	}
 	
 

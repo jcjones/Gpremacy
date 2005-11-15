@@ -220,6 +220,17 @@ class Player {
 		return 0;
 	}
 	
+	public int getStockpileNumberFullSets()
+	{
+		int min = this.MaximumStockpile;
+		foreach (Stock goods in stockpile)
+		{
+			if (min > goods.Number)
+				min = goods.Number;
+		}
+		return min;
+	}
+	
 	public ArrayList getActiveUnitsOfType(Unit u)
 	{
 		ArrayList ret = new ArrayList();

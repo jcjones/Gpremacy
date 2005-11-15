@@ -31,6 +31,11 @@ class Processor {
 		AIThread.Start();
 	}
 	
+	public void stop()
+	{
+		AIThread.Abort();
+	}
+	
 	public void sendCommand(Command cmd)
 	{
 		Monitor.Enter(myManager);
@@ -47,7 +52,7 @@ class Processor {
 	}
 	
 	/* Convenience function for the Goals */
-	static Game theGame
+	static public Game theGame
 	{
 		get {
 			/* Do we need some sempahore locking? */
@@ -101,7 +106,8 @@ class Processor {
 				if (itsMyTurn() && !doneSomethingThisTurn)
 				{
 					/* Let the brain decide what to do */
-					myBrain.Process();
+                                        myBrain.Arbitrate();
+					myBrain.HandleState(theGame.State.CurrentState);
 					
 					/* End our turn */
 					Orig_NextPlayer cmd = new Orig_NextPlayer();
