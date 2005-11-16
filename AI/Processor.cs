@@ -8,6 +8,7 @@ namespace Gpremacy.AI {
 /*	This is the workhorse of the AI, the part which manages incoming commands, etc. */
 class Processor {
 
+	int AI_ID;
 	Thread AIThread;
 	public Player myPlayer;
 	AIManager myManager;
@@ -16,8 +17,9 @@ class Processor {
 	Queue incomingCommands; // of Command
 	bool doneSomethingThisTurn;
 
-	public Processor(int level, Player p, AIManager m) 
+	public Processor(int level, Player p, AIManager m, int id) 
 	{
+		AI_ID = id;
 		myPlayer = p;
 		mySkill = level;
 		myManager = m;
@@ -39,7 +41,7 @@ class Processor {
 	public void sendCommand(Command cmd)
 	{
 		Monitor.Enter(myManager);
-		myManager.deliverPacket(new DataPacket("Command", cmd));
+		myManager.deliverPacket(new DataPacket("Command", cmd), AI_ID);
 		Monitor.Exit(myManager);
 	}
 	

@@ -27,7 +27,7 @@ class  GraphicsStorage
 		icbm = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/icbm.png"));
 		radiation = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/radiation.png")); 		
 		detonation = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/detonation.png"));		
-		map = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/classic_map.jpg"));
+		map = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile(Game.GetInstance().MapFileName));
 	} 
 
 	public static GraphicsStorage GetInstance()

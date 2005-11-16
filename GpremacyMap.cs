@@ -12,18 +12,14 @@ class GpremacyMap : DrawingArea
         Pango.Layout layout;
         ArrayList territories;
         GraphicsStorage store;
-        Game game;
         Gdk.Region region;
  
-        public GpremacyMap (Game igame)
+        public GpremacyMap (ArrayList terrs)
         {
-        	game = igame;
-			territories = new ArrayList();
+			territories = terrs; // loaded by Game
 			
 			this.Realized += OnRealized;
 			this.ExposeEvent += OnExposed;
-			LoadCountryBoundaries();
-			game.LoadResourceCards(territories);
 
             store = GraphicsStorage.GetInstance();    
 
@@ -74,106 +70,6 @@ class GpremacyMap : DrawingArea
                 
         }
          
-        void LoadCountryBoundaries ()
-        {
-        	String line;
-        	String name;
-        	Player owner;
-        	int ownerid, x, y, id = 0;
-        	ArrayList points = new ArrayList(); // of Gdk.Point
-        	ArrayList graphConnections = new ArrayList(); // of ArrayList of String.
-        	ArrayList subGraph; // of String
-        	bool isLand;
-        	Territory lastTerritory = null;
-        	MapTerritory mapTerritory = null;
-        	
-        	try {
-	        	System.IO.StreamReader input = new System.IO.StreamReader(SupportFileLoader.locateGameFile("countries.csv"));
-		       	do {
-		       		line = input.ReadLine();
-	       			if ((line == null) || (line.Length > 0 && line[0]=='#')) continue;
-		       		
-	       			// Format: Name,   Owner#, [x, y]*
-	       			//         string  int      int,int
-	       			// Format: \t%ConnectingName, ConnectingName*
-					//		      string          string
-	       			if (line.IndexOf(",") <= 0)
-	       				continue;
-	       			if (line.IndexOf("%") <= 0) 
-					{
-	       				String[] parts;
-		       			parts = line.Split(',');
-	       				/*for (int i=0;i<parts.Length;i++) 
-	       					System.Console.Write("[" + parts[i] + "],");
-	       				System.Console.WriteLine(); */
-	       				
-		       			if (parts.Length > 2) 
-	       				{
-		       				// Extract data
-	       					name = parts[0].Trim('"');
-	       					ownerid = Int16.Parse(parts[1]);
-		        			if (ownerid > 0 && ownerid <= game.Players.Count)
-		        				owner = (Player)(game.Players[ownerid-1]);
-		        			else
-		        				owner = game.PlayerNobody;
-		        			isLand = Boolean.Parse(parts[2]);
-		        			// Get points
-		        			for (int i=3; i<parts.Length-1; i=i+2)
-		        			{
-		        				x = Int16.Parse(parts[i]); 
-		        				y = Int16.Parse(parts[i+1]); 
-		        				points.Add(new Gdk.Point(x,y));
-		        			} 
-
-							lastTerritory = new Territory(id, name, ownerid, owner);
-							territories.Add(lastTerritory);
-							game.TerritoryHashTable.Add(name, lastTerritory);
-
-							mapTerritory = new MapTerritory(name, isLand, points, this.PangoContext);
-							game.MapTerritoryHashTable.Add(id, mapTerritory);
-							
-							id++;
-							
-                        	points.Clear();
-	       				}
-	       			} else {
-	       				/* Read in Graph*/	       				
-	       				String[] parts;
-		       			parts = line.Substring(line.IndexOf("%")+1).Split(',');
-		       			subGraph = new ArrayList();
-		       			subGraph.Add(lastTerritory);
-		       			for (int i=0; i<parts.Length; i++)
-		       				subGraph.Add(parts[i]);
-		       			graphConnections.Add(subGraph);
-	       			}
-	       		} while (input.Peek() > -1);
-	       		input.Close();
-	       		
-       		} catch ( System.IO.FileNotFoundException e ) {
-        		game.HaltGame("Couldn't open countries.csv. Game halts.");    		       			
-       		}
-       		
-       		/* Take care of connection graphs */       		
-       		Territory home, targetTerritory;
-       		String target;
-       		bool noLand;
-       		foreach (ArrayList graph in graphConnections) {
-       			noLand = true;
-       			home = (Territory)graph[0];
-       			
-       			for (int i=1; i<graph.Count; i++) {
-       				target=(String)graph[i];
-       				targetTerritory = Game.GetInstance().TerritoryByName(target);
-       				if (targetTerritory.IsLand)
-       					noLand = false;
-       				home.MapTerritory.addConnection(targetTerritory);
-       			}
-       			
-       			if (noLand)
-       				home.MapTerritory.deepSea = true;
-       		}
-        }
-        
         public Gdk.Region Region
         {
         	get { return region; }

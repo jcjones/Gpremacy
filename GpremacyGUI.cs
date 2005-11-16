@@ -84,16 +84,15 @@ class GpremacyGUI {
 		game = i;		
 	}
 	
-	public void init() 
+	public void init(ArrayList Territories) 
 	{
 		Gtk.Application.Init ();
-		
-		// Initialize map
-		MapArea = new GpremacyMap(game);
-		System.Console.WriteLine("Got Maparea:" + MapArea + ".");		
-				
+							
 		Glade.XML gxml = new Glade.XML (SupportFileLoader.locateGameFile("gpremacy_gui/gpremacy_gui.glade"), null, null);
 		gxml.Autoconnect (this);
+		
+		// Initialize map
+		MapArea = new GpremacyMap(Territories);		
 		
 		System.Console.WriteLine("Adding..." + MapArea + " to " + MapViewport + "!");
 		MapViewport.Add(MapArea);

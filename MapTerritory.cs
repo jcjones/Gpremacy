@@ -21,19 +21,21 @@ class MapTerritory
 	ArrayList connectedTerritories;
 	int[] connectionDistances;
 	int[] connectionWayPoints;
+	string Name;
 
 	public MapTerritory () 
 	{
 	}
 
-	public MapTerritory (String name, bool land_i, ArrayList borders_i, Pango.Context pango_context)
+	public MapTerritory (String name, bool land_i, ArrayList borders_i)
 	{
-		deepSea = false;
+		deepSea = false; /* defaults off, will be set later */
 		isLand = land_i;
+		Name = name;
+		
 		borders = new Point[borders_i.Count];
 		connectedTerritories = new ArrayList();
 		
-	   	//int x1,y1,x2=-1,y2=-1; 
 		int totalX = 0, totalY = 0;
 	   	
 	   	for (int i=0; i < borders_i.Count; i++) 
@@ -41,28 +43,14 @@ class MapTerritory
   			borders[i]=(Gdk.Point)borders_i[i];
 	   		totalX += borders[i].X;
 			totalY += borders[i].Y;
-  			//System.Console.WriteLine(i + ":"+ borders_i.Count +  " - " + borders[i].X + "," + borders[i].Y + "RT:("+totalX+","+totalY+")");
 		}
 		
 		/* Find the center of the border */		
 		centerX = (totalX / borders_i.Count);
 		centerY = (totalY / borders_i.Count);
-		//System.Console.WriteLine("Center of " + name + " is " + centerX+","+centerY);
 		
 	   	/* Make region */
 	   	region = Gdk.Region.Polygon(borders, FillRule.WindingRule);
-	   	
-	   	/* Make label */	   	
-        label = new Pango.Layout (pango_context);
-		label.Wrap = Pango.WrapMode.Word;
-		label.Alignment = Pango.Alignment.Center;
-		label.FontDescription = FontDescription.FromString ("Tahoma 9");
-		label.SetMarkup (name);		
-				
-		//int szX, szY;
-		//label.GetPixelSize(out szX, out szY);
-		//labelX = centerX - (szX/2);
-		//labelY = centerY - (szY/2);						
 	}
 		
 	public void draw(Gdk.Window win, int ox, int oy, int szx, int szy, Gdk.Color terr)
@@ -129,7 +117,16 @@ class MapTerritory
 	
 	public void draw(Gdk.Window win, Gdk.Color terr, Gdk.Color textcolor) 
 	{   
-		
+		if (label == null)
+		{
+		   	/* Make label */
+	        label = new Pango.Layout (Game.GetInstance().GUI.Map.PangoContext);
+			label.Wrap = Pango.WrapMode.Word;
+			label.Alignment = Pango.Alignment.Center;
+			label.FontDescription = FontDescription.FromString ("Tahoma 9");
+			label.SetMarkup (Name);
+		}
+				
 	   	Gdk.GC field = new Gdk.GC(win);
 	   	Gdk.GC text = new Gdk.GC(win);
 	   	field.RgbFgColor = terr;
