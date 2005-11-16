@@ -13,7 +13,7 @@ class GameSetupView {
 	
 	[Glade.Widget] Gtk.Window GameSetup;
 	[Glade.Widget] Gtk.Button GameSetupSingleStart;
-	[Glade.Widget] Gtk.VBox GameSetupSingleCountryVBox;
+	[Glade.Widget] Gtk.Table GameSetupSingleCountryTable;
 		
 	[Glade.Widget] Gtk.Entry GameSetupEntryIP;
 	[Glade.Widget] Gtk.SpinButton GameSetupSpinPort;
@@ -24,7 +24,7 @@ class GameSetupView {
 
 	[Glade.Widget] Gtk.Statusbar GameSetupStatusBar;
 	
-	[Glade.Widget] Gtk.VBox GameSetupCountryVBox;
+	[Glade.Widget] Gtk.Table GameSetupCountryTable;
 	[Glade.Widget] Gtk.Table GameSetupPlayersTable;
 	
 	[Glade.Widget] Gtk.Label GameSetupPortLabel;
@@ -58,8 +58,11 @@ class GameSetupView {
 		
 		GameSetupMultiStart.Sensitive = false;
 				
-		populatePlayers(GameSetupSingleCountryVBox);
-		populatePlayers(GameSetupCountryVBox);
+		populatePlayers(GameSetupSingleCountryTable);
+		populatePlayers(GameSetupCountryTable);
+		/* Turn off the AI buttons */
+		setSensitiveAIButtons(GameSetupCountryTable, false);			
+
 		
 		on_MultiRadio_changed(null, null); /* Fake event */
 	
@@ -133,13 +136,17 @@ class GameSetupView {
 	private void on_GameSetupSingleStart_clicked (System.Object obj, EventArgs e)
 	{
 		LocalLink link = new LocalLink();
-		Game.GetInstance().gameLink = link;
+		Game.GetInstance().gameLink = link;		
 		
-		Player p = Game.GetInstance().PlayerByName("Confederacy of South America");
-		//link.startAIPlayer(1, p); 
-
-		p = Game.GetInstance().PlayerByName("People's Republic of China");
-		link.startAIPlayer(1, p); 
+		/* Start AI players */
+		ArrayList AINames = whoAreAIPlayers(true);
+		foreach(string name in AINames)
+		{
+			Player p = Game.GetInstance().PlayerByName(name);
+			Console.WriteLine("Starting AI for ["+name+"] ["+p+"]");
+			if (p != null)
+				link.startAIPlayer(1, p);			
+		}		
 		
 		Game.GetInstance().State.BeginGame();
 	}
@@ -157,6 +164,9 @@ class GameSetupView {
 		} else {
 			/* We're a host, listen */
 			Game.GetInstance().gameLink = new Server(port);
+			/* Turn on the AI buttons */
+			//setSensitiveAIButtons(GameSetupCountryTable, true);
+			// not working yet 
 		}
 	}
 	private void on_GameSetupMultiStart_clicked (System.Object obj, EventArgs e)
@@ -166,12 +176,14 @@ class GameSetupView {
 			((Server)Game.GetInstance().gameLink).sendBeginGame();		
 	}
 	
-	private void populatePlayers(Gtk.VBox box)
+	private void populatePlayers(Gtk.Table table)
 	{
 		//combo.Clear();
 		Gtk.RadioButton btn = null;
 		Gtk.RadioButton firstbtn = null;
+		Gtk.CheckButton aitoggle = null;
 		
+		uint row = 0;
 		ArrayList players = Game.GetInstance().Players;
 		foreach (Player player in players)
 		{
@@ -184,9 +196,15 @@ class GameSetupView {
 				btn = new Gtk.RadioButton(firstbtn, player.Name);
 			}
 			
-			box.Add(btn);
+			aitoggle = new Gtk.CheckButton("AI");
+			Game.putObjectDataIn(aitoggle, player.Name);
+			
+			table.Attach(btn, 0, 1, row, row+1);
+			table.Attach(aitoggle, 1, 2, row, row+1);
 	
+			++row;
 			btn.Toggled += on_Player_toggled;
+			aitoggle.Toggled += on_AI_toggled;
 						
 		}
 	}
@@ -194,23 +212,36 @@ class GameSetupView {
 	private void on_Player_toggled(System.Object obj, EventArgs e)
 	{
 		//((Server)Game.GetInstance().gameLink);
-		string playerName = whoAmI(GameSetupCountryVBox);
+		string playerName = whoAmI(GameSetupCountryTable);
 		
 		if (Game.GetInstance().gameLink != null)
 			Game.GetInstance().gameLink.sendWhoIAm(playerName);		
 	}
 	
+	private void on_AI_toggled(System.Object obj, EventArgs e)
+	{
+	}
+	
+	private void setSensitiveAIButtons(Gtk.Table table, bool yes)
+	{
+		foreach (Gtk.Widget wid in table)
+		{
+			if (wid is Gtk.CheckButton)
+				wid.Sensitive = yes;
+		}
+	}
+		
 	public string whoAmI(bool isSinglePlayer)
 	{
 		if (isSinglePlayer)
-			return whoAmI(GameSetupSingleCountryVBox);
+			return whoAmI(GameSetupSingleCountryTable);
 			
-		return whoAmI(GameSetupCountryVBox);
+		return whoAmI(GameSetupCountryTable);
 	}
 	
-	private string whoAmI(Gtk.VBox box)
+	private string whoAmI(Gtk.Table table)
 	{	
-		foreach (Gtk.Widget wid in box)
+		foreach (Gtk.Widget wid in table)
 		{
 			if (! (wid is Gtk.RadioButton) )
 				continue;
@@ -223,15 +254,40 @@ class GameSetupView {
 		return "Unknown";
 	}
 	
+	public ArrayList whoAreAIPlayers(bool isSinglePlayer)
+	{
+		Gtk.Table table;
+		ArrayList AI_Names = new ArrayList();		
+		string self = whoAmI(isSinglePlayer);
+		
+		if (isSinglePlayer)
+			table = GameSetupSingleCountryTable;
+		else
+			table = GameSetupCountryTable;
+		
+		foreach(Gtk.Widget wid in table)
+		{
+			if (wid is Gtk.CheckButton && ((Gtk.CheckButton)wid).Active)
+			{
+				string n = (string)Game.getObjectFromDataIn(wid);
+				if ( n == self)
+					continue;
+				AI_Names.Add( n );
+			}
+			
+		}
+		return AI_Names;			
+	}
+	
 	private void disablePlayersInList(ArrayList participants)
 	{
 		if (participants == null)
 			return;
 	
-		foreach (Gtk.Widget wid in GameSetupCountryVBox) {
-			if ( ! ( wid is Gtk.RadioButton) )
+		foreach (Gtk.Widget wid in GameSetupCountryTable) {
+			if ( ! ( wid is Gtk.Button) )
 				continue;
-			string btnText = ((Gtk.RadioButton)wid).Label;
+			string btnText = ((Gtk.Button)wid).Label;
 			bool isUsed = false;			
 			
 			Monitor.Enter(participants);

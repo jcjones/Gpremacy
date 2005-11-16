@@ -199,6 +199,8 @@ class Server : GameLink {
 			listenJoins.Abort();
 		if (listenData != null)
 			listenData.Abort();
+		if (sendData != null)
+			sendData.Abort();
 			
 		gameSocket.Close();
 			

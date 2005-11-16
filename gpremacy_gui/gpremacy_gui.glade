@@ -3719,14 +3719,13 @@ Price&lt;/b&gt;</property>
 		  <property name="right_padding">0</property>
 
 		  <child>
-		    <widget class="GtkVBox" id="GameSetupCountryVBox">
+		    <widget class="GtkTable" id="GameSetupCountryTable">
 		      <property name="visible">True</property>
+		      <property name="n_rows">1</property>
+		      <property name="n_columns">2</property>
 		      <property name="homogeneous">False</property>
-		      <property name="spacing">0</property>
-
-		      <child>
-			<placeholder/>
-		      </child>
+		      <property name="row_spacing">0</property>
+		      <property name="column_spacing">0</property>
 		    </widget>
 		  </child>
 		</widget>
@@ -3993,14 +3992,13 @@ Price&lt;/b&gt;</property>
 		  <property name="right_padding">0</property>
 
 		  <child>
-		    <widget class="GtkVBox" id="GameSetupSingleCountryVBox">
+		    <widget class="GtkTable" id="GameSetupSingleCountryTable">
 		      <property name="visible">True</property>
+		      <property name="n_rows">1</property>
+		      <property name="n_columns">2</property>
 		      <property name="homogeneous">False</property>
-		      <property name="spacing">0</property>
-
-		      <child>
-			<placeholder/>
-		      </child>
+		      <property name="row_spacing">0</property>
+		      <property name="column_spacing">0</property>
 		    </widget>
 		  </child>
 		</widget>

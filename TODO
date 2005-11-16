@@ -10,3 +10,5 @@ nucleardetonation uses too much cputime
 if one has 0 oil or 0 grain, you can't move units one space
 sometimes nuclear detonation does not occur -- need slight redesign of state flow
 space burst and L-sat clash are not implemented
+move resource cards into a bottom tab
+show 'spy report' in bottom tab

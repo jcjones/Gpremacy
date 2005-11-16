@@ -35,6 +35,7 @@ class Game {
     Hashtable mapTerritoryHash; // of MapTerritory
     Hashtable territoryHash; // of Territory
     Hashtable unitHash; // of Unit
+    Hashtable widgetData; // Really freaking huge. This is bad.
 	
 	IEnumerator cardsIterator;
 	Player playerNobody;
@@ -88,6 +89,7 @@ class Game {
 		territoryHash = new Hashtable();
 		mapTerritoryHash = new Hashtable();
 		unitHash = new Hashtable();
+		widgetData = new Hashtable();
 						
 		market = new GpremacyMarket();
 				
@@ -148,6 +150,25 @@ class Game {
 		return unitCounter++;
 	}
 	
+	public static object getObjectFromDataIn(Gtk.Widget wid)
+	{
+		Hashtable table = Game.GetInstance().WidgetData;
+
+		foreach(DictionaryEntry de in table)
+		{
+			if ( (de.Key is Gtk.Widget) && ( (Gtk.Widget)de.Key == wid ) )
+			{
+				return de.Value;
+			}
+		}
+		return null;
+	}
+	
+	public static void putObjectDataIn(Gtk.Widget wid, object obj)
+	{
+		Game.GetInstance().WidgetData.Add(wid, obj);
+	}	
+	
 	/* End Static Helpers */
 	/* Helping Hashtables */
 	
@@ -164,6 +185,11 @@ class Game {
 	public Hashtable UnitHashTable
 	{
 		get { return unitHash; }
+	}
+	
+	public Hashtable WidgetData
+	{
+		get { return widgetData; } 
 	}
 	
 	public Unit UnitByID(int id)
@@ -283,10 +309,6 @@ class Game {
 		players.Add(new Player(4, "League of European Nations", new Gdk.Color(179,94,11)));
 		players.Add(new Player(5, "Union of Soviet Sovereign Republics", new Gdk.Color(178,11,93)));
 		players.Add(new Player(6, "People's Republic of China", new Gdk.Color(178,137,11)));
-		
-		/*foreach (Player p in players)
-			p.Active = false;
-		*/			
 	}
 	
 	public void Quit()	
