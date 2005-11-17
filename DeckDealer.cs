@@ -142,9 +142,9 @@ class DeckDealer {
 		
 		if (!targetIsResource())
 		{
-			return Game.GetInstance().hasSufficientWeath(p, targetUnit.CostResources, targetUnit.CostMoney+(cardsFlipped+1)*costPerCard);
+			return Game.GetInstance().hasSufficientWeath(p, targetUnit.CostResources, targetUnit.CostMoney+(cardsFlipped+1)*costPerCard, true);
 		} else {
-			return Game.GetInstance().hasSufficientWeath(p, (Dictionary)null, (cardsFlipped+1)*costPerCard);		
+			return Game.GetInstance().hasSufficientWeath(p, (Dictionary)null, (cardsFlipped+1)*costPerCard, true);		
 		}
 	}
 	

@@ -275,6 +275,29 @@ class Orig_AttackConventionalStart : Command
 }
 
 [Serializable]
+class Orig_AttackConventionalAbort : Command
+{
+	Player attacker;
+	Player defender;
+	public Orig_AttackConventionalAbort(Player a, Player d)
+	{
+		attacker = a;
+		defender = d;	
+	}
+	
+	public override void Execute(Game game)
+	{
+		attacker = game.GetLocalCopyOfPlayer(attacker);
+		defender = game.GetLocalCopyOfPlayer(defender);
+		
+		if (game.LocalPlayers.Contains(attacker) || game.LocalPlayers.Contains(defender))
+		{
+			game.GUI.CombatView.resetBattleAndHide();	
+		}
+	}
+}
+
+[Serializable]
 class Orig_AttackConventionalDefenderReady : Command
 {
 	Player attacker;

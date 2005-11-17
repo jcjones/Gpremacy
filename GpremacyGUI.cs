@@ -24,10 +24,10 @@ class GpremacyGUI {
 	//[Glade.Widget] Gtk.ScrolledWindow MapScrolledWindow2;
 		
 	[Glade.Widget] Gtk.TextView OrderOfPlayTextBox;	
-	[Glade.Widget] Gtk.TextView ResourcesTextBox;
+	[Glade.Widget] Gtk.TextView ResourcesTextBox;	
 	[Glade.Widget] Gtk.TextView WorldMarketTextBox;
 	[Glade.Widget] Gtk.TextView LogTextBox;
-//	[Glade.Widget] Gtk.TextView StatsTextBox;
+	[Glade.Widget] Gtk.Table ResourceCardViewTable;
 //	[Glade.Widget] Gtk.TextView MiscTextBox;
 
 	/* About Dialog */
@@ -76,7 +76,7 @@ class GpremacyGUI {
 	
 	/* Resource Card View */
 	[Glade.Widget] Gtk.Window ResourceCardView;
-	[Glade.Widget] Gtk.Table ResourceCardViewTable;
+	
 	//[Glade.Widget] Gtk.Label ResourceCardViewLegend;
 			
 	public GpremacyGUI(Game i)
@@ -269,7 +269,8 @@ class GpremacyGUI {
 				"<span foreground=\"#FFFF00\" size=\"large\">Version " + Game.GetInstance().VersionString +"</span>\n"+
 				"(C) 2005 J.C. \"Pug\" Jones\n" +
 				"Licensed under the GNU GPL version 2 or later\n" +
-				"<u>http://gpremacy.nongnu.org/</u>";
+				"<u>http://gpremacy.nongnu.org/</u>\n\n" +
+				"Dedicated to Chris Jones, oderint dum metuant.";
 		AboutLabel.Justify = Gtk.Justification.Center;
 		About.ModifyBg(Gtk.StateType.Normal, new Gdk.Color(0, 0x99, 0xf0));
 		
@@ -311,7 +312,10 @@ class GpremacyGUI {
 		Orig_NextPlayer cmd = new Orig_NextPlayer();
 		Game.GetInstance().State.Execute(cmd);
 		
-		updateGUIStatusBoxes();	
+		/* Take care of the resource card tab */
+		updateResourceCardTab();
+		/* Update the rest */		
+		updateGUIStatusBoxes();
 	}
 	
 	public void on_strategic_attack1_activate(System.Object obj, EventArgs e)
@@ -328,7 +332,7 @@ class GpremacyGUI {
 		{
 			thisPlayer = (Player)game.LocalPlayers[0];
 		}
-		
+				
 		writeToWorldMarketTextBox(game.Market.toString());
 		writeToResourcesTextBox("== " + thisPlayer.Name + " ==\n" + thisPlayer.toStringResources());
 		writeToOrderOfPlayTextBox("Turn Number: " + game.State.TurnNumber + "\nCurrent Player:\n" + game.State.CurrentPlayer.toString() + "\nCurrent State:\n" + game.State.StateIDName);								
@@ -905,7 +909,7 @@ class GpremacyGUI {
 		calculateUnitBuyCost(out costMoney, out bill, out purchasedUnits);
 		
 		/* Check funds */
-		if (! Game.GetInstance().hasSufficientWeath(me, bill, costMoney) )
+		if (! Game.GetInstance().hasSufficientWeath(me, bill, costMoney, true) )
 		{
 			return;
 		}
@@ -1041,7 +1045,7 @@ class GpremacyGUI {
 	}
 	
 	/* Resource Card View */
-	public void on_manage_resource_cards1_activate(System.Object obj, EventArgs e) 
+	public void updateResourceCardTab() 
 	{		
 		foreach(Gtk.Widget wid in ResourceCardViewTable)
 		{
@@ -1051,7 +1055,6 @@ class GpremacyGUI {
 		uint row = 0;
 		foreach(ResourceCard card in thisPlayer.ResourceCards)
 		{
-			System.Console.WriteLine("Row " + row+ " has " + card);
 			Gtk.Label label = new Gtk.Label(card.ToString());
 			Gtk.ToggleButton button = new Gtk.ToggleButton("VOID");
 			button.Active = card.Active;
@@ -1069,8 +1072,7 @@ class GpremacyGUI {
 			ResourceCardViewTable.Attach(button, 1, 2, row, row+1);
 			row++;
 		}
-	
-		ResourceCardView.ShowAll();
+		ResourceCardViewTable.ShowAll();
 	}
 	
 	protected void ResourceCardViewTableButton_toggled (object obj, EventArgs args)
@@ -1111,20 +1113,8 @@ class GpremacyGUI {
         else
         	btn.Label = "Idle";        	
         
-        updateGUIStatusBoxes();
     }
-	
-	public void on_ResourceCardViewOkay_clicked(System.Object obj, EventArgs e)
-	{
-		ResourceCardView.Hide();
-	}
-	
-	public void on_ResourceCardView_delete_event(System.Object obj, DeleteEventArgs e)
-	{
-		e.RetVal = true;
-		ResourceCardView.Hide();
-	}	
-		
+			
 	/* Conventional Battle Display */
 	public void showConventionalBattle(Territory Target, Territory Stage, Player Attacker, Player Defender) 
 	{

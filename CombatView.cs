@@ -172,7 +172,7 @@ class CombatView {
 		//defendingUnits = defender.getActiveUnitsOfType(lsat);
 	}
 
-	private void resetBattleAndHide()
+	public void resetBattleAndHide()
 	{
 		ConventionalBattle.Hide(); // Hide first as to not crash on expose()
 
@@ -358,7 +358,7 @@ class CombatView {
 		conventionalDecideDice();
 	}	
 
-	public void on_ConvBattleOkay_clicked(System.Object obj, EventArgs e)
+	private void on_ConvBattleOkay_clicked(System.Object obj, EventArgs e)
 	{
 		if (!battleResolved)
 		{
@@ -424,13 +424,17 @@ N = -1;
 			
 	}
 
-	public void on_ConvBattleCancel_clicked(System.Object obj, EventArgs e)
+	private void on_ConvBattleCancel_clicked(System.Object obj, EventArgs e)
 	{
 		if (battleResolved)
 			resetBattleAndHide();
+		else if (Game.GetInstance().LocalPlayers.Contains(attacker)){
+			Command cmd = new Orig_AttackConventionalAbort(attacker, defender);
+			Game.GetInstance().State.Execute(cmd);
+		}
 	}		
 
-	public void on_ConventionalBattle_delete_event(System.Object obj, DeleteEventArgs e)
+	private void on_ConventionalBattle_delete_event(System.Object obj, DeleteEventArgs e)
 	{
 		e.RetVal = !battleResolved; // True == do not allow delete
 		if (battleResolved)
@@ -463,7 +467,7 @@ N = -1;
 		StrategicTargetSelection.ShowAll();
 	}
 	
-	public void on_StrategicTargetSelection_spun(object o, EventArgs args)
+	private void on_StrategicTargetSelection_spun(object o, EventArgs args)
 	{
 		int count = 0;
 		foreach(Widget wid in StrategicTargetTable)
@@ -508,7 +512,7 @@ N = -1;
 		AddStrategicTargetToArray(target);
 	}
 
-	public void on_StrategicTargetSelection_exposed(object o, ExposeEventArgs args)
+	private void on_StrategicTargetSelection_exposed(object o, ExposeEventArgs args)
 	{
 		const int N = 35; 
 	   	for (int offset=0; offset < attackingUnits.Count && offset < N; offset++)

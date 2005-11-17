@@ -323,9 +323,9 @@ class Game {
 		if (gameLink != null)
 			gameLink.stop();
 		throw new Exception("Game halting because of " + a);
-	}
+	}	
 	
-	public bool hasSufficientWeath(Player p, Dictionary dict, int cash)
+	public bool hasSufficientWeath(Player p, Dictionary dict, int cash, bool ShowErrors)
 	{
 		if (dict != null)
 		foreach(DictionaryEntry d in dict.Data)
@@ -333,19 +333,21 @@ class Game {
 			/* If charging multiple stocks, this will possibly subtract part of a cost set */
 			if (p.getStockpileAmount((Resource)d.Key) < -1*(Int32)d.Value)
 			{
-				Game.GetInstance().GUI.ShowWarning("You do not have enough " + ((Resource)d.Key).Name );
+				if (ShowErrors)
+					Game.GetInstance().GUI.ShowWarning("You do not have enough " + ((Resource)d.Key).Name );
 				return false;
 			}
 		}
 		if ( p.Money < cash )
 		{
-			Game.GetInstance().GUI.ShowWarning("You do not have enough money");
+			if (ShowErrors)
+				Game.GetInstance().GUI.ShowWarning("You do not have enough money");
 			return false;		
 		}
 		return true;	
 	}
 	
-	public bool hasSufficientWeath(Player p, ArrayList stocks, int cash)
+	public bool hasSufficientWeath(Player p, ArrayList stocks, int cash, bool ShowErrors)
 	{
 		if (stocks != null)
 		foreach(Stock s in stocks)
@@ -353,13 +355,15 @@ class Game {
 			/* If charging multiple stocks, this will possibly subtract part of a cost set */
 			if (p.getStockpileAmount(s.Good) < -1*s.Number)
 			{
-				Game.GetInstance().GUI.ShowWarning("You do not have enough " + s.Good.Name);
+				if (ShowErrors)
+					Game.GetInstance().GUI.ShowWarning("You do not have enough " + s.Good.Name);
 				return false;
 			}
 		}
 		if ( p.Money < cash )
 		{
-			Game.GetInstance().GUI.ShowWarning("You do not have enough money");
+			if (ShowErrors)
+				Game.GetInstance().GUI.ShowWarning("You do not have enough money");
 			return false;		
 		}
 		return true; 					
