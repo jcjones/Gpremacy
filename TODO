@@ -5,10 +5,11 @@ Loans
 Winning conditions
 movement into a territory does not conquer it if it's homeland
 should disable Research button in prospect after successful research
-flee button doesn't work in conventional battle
 nucleardetonation uses too much cputime
-sometimes nuclear detonation does not occur -- need slight redesign of state flow
+redesign nuclear attack state flow to ensure it works (like conv battle)
 space burst and L-sat clash are not implemented
 show 'spy report' in bottom tab
 AI: Add remaining rules
 AI: Add fuzzy logic
+Make the side info bar pretty
+Make the buy/sell windows more obvious as to their purpose
