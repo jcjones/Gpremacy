@@ -67,9 +67,27 @@ class Orig_Play4Move : State {
 				 		* more than one element, let the user pick */
 						moveCost = unit.calculateMovementCost(target);
 						
-						if (!Game.GetInstance().hasSufficientWeath(Game.State.CurrentPlayer, moveCost, 0))
+						if (!Game.GetInstance().hasSufficientWeath(Game.State.CurrentPlayer, moveCost, 0, false))
 						{
-							break; 
+							ArrayList toRemove = new ArrayList();
+							
+							/* They're missing somethin'...  Figure out what, remove that option. */
+							for (int i=0; i<moveCost.Count; i++)
+							{
+								if (!Game.GetInstance().hasSufficientWeath(Game.State.CurrentPlayer, moveCost.GetRange(i,1), 0, false))
+								{
+									toRemove.Add(moveCost[i]);
+								}
+							}
+							foreach (Stock s in toRemove)
+							{
+								moveCost.Remove(s);
+							}
+							if (moveCost.Count < 1)
+							{
+								Game.GetInstance().GUI.ShowWarning("You do not have enough resources to move this unit that far.");
+								return false;
+							}
 						}
 						
 						if (Game.GetInstance().GUI.AlwaysMarch && moveCost.Count > 1)
