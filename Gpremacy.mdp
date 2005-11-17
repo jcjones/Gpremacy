@@ -89,5 +89,6 @@
     <File name="./AI/Goals/Goal_Attack.cs" subtype="Code" buildaction="Compile" />
     <File name="./AI/Goals/Goal_Expand.cs" subtype="Code" buildaction="Compile" />
     <File name="./AI/Goals/Goal_Profit.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Support/Cairo_Graphics.cs" subtype="Code" buildaction="Compile" />
   </Contents>
 </Project>

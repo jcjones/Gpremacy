@@ -4,6 +4,7 @@ using Glade;
 using Pango;
 using Gdk;
 using System.Collections;
+using System.Drawing.Drawing2D;
 
 namespace Gpremacy{
 
@@ -13,6 +14,10 @@ class GpremacyMap : DrawingArea
         ArrayList territories;
         GraphicsStorage store;
         Gdk.Region region;
+        
+        public bool ArrowOn;
+        public Territory ArrowFromTerritory;
+        public Territory ArrowToTerritory;
  
         public GpremacyMap (ArrayList terrs)
         {
@@ -23,12 +28,12 @@ class GpremacyMap : DrawingArea
 
             store = GraphicsStorage.GetInstance();    
 
-			Gdk.Point[] borders = new Point[4];
-			borders[0]=new Point(0,0);
-			borders[1]=new Point(store.Map.Width,0);
-			borders[2]=new Point(store.Map.Width,store.Map.Height);
-			borders[3]=new Point(0,store.Map.Height);
-			region = Gdk.Region.Polygon(borders, FillRule.WindingRule);                        
+			Gdk.Point[] borders = new Gdk.Point[4];
+			borders[0]=new Gdk.Point(0,0);
+			borders[1]=new Gdk.Point(store.Map.Width,0);
+			borders[2]=new Gdk.Point(store.Map.Width,store.Map.Height);
+			borders[3]=new Gdk.Point(0,store.Map.Height);
+			region = Gdk.Region.Polygon(borders, Gdk.FillRule.WindingRule);                        
 
 			this.SetSizeRequest(store.Map.Width, store.Map.Height);
 			
@@ -55,6 +60,12 @@ class GpremacyMap : DrawingArea
 					
 				item.draw(this.GdkWindow, owner, text, this.PangoContext);
 			}
+			
+			if (ArrowOn)
+			{
+				System.Console.WriteLine("Arrow On from " + ArrowFromTerritory.Name + " " + ArrowToTerritory.Name);
+				this.drawArrow(ArrowFromTerritory, ArrowToTerritory);
+			}
            
         }
  
@@ -68,6 +79,12 @@ class GpremacyMap : DrawingArea
                 layout.SetMarkup ("Hello Pango.Layout");
                 /* */
                 
+        }
+        
+        public void ForceRedraw()
+        {
+        	System.Console.WriteLine("Clearscreen");
+        	this.GdkWindow.InvalidateRegion(Region, true);
         }
          
         public Gdk.Region Region
@@ -176,9 +193,61 @@ class GpremacyMap : DrawingArea
         
         /* Pretty Stuff */
         
-        public void drawArrow(Point a, Point b)
+        public void drawArrow(Territory start, Territory end)
         {
-        	this.GdkWindow.DrawLine (this.Style.BlackGC, a.X, a.Y, b.X, b.Y);
+			/* in the upward orientation
+			 * ox+10, oy
+			 * ox+10, ey+35
+			 * ox+35, ey+35
+			 * ox, ey
+			 * ox-35, ey+35
+			 * ox-10, ey+35
+			 * ox-10, oy
+			 */			
+			if (start == end)
+				return;
+				
+			int aX = start.MapTerritory.centerX;
+			int aY = start.MapTerritory.centerY;
+			int bX = end.MapTerritory.centerX;
+			int bY = end.MapTerritory.centerY;
+			 
+			double RAD_TO_DEG = 57.29578;
+        	float ox, oy;
+ 			Matrix X = new Matrix();
+			Gdk.GC ArrowFill = new Gdk.GC(this.GdkWindow);
+		   	ArrowFill.RgbFgColor = Game.GetInstance().State.CurrentPlayer.Color;
+		   				        	
+        	ox = aX; oy = aY; 
+        	double dist = System.Math.Sqrt( ( aX-bX )*( aX-bX ) + ( aY-bY )*( aY-bY ) );
+        	
+        	if (aY-bY == 0)
+        		aY++;
+        		
+        	double angle = System.Math.Atan2( ( aY-bY ) , ( aX-bX ) ) * RAD_TO_DEG;
+			X.RotateAt((float)angle+90.0f, new System.Drawing.PointF(ox, oy));
+			X.Translate(ox, oy);
+        	X.Scale(1.0f, (float)(dist/100.0));
+			
+        	System.Drawing.Point[] points = new System.Drawing.Point[8];
+        	        	
+       		points[0] = new System.Drawing.Point(10, 0);
+       		points[1] = new System.Drawing.Point(10, 100-35);
+       		points[2] = new System.Drawing.Point(35, 100-35);
+       		points[3] = new System.Drawing.Point(0, 100);
+       		points[4] = new System.Drawing.Point(-35, 100-35);
+       		points[5] = new System.Drawing.Point(-10, 100-35);
+       		points[6] = new System.Drawing.Point(-10, 0);
+       		points[7] = new System.Drawing.Point(10, 0);
+        	
+        	X.TransformPoints(points);
+        	
+        	Gdk.Point[] gpoints = new Gdk.Point[points.Length];
+        	for(int i=0; i<points.Length; i++)
+        		gpoints[i] = new Gdk.Point(points[i].X,points[i].Y); 
+        	
+        	this.GdkWindow.DrawPolygon (ArrowFill, true, gpoints);
+        	this.GdkWindow.DrawPolygon (this.Style.BlackGC, false, gpoints);        	
         }
         
 }

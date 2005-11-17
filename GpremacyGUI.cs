@@ -11,7 +11,7 @@ namespace Gpremacy {
 class GpremacyGUI {
 	GpremacyMap MapArea;
 	Game game;
-	Gdk.Region invalRegion;
+//	Gdk.Region invalRegion;
 	DeckDealer deckDealer;
 	CombatView combatView;
 	GameSetupView gameSetupView;
@@ -73,12 +73,7 @@ class GpremacyGUI {
 	[Glade.Widget] Gtk.Window ProspectSelection;
 	[Glade.Widget] Gtk.Table ProspectSelectionTable;
 	//[Glade.Widget] Gtk.Label ProspectSelectionLegend;
-	
-	/* Resource Card View */
-	[Glade.Widget] Gtk.Window ResourceCardView;
-	
-	//[Glade.Widget] Gtk.Label ResourceCardViewLegend;
-			
+				
 	public GpremacyGUI(Game i)
 	{
 		game = i;		
@@ -160,7 +155,6 @@ class GpremacyGUI {
 	   		}
 	   	}
 	   	//System.Console.WriteLine("(X,Y)=" + x + "," + y + " = (x,y)+(xo,yo) = " + args.Event.X + "," + args.Event.Y + " + " + MapScrolledWindow2.Hadjustment.Value + ","  + MapScrolledWindow2.Vadjustment.Value);	   
-   			   		   	
    		game.State.mouseMotion(x, y, target);   		
    }
    
@@ -270,7 +264,7 @@ class GpremacyGUI {
 				"(C) 2005 J.C. \"Pug\" Jones\n" +
 				"Licensed under the GNU GPL version 2 or later\n" +
 				"<u>http://gpremacy.nongnu.org/</u>\n\n" +
-				"Dedicated to Chris Jones, oderint dum metuant.";
+				"Dedicated to Chris Jones: oderint dum metuant.";
 		AboutLabel.Justify = Gtk.Justification.Center;
 		About.ModifyBg(Gtk.StateType.Normal, new Gdk.Color(0, 0x99, 0xf0));
 		
@@ -364,40 +358,15 @@ class GpremacyGUI {
 	
 	public void clearArrow()
 	{
-		if (invalRegion != null)
-		{
-			System.Console.WriteLine("Invalidating..." + invalRegion.Clipbox.X + " " + invalRegion.Clipbox.Y + " " + invalRegion.Clipbox.Height +  " " + invalRegion.Clipbox.Width);
-    		MapArea.GdkWindow.InvalidateRegion(invalRegion,true);
-    		//invalRegion.Destroy(); // Deprecated by GTK# 2.4
-    	}    		
+   		MapArea.ArrowOn = false;
 	}
 	
 	public void drawArrow(Territory a, Territory b)
     {
-		clearArrow();
-
-		//int x = a.MapTerritory.centerX;
-		//int y = a.MapTerritory.centerY;
-		//int w = b.MapTerritory.centerX - x;
-		//int h = b.MapTerritory.centerY - y;
-
-		/* This point stuff is necessary since Gdk.Region.Rectangle() doesn't work! */
-		Point[] arrow = new Point[4];
-		arrow[0]=new Point(a.MapTerritory.centerX, a.MapTerritory.centerY);
-		arrow[1]=new Point(a.MapTerritory.centerX, b.MapTerritory.centerY);
-		arrow[2]=new Point(b.MapTerritory.centerX, b.MapTerritory.centerY);
-		arrow[3]=new Point(b.MapTerritory.centerX, a.MapTerritory.centerY);
-
-						
-		/* Uncool arrow */						
-       	MapArea.drawArrow(arrow[0], arrow[2]);
-       	/* Cool arrow */
-       	//Art.Bpath topPath = new Art.Bpath();
-       	//topPath.X1 = x;
-       	//topPath.Y1 = y;
-       	
-	       	
-	   	invalRegion = Gdk.Region.Polygon(arrow, FillRule.WindingRule);
+    	MapArea.ArrowFromTerritory = a;
+    	MapArea.ArrowToTerritory = b;
+		MapArea.ArrowOn = true;
+		MapArea.ForceRedraw();
     }
     
     public void showNuclearDetonationAnimation(Territory target)

@@ -101,6 +101,10 @@ class Orig_Play3Attack : State {
 			System.Console.WriteLine("Alternate selection of defender: Chose " + defender.Name);
 		}
 		
+		/* Confirm it's not self-inflicted */
+		if (defender == player)
+			return false;
+		
 		
 		Orig_AttackConventionalStart cmd = new Orig_AttackConventionalStart(player, defender, currentTerritory, previousTerritory);
 		Game.GetInstance().State.Execute(cmd);

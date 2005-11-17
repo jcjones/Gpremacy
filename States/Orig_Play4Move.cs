@@ -28,6 +28,7 @@ class Orig_Play4Move : State {
 		{
 			/* Cancelling */
 			arrowOn = false;
+			Game.GetInstance().GUI.Map.ArrowOn = false;
 			
 			if (previousTerritory != null)
 				Game.GUI.redrawTerritory(previousTerritory);
@@ -48,6 +49,7 @@ class Orig_Play4Move : State {
 			System.Console.WriteLine("3");
 			/* Picking target selection */			
 			arrowOn = false;
+			Game.GetInstance().GUI.Map.ArrowOn = false;
 						
 			// Clone the list since otherwise modifying the presently used list is bad   					
 			ArrayList tmp = (ArrayList)previousTerritory.Units.Clone();
@@ -171,7 +173,7 @@ class Orig_Play4Move : State {
 		if (arrowOn && previousTerritory != null && curTerr != null && curTerr != currentTerritory)
 		{
 			currentTerritory = curTerr;
-			System.Console.WriteLine("Arrow from " + previousTerritory.Name + " to " + curTerr.Name);
+			//System.Console.WriteLine("Arrow from " + previousTerritory.Name + " to " + curTerr.Name);
 			Game.GUI.drawArrow(previousTerritory, curTerr);
 			return true;
 		}

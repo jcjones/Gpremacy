@@ -60,7 +60,7 @@ class Game {
 	
 	public string VersionString
 	{
-		get { return "20051109: Multiplay Release 1"; }
+		get { return "20051117: Multiplay Release 2"; }
 	}
 	
 	public void init()
