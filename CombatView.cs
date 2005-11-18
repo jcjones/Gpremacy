@@ -390,7 +390,7 @@ class CombatView {
 		
 		Gdk.Color territoryColor = battleLocation.Color;
 						
-		battleLocation.MapTerritory.draw(ConvBattleUnitLegend.GdkWindow, 15, 15, 100, 100, territoryColor);
+		battleLocation.MapTerritory.drawScaled(ConvBattleUnitLegend.GdkWindow, 15, 15, 100, 100, territoryColor);
 		 
 		Gdk.GC textcolor = new Gdk.GC(ConvBattleUnitLegend.GdkWindow);		
 		textcolor.RgbFgColor = new Gdk.Color(0,0,0);

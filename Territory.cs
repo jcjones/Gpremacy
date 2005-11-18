@@ -172,7 +172,7 @@ class Territory
 	{
 		get { return MapTerritory.deepSea; }
 	}
-		
+			
 	public void showNuke(Gdk.Window win, int frame)
 	{
 			Gdk.GC whocares = new Gdk.GC(win);
@@ -192,18 +192,20 @@ class Territory
    		textcoloring.RgbFgColor = textcolor;
 	   	int carriedUnits = 0;
 	   	string extraLabel = "";
+		GraphicsStorage store = GraphicsStorage.GetInstance();	   	
+		int cenTerrX = MapTerritory.centerX;
+		int cenTerrY = MapTerritory.centerY;
+
+	   	/* Show flag */
+	   	Gdk.Pixbuf flag = store.AppropriateFlag(owner.CountryID);
+	   	win.DrawPixbuf(textcoloring, flag, 0, 0, cenTerrX, cenTerrY, flag.Width, flag.Height, RgbDither.Normal, 1, 1);
 	   	
 		/* Draw the map */ 
 	   	MapTerritory.draw(win, terr, textcolor);
 	   	
 	   	/* Show radiation if destroyed */
 	   	if (destroyed)
-	   	{
- 			GraphicsStorage store = GraphicsStorage.GetInstance();
- 			int x = MapTerritory.centerX;
- 			int y = MapTerritory.centerY;
-			win.DrawPixbuf(textcoloring, store.Radiation, 0, 0, x, y, store.Radiation.Width, store.Radiation.Height, RgbDither.Normal, 1, 1);	   		
-	   	}
+			win.DrawPixbuf(textcoloring, store.Radiation, 0, 0, cenTerrX, cenTerrY, store.Radiation.Width, store.Radiation.Height, RgbDither.Normal, 1, 1);	   		
 	   	
 	   	/* Determine personnel carrier status */
 	   	foreach(TacticalUnit joe in units)

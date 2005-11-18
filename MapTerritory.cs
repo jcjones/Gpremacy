@@ -16,7 +16,8 @@ class MapTerritory
 	public Point[] borders;
 	public Region region;
 	Pango.Layout label;
-	public int centerX, centerY;
+	int mathCenterX, mathCenterY;
+	int physCenterX, physCenterY;
 	//int labelX, labelY;
 	ArrayList connectedTerritories;
 	int[] connectionDistances;
@@ -45,15 +46,29 @@ class MapTerritory
 			totalY += borders[i].Y;
 		}
 		
-		/* Find the center of the border */		
-		centerX = (totalX / borders_i.Count);
-		centerY = (totalY / borders_i.Count);
+		/* Find the mathCenter of the border */		
+		mathCenterX = (totalX / borders_i.Count);
+		mathCenterY = (totalY / borders_i.Count);
+		
+		physCenterX = mathCenterX;
+		physCenterY = mathCenterY;
 		
 	   	/* Make region */
 	   	region = Gdk.Region.Polygon(borders, FillRule.WindingRule);
 	}
+	
+	public int centerX 
+	{
+		get { return physCenterX; }
+		set { physCenterX = value;}
+	}
+	public int centerY
+	{
+		get { return physCenterY; }
+		set { physCenterY = value;}		
+	}	
 		
-	public void draw(Gdk.Window win, int ox, int oy, int szx, int szy, Gdk.Color terr)
+	public void drawScaled(Gdk.Window win, int ox, int oy, int szx, int szy, Gdk.Color terr)
 	{
 		/* This function allows drawing the territory at a
 		 * predefined x,y coordinate, which requires we
@@ -134,7 +149,7 @@ class MapTerritory
 	   	text.RgbFgColor = textcolor;
 	   	
 		//win.DrawPolygon(field, false, borders);
-		win.DrawLayout (text, centerX, centerY, label);
+		win.DrawLayout (text, mathCenterX, mathCenterY, label);
 	}
 	
 	public bool checkClick(double x, double y) 

@@ -9,6 +9,7 @@ class  GraphicsStorage
 {
 	private static GraphicsStorage instance;
 	private static int numOfReference;
+	private Gdk.Pixbuf blank;
 	private Gdk.Pixbuf army;
 	private Gdk.Pixbuf navy;
 	private Gdk.Pixbuf lsat;
@@ -16,11 +17,17 @@ class  GraphicsStorage
 	private Gdk.Pixbuf radiation;
 	private Gdk.Pixbuf detonation;
 	private Gdk.Pixbuf map;
-	
+	private Gdk.Pixbuf flag_usa;
+	private Gdk.Pixbuf flag_south_america;
+	private Gdk.Pixbuf flag_europe;
+	private Gdk.Pixbuf flag_africa;
+	private Gdk.Pixbuf flag_ussr;
+	private Gdk.Pixbuf flag_china;	
 
 	private GraphicsStorage()
 	{
 		numOfReference = 0;
+		blank = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/blank.png"));
 		army = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/army.png"));
 		navy = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/navy.png"));
 		lsat = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/lsat.png"));
@@ -28,6 +35,12 @@ class  GraphicsStorage
 		radiation = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/radiation.png")); 		
 		detonation = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/detonation.png"));		
 		map = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile(Game.GetInstance().MapFileName));
+		flag_usa = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/Flags/usa.png"));
+		flag_south_america = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/Flags/south_america.png"));
+		flag_europe = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/Flags/europe.png"));
+		flag_africa = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/Flags/africa.png"));
+		flag_ussr = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/Flags/ussr.png"));
+		flag_china = PixbufUtils.LoadFromPath(SupportFileLoader.locateGameFile("Graphics/Flags/china.png"));		
 	} 
 
 	public static GraphicsStorage GetInstance()
@@ -69,11 +82,34 @@ class  GraphicsStorage
 	{
 		get { return detonation; }
 	}
+	public Gdk.Pixbuf Flag_USA
+	{
+		get { return flag_usa; }
+	}
+	public Gdk.Pixbuf Flag_South_America
+	{
+		get { return flag_south_america; }
+	}
+	public Gdk.Pixbuf Flag_Europe
+	{
+		get { return flag_europe; }
+	}
+	public Gdk.Pixbuf Flag_Africa
+	{
+		get { return flag_africa; }
+	}
+	public Gdk.Pixbuf Flag_USSR
+	{
+		get { return flag_ussr; }
+	}
+	public Gdk.Pixbuf Flag_China
+	{
+		get { return flag_china; }
+	}
 	public Gdk.Pixbuf Map
 	{
 		get { return map; }
-	}
-	
+	}	
 	public int DetonationFrames
 	{
 		get { return 32; }
@@ -89,6 +125,27 @@ class  GraphicsStorage
 		Gdk.Pixbuf frame = new Gdk.Pixbuf(buf, framenum*frameWidth, 0, frameWidth, buf.Height);
 		
 		return frame;
+	}
+	
+	public Gdk.Pixbuf AppropriateFlag(int countryID)
+	{
+		switch(countryID)
+		{
+			case 1:
+				return flag_usa;
+			case 2:
+				return flag_south_america;
+			case 3:
+				return flag_africa;
+			case 4:
+				return flag_europe;
+			case 5:
+				return flag_ussr;
+			case 6:
+				return flag_china;
+			default:
+				return blank;
+		}
 	}
 	
 }

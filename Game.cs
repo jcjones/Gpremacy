@@ -487,7 +487,7 @@ class Game {
    	String line;
    	String name;
    	Player owner;
-   	int ownerid, x, y, id = 0;
+   	int ownerid, x, y, id = 0, centerX = 0, centerY = 0;
    	ArrayList points = new ArrayList(); // of Gdk.Point
    	ArrayList graphConnections = new ArrayList(); // of ArrayList of String.
    	ArrayList subGraph; // of String
@@ -527,6 +527,8 @@ class Game {
        				
 	       			if (parts.Length > 2) 
        				{
+       					centerX = centerY = 0;
+       					
 	       				// Extract data
        					name = parts[0].Trim('"');
        					ownerid = Int16.Parse(parts[1]);
@@ -534,9 +536,17 @@ class Game {
 	        				owner = (Player)(Players[ownerid-1]);
 	        			else
 	        				owner = PlayerNobody;
-	        			isLand = Boolean.Parse(parts[2]);
+	        			int offset = 0;
+	        			if (parts[2] != "false" && parts[2] != "true")
+	        			{
+	        				offset = 2;
+	        				// extract centers
+	        				centerX = Int16.Parse(parts[2]);
+	        				centerY = Int16.Parse(parts[3]); 	        				
+	        			}
+	        			isLand = Boolean.Parse(parts[offset+2]);
 	        			// Get points
-	        			for (int i=3; i<parts.Length-1; i=i+2)
+	        			for (int i=offset+3; i<parts.Length-1; i=i+2)
 	        			{
 	        				x = Int16.Parse(parts[i]); 
 	        				y = Int16.Parse(parts[i+1]); 
@@ -548,6 +558,11 @@ class Game {
 						TerritoryHashTable.Add(name, lastTerritory);
 
 						mapTerritory = new MapTerritory(name, isLand, points);
+						if (centerX > 0)
+						{
+							mapTerritory.centerX = centerX;
+							mapTerritory.centerY = centerY;
+						}
 						MapTerritoryHashTable.Add(id, mapTerritory);
 						
 						id++;

@@ -212,10 +212,11 @@ class Orig_MoveUnit : Command {
 		/* Confirm we can move here ... don't bother for unexecute */
 		if (unit.canMoveTo(next)) 
 		{
+			/* CAPTURE TERRITORY CODE -- KEEP IN SYNCH WITH UNLOAD'S COPY !! */
 			Player oldOwner = next.Owner;
 			
-			if (oldOwner != curPlay) {			
-				/* Claim territory */
+			if ((oldOwner != curPlay) && (next.IsLand)) {			
+				/* Claim territory if it's not ours and not water */
 				next.Owner = curPlay;						
 				oldOwner.updateResourceCards(); // deactivate cards
 				
@@ -237,7 +238,9 @@ class Orig_MoveUnit : Command {
 			{
 				if (card.isResource() && card.Place == next && !card.HasBeenActive)
 					game.GUI.writeToLog("Resource card " + card.FlavorText + " now available.");
-			}			
+			}
+			
+			/* END CAPTURE TERRITORY CODE -- KEEP IN SYNCH WITH UNLOAD'S COPY !! */			
 						
 			/* Charge Movement Cost */
 			foreach (Stock s in moveCost)
@@ -361,6 +364,37 @@ class Orig_UnloadUnits : Command {
 			game.GUI.redrawTerritory(sea);
 			game.GUI.redrawTerritory(port);			
 		}
+		
+		/* CAPTURE TERRITORY CODE -- KEEP IN SYNCH WITH MOVE'S COPY !! */
+		Player oldOwner = port.Owner;
+		Player curPlay = ship.Owner;
+		
+		if ((oldOwner != curPlay) && (port.IsLand)) {			
+			/* Claim territory if it's not ours and not water */
+			port.Owner = curPlay;						
+			oldOwner.updateResourceCards(); // deactivate cards
+			
+			/* Acquire all ever-active resource cards in play for this territory */
+			
+			foreach (ResourceCard card in game.AllCards)
+			{
+				if (card.isResource() && card.Place == port && card.HasBeenActive)
+				{
+					oldOwner.removeResourceCard(card);
+					curPlay.addResourceCard(card);
+					game.GUI.writeToLog(curPlay.Name + " captures " + card + " from " + oldOwner.Name);
+				}
+			}
+		}
+		
+		/* If owner has this resource card and it's never been active before, notify */
+		foreach (ResourceCard card in curPlay.ResourceCards)
+		{
+			if (card.isResource() && card.Place == port && !card.HasBeenActive)
+				game.GUI.writeToLog("Resource card " + card.FlavorText + " now available.");
+		}
+		
+		/* END CAPTURE TERRITORY CODE -- KEEP IN SYNCH WITH MOVE'S COPY !! */		
 	}
 	
 	public override void Unexecute(Game game)

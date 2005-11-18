@@ -1,0 +1,8 @@
+17 Nov 2005
+Add flags
+Conquer countries when unloading from ships
+Fix nukes not arriving on target
+Add new "center" locations for countries, configurable in countries.csv
+New movement / attack arrow
+Move resource cards to a tab, eliminating a menu item
+Add AI selection and useless AI (it'll get better when I finish it...)
