@@ -56,6 +56,7 @@ class Orig_Play3Attack : State {
 		{
 			/* Cancelling */
 			arrowOn = false;
+			Game.GetInstance().GUI.Map.ArrowOn = false;
 			
 			if (previousTerritory != null)
 				Game.GUI.redrawTerritory(previousTerritory);
@@ -111,6 +112,7 @@ class Orig_Play3Attack : State {
 		
 		previousTerritory = currentTerritory = null;
 		arrowOn = false;
+		Game.GetInstance().GUI.Map.ArrowOn = false;
 
 		return true;
 	}

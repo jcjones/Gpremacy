@@ -20,6 +20,7 @@ class Orig_Play4Move : State {
 	public override void beginPlayer(Player p) {
 		previousTerritory = currentTerritory = null;
 		arrowOn = false;		
+		Game.GetInstance().GUI.Map.ArrowOn = false;
 	}
 	
 	public override bool mouseClick(Territory target, uint Button)
