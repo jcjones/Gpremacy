@@ -1,7 +1,7 @@
 # Gpremacy Countries Data File
 # This is a comma separated value file. The format is as follows:
 # [Map file name]
-# [Territory Name],[CountryID of owner],[is Land],[x],[y],[x],[y]...
+# [Territory Name],[CountryID of owner],{[centerX],[centerY]},[is Land],[x],[y],[x],[y]...
 #       %[Adjacent Territory Name],[Adjacent Territory Name]...
 #
 
@@ -88,15 +88,15 @@ Kazakh,5,827,179,true,701,148,711,162,730,161,741,173,747,164,762,164,766,169,77
 
 # China = 6
 Mongolia,6,935,206,true,901,169,891,185,925,221,1033,222,1012,199,954,199,924,168
-	%Kazakh,Tibet,Shantung,Sea of Japan,Manchuria,Buryatsk
+	%Kazakh,Tibet,Shandong,Sea of Japan,Manchuria,Buryatsk
 Manchuria,6,992,186,true,927,169,952,199,1035,199,1052,220,1063,207,1042,185,1050,174,1046,170
 	%Buryatsk,Mongolia,Sea of Japan
 Tibet,6,931,252,true,892,187,876,218,919,274,953,272,976,221,925,221,893,185
-	%Pakistan,India,Nanling,Shantung,Mongolia,Kazakh
-Shantung,6,1015,240,true,976,223,965,247,1073,250,1062,235,1044,235,1035,225
+	%Pakistan,India,Nanling,Shandong,Mongolia,Kazakh
+Shandong,6,1015,240,true,976,223,965,247,1073,250,1062,235,1044,235,1035,225
 	%Mongolia,Tibet,Nanling,Sea of Japan
 Nanling,6,1012,263,true,966,248,954,275,1081,275,1083,261,1071,249,967,247
-	%Shantung,Tibet,India,Burma,Indo-China,South China Sea,Sea of Japan
+	%Shandong,Tibet,India,Burma,Indo-China,South China Sea,Sea of Japan
 
 # Asia = 0
 Turkey,0,783,218,true,831,232,749,231,728,230,716,211,724,198,742,197,749,195,761,193,764,199,828,199,821,217
@@ -187,7 +187,7 @@ Java Sea,0,false,1030,369,1022,369,1014,368,1005,368,996,374,992,380,992,392,993
 South China Sea,0,false,1085,321,1094,322,1101,324,1111,323,1119,320,1124,311,1130,304,1132,295,1126,280,1120,270,1111,263,1102,260,1094,258,1077,256,1088,265,1082,277,1101,296,1094,315,1085,316
 	%Sea of Japan,Mid Pacific,Java Sea,Indo-China,Nanling
 Sea of Japan,0,false,1082,256,1090,256,1096,257,1102,261,1112,266,1119,270,1120,272,1129,261,1131,253,1131,245,1127,234,1122,228,1117,222,1101,227,1083,231,1082,214,1077,206,1085,198,1092,197,1092,187,1063,162,1044,157,1050,174,1043,183,1063,211,1057,221,1037,201,1012,198,1044,233,1064,233
-	%South China Sea,Japan,Tokyo Bay,Sea of Okhotsk,Buryatsk,Manchuria,Mongolia,Shantung,Mid Pacific,North Pacific
+	%South China Sea,Japan,Tokyo Bay,Sea of Okhotsk,Buryatsk,Manchuria,Mongolia,Shandong,Mid Pacific,North Pacific
 Tokyo Bay,0,false,1100,225,1109,223,1117,220,1124,215,1129,209,1133,200,1132,182,1128,172,1121,162,1109,156,1103,153,1098,155,1093,160,1089,161,1105,177,1102,182,1121,196,1111,218,1102,217
 	%Sea of Okhotsk,Sea of Japan,Japan,North Pacific
 Sea of Okhotsk,0,false,1091,161,1094,159,1096,157,1100,154,1101,147,1103,135,1099,126,1093,116,1086,109,1078,104,1075,102,1087,118,1081,130,1060,111,1054,109,1035,91,1027,102,1001,103,998,112,1007,123,1034,127,1054,144,1047,161,1053,163,1058,163,1062,164,1073,147

@@ -198,7 +198,8 @@ class Territory
 
 	   	/* Show flag */
 	   	Gdk.Pixbuf flag = store.AppropriateFlag(owner.CountryID);
-	   	win.DrawPixbuf(textcoloring, flag, 0, 0, cenTerrX, cenTerrY, flag.Width, flag.Height, RgbDither.Normal, 1, 1);
+	   	if (flag != null && owner.Active)
+	   		win.DrawPixbuf(textcoloring, flag, 0, 0, cenTerrX, cenTerrY, flag.Width, flag.Height, RgbDither.Normal, 1, 1);
 	   	
 		/* Draw the map */ 
 	   	MapTerritory.draw(win, terr, textcolor);

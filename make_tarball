@@ -1,14 +1,17 @@
 #!/bin/sh
 target=$(basename $(pwd))
-name="gpremacy-mono-$(date +%Y%m%d).tar.gz"
+tgzname="gpremacy-mono-$(date +%Y%m%d).tar.gz"
+zipname="gpremacy-mono-$(date +%Y%m%d).zip"
 
 pushd ..
 
-tar --exclude="Project.planner" --exclude="*.gz" --exclude="Original Graphics" -zcf $name  $target
+tar --exclude="Project.planner" --exclude="*.gz" --exclude="Original Graphics" -zcf $tgzname  $target
+zip -r $zipname $target -x "Project.planner" -x "*Original Graphics*"
 
-echo "Tarball created in $(pwd)/$name"
+echo "Tarball created in $(pwd)/$tgzname & $zipname"
 
-gpg -b --use-agent $name
+gpg -b --use-agent $tgzname
+gpg -b --use-agent $zipname
 
 popd
 

@@ -360,7 +360,7 @@ class Game {
 				return false;
 			}
 		}
-		if ( p.Money < cash )
+		if ( cash > 0 && p.Money < cash )
 		{
 			if (ShowErrors)
 				Game.GetInstance().GUI.ShowWarning("You do not have enough money");

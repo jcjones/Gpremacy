@@ -1,5 +1,5 @@
 <Project name="gpremacy-mono" fileversion="2.0" language="C#" ctype="DotNetProject">
-  <Configurations>
+  <Configurations active="Debug">
     <Configuration name="Debug" ctype="DotNetProjectConfiguration">
       <Output directory="./bin/Debug" assembly="gpremacy-mono" />
       <Build debugmode="True" target="Exe" />
@@ -13,17 +13,6 @@
       <CodeGeneration compiler="Csc" warninglevel="4" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" mainclass="" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
     </Configuration>
   </Configurations>
-  <References>
-    <ProjectReference type="Gac" localcopy="True" refto="Mono.Cairo, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756" />
-    <ProjectReference type="Gac" localcopy="True" refto="System, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-    <ProjectReference type="Gac" localcopy="True" refto="System.Data, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-    <ProjectReference type="Gac" localcopy="True" refto="System.Drawing, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-    <ProjectReference type="Gac" localcopy="True" refto="art-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <ProjectReference type="Gac" localcopy="True" refto="gdk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <ProjectReference type="Gac" localcopy="True" refto="glade-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <ProjectReference type="Gac" localcopy="True" refto="gtk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <ProjectReference type="Gac" localcopy="True" refto="pango-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-  </References>
   <DeploymentInformation strategy="File">
     <excludeFiles />
   </DeploymentInformation>
@@ -60,10 +49,6 @@
     <File name="./Units/StrategicUnit.cs" subtype="Code" buildaction="Compile" />
     <File name="./Units/TacticalUnit.cs" subtype="Code" buildaction="Compile" />
     <File name="./Units/Unit.cs" subtype="Code" buildaction="Compile" />
-    <File name="./gpremacy_gui/gpremacy_gui.glade" subtype="Code" buildaction="EmbedAsResource" />
-    <File name="./Graphics/army.png" subtype="Code" buildaction="EmbedAsResource" />
-    <File name="./Graphics/classic_map.jpg" subtype="Code" buildaction="EmbedAsResource" />
-    <File name="./Graphics/navy.png" subtype="Code" buildaction="EmbedAsResource" />
     <File name="./States/Command.cs" subtype="Code" buildaction="Compile" />
     <File name="./Resource/Stock.cs" subtype="Code" buildaction="Compile" />
     <File name="./DeckDealer.cs" subtype="Code" buildaction="Compile" />
@@ -90,5 +75,18 @@
     <File name="./AI/Goals/Goal_Expand.cs" subtype="Code" buildaction="Compile" />
     <File name="./AI/Goals/Goal_Profit.cs" subtype="Code" buildaction="Compile" />
     <File name="./Support/Cairo_Graphics.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Graphics/gpremacy.ico" subtype="Code" buildaction="EmbedAsResource" />
+    <File name="./gpremacy_gui" subtype="Directory" buildaction="Compile" />
   </Contents>
+  <References>
+    <ProjectReference type="Gac" localcopy="True" refto="Mono.Cairo, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756" />
+    <ProjectReference type="Gac" localcopy="True" refto="System, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+    <ProjectReference type="Gac" localcopy="True" refto="System.Data, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+    <ProjectReference type="Gac" localcopy="True" refto="System.Drawing, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <ProjectReference type="Gac" localcopy="True" refto="art-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <ProjectReference type="Gac" localcopy="True" refto="gdk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <ProjectReference type="Gac" localcopy="True" refto="glade-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <ProjectReference type="Gac" localcopy="True" refto="gtk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <ProjectReference type="Gac" localcopy="True" refto="pango-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+  </References>
 </Project>

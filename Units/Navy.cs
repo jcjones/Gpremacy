@@ -119,7 +119,7 @@ class Navy : TacticalUnit {
 	{
 		ArrayList r = new ArrayList(1);		
 		r.Add(new Stock(new Oil(), -1));
-		return r; 		
+		return r;
 	}
 	
 	public override Unit Clone(Player p)
