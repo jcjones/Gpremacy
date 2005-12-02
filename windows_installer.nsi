@@ -6,33 +6,51 @@
 
 !define VERSION "Multiplayer Release 3"
 
+;--------------------------------
+;Include Modern UI
+
+  !include "MUI.nsh"
+
 ; The name of the installer
-Name "Gpremacy $(VERSION)"
+  Name "Gpremacy $(VERSION)"
 
 ; The file to write
-OutFile "gpremacy-win.exe"
+  OutFile "gpremacy-win.exe"
 
 ; The default installation directory
-InstallDir $PROGRAMFILES\Gpremacy
+  InstallDir $PROGRAMFILES\Gpremacy
 
 ; Registry key to check for directory (so if you install again, it will 
 ; overwrite the old one automatically)
-InstallDirRegKey HKLM "Software\Gpremacy" "Install_Dir"
+  InstallDirRegKey HKLM "Software\Gpremacy" "Install_Dir"
 
-ShowInstDetails show
-XPStyle on
-Var MonoPath
+  ShowInstDetails show
+  Var MonoPath
 
+  !define MUI_HEADERIMAGE
+  !define MUI_HEADERIMAGE_BITMAP "InstallerExtras\logo.bmp"
+
+;--------------------------------
+;Interface Settings
+
+  !define MUI_ABORTWARNING
 
 ;--------------------------------
 ; Pages
 
-Page components
-Page directory
-Page instfiles
+  !insertmacro MUI_PAGE_LICENSE "LICENSE"
+  !insertmacro MUI_PAGE_COMPONENTS  
+  !insertmacro MUI_PAGE_DIRECTORY
+  !insertmacro MUI_PAGE_INSTFILES
+  
+  !insertmacro MUI_UNPAGE_CONFIRM
+  !insertmacro MUI_UNPAGE_INSTFILES
+  
+;--------------------------------
+;Languages
+ 
+  !insertmacro MUI_LANGUAGE "English"
 
-UninstPage uninstConfirm
-UninstPage instfiles
 
 ;--------------------------------
 ; Functions
@@ -54,7 +72,8 @@ ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Novell\Mono" "DefaultCLR"
 StrLen $1 $2 ; if > 0, it's there
 IntCmp $1 0 notInstalled notInstalled
 
-isInstalled:
+;isInstalled:
+    DetailPrint "Found Mono version $2"
     StrCpy $3 Software\Novell\Mono\$2
     ReadRegStr $3 HKEY_LOCAL_MACHINE $3 SdkInstallRoot
         
@@ -79,7 +98,7 @@ FunctionEnd
 
 ;--------------------------------
 ; The stuff to install
-Section "Gpremacy (required)"
+Section "Gpremacy (required)" SecGpremacy
 
   SectionIn RO
   
@@ -110,6 +129,7 @@ Section "Gpremacy (required)"
   File "gpremacy_gui\gpremacy_gui.glade"  
   
   ; Create the batch file
+  DetailPrint "Creating customized Gpremacy batch file for Mono install in $MonoPath..."
   FileOpen $0 "$INSTDIR\gpremacy-win.bat" w
   FileWrite $0 "@ECHO OFF$\r$\n"
   FileWrite $0 "cd $\"$INSTDIR$\"$\r$\n"
@@ -130,16 +150,35 @@ Section "Gpremacy (required)"
 SectionEnd
 
 ; Optional section (can be disabled by the user)
-Section "Start Menu Shortcuts"
+Section "Start Menu Shortcuts" SecShortCuts
 
   CreateDirectory "$SMPROGRAMS\Gpremacy\"
   CreateShortCut "$SMPROGRAMS\Gpremacy\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortCut "$SMPROGRAMS\Gpremacy\Gpremacy.lnk" "$INSTDIR\gpremacy-win.bat" "" "$INSTDIR\gpremacy.ico" 0
+  CreateShortCut "$SMPROGRAMS\Gpremacy\Gpremacy.lnk" "$INSTDIR\gpremacy-win.bat" "" "$INSTDIR\Graphics\gpremacy.ico" 0
   
 SectionEnd
 
-;--------------------------------
+Section "Desktop Shortcut" DesktopShortCut
+  CreateShortCut "$DESKTOP\Gpremacy.lnk" "$INSTDIR\gpremacy-win.bat" "" "$INSTDIR\Graphics\gpremacy.ico" 0
+SectionEnd
 
+;--------------------------------
+;Descriptions
+
+  ;Language strings
+  LangString DESC_SecGpremacy ${LANG_ENGLISH} "Gpremacy, the Game of the Superpowers main files"
+  LangString DESC_SecShortCuts ${LANG_ENGLISH} "Add short cuts to the Start Menu to simplify starting Gpremacy."  
+  LangString DESC_DesktopShortCut ${LANG_ENGLISH} "Add a shortcut to the game on your Desktop."    
+
+  ;Assign language strings to sections
+  !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecGpremacy} $(DESC_SecGpremacy)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecShortCuts} $(DESC_SecShortCuts)
+    !insertmacro MUI_DESCRIPTION_TEXT ${DesktopShortCut} $(DESC_DesktopShortCut)        
+  !insertmacro MUI_FUNCTION_DESCRIPTION_END
+
+
+;--------------------------------
 ; Uninstaller
 
 Section "Uninstall"
@@ -165,6 +204,7 @@ Section "Uninstall"
 
   ; Remove shortcuts, if any
   Delete "$SMPROGRAMS\Gpremacy\*.*"
+  Delete "$DESKTOP\Gpremacy.lnk"
 
   ; Remove directories used  
   RMDir "$SMPROGRAMS\Gpremacy"
