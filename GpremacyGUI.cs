@@ -23,12 +23,19 @@ class GpremacyGUI {
 	[Glade.Widget] Gtk.Button endTurnButton;
 	//[Glade.Widget] Gtk.ScrolledWindow MapScrolledWindow2;
 		
-	[Glade.Widget] Gtk.TextView OrderOfPlayTextBox;	
 	[Glade.Widget] Gtk.TextView ResourcesTextBox;	
 	[Glade.Widget] Gtk.TextView WorldMarketTextBox;
 	[Glade.Widget] Gtk.TextView LogTextBox;
 	[Glade.Widget] Gtk.Table ResourceCardViewTable;
 //	[Glade.Widget] Gtk.TextView MiscTextBox;
+
+	[Glade.Widget] Gtk.Table OrderOfPlayTable;
+	[Glade.Widget] Gtk.Label OrderOfPlayCurrentPlayerName;
+	[Glade.Widget] Gtk.Label OrderOfPlayTurnNumber;	
+
+	[Glade.Widget] Gtk.Label BlindBidNextStateName;
+	[Glade.Widget] Gtk.Label BlindBidNumberLeft;
+	[Glade.Widget] Gtk.CheckButton BlindBidWantPlay;
 
 	/* About Dialog */
 	[Glade.Widget] Gtk.Window About;
@@ -105,7 +112,10 @@ class GpremacyGUI {
 		MapArea.AddEvents((int)EventMask.ButtonPressMask);
 		
 		MapArea.ButtonPressEvent += OnButtonPress;
-		MapArea.MotionNotifyEvent += OnMotion;		
+		MapArea.MotionNotifyEvent += OnMotion;
+		
+		// Default this on
+		BlindBidWantPlay.Active = true;		
 
 		// Init sub-widgets and windows
 		updateGUIStatusBoxes();			
@@ -303,7 +313,14 @@ class GpremacyGUI {
 			}
 		}
 		
-		Orig_NextPlayer cmd = new Orig_NextPlayer();
+		/* Specify blind bid status */
+		Command cmd = new Orig_BlindBidIn(thisPlayer, BlindBidWantPlay.Active);
+		Game.GetInstance().State.Execute(cmd);
+		/* Reset the blind bid button to true if we have bids left */
+		BlindBidWantPlay.Active = (thisPlayer.BlindBidsLeft > 0);
+		
+		/* Batter up! */
+		cmd = new Orig_NextPlayer();
 		Game.GetInstance().State.Execute(cmd);
 		
 		/* Take care of the resource card tab */
@@ -329,17 +346,31 @@ class GpremacyGUI {
 				
 		writeToWorldMarketTextBox(game.Market.toString());
 		writeToResourcesTextBox("== " + thisPlayer.Name + " ==\n" + thisPlayer.toStringResources());
-		writeToOrderOfPlayTextBox("Turn Number: " + game.State.TurnNumber + "\nCurrent Player:\n" + game.State.CurrentPlayer.toString() + "\nCurrent State:\n" + game.State.StateIDName);								
+
+		foreach (Gtk.Widget w in OrderOfPlayTable)
+			OrderOfPlayTable.Remove(w);
+			
+		uint row = 0;
+		foreach (State s in game.State.StateList)
+		{
+			if (s == game.State.CurrentState)
+				OrderOfPlayTable.Attach(new Gtk.Label("*"), 0, 1, row, row+1);
+				
+			Gtk.Label phaseLabel = new Gtk.Label(s.Name());	
+			phaseLabel.Justify = Gtk.Justification.Left;
+			OrderOfPlayTable.Attach(phaseLabel, 1, 2, row, row+1);
+			row++;
+		}
+		OrderOfPlayTable.ShowAll();
+
+		BlindBidNumberLeft.Text = thisPlayer.BlindBidsLeft.ToString();
+		OrderOfPlayCurrentPlayerName.Text = game.State.CurrentPlayer.Name;
+		OrderOfPlayTurnNumber.Text = game.State.TurnNumber.ToString();
 		
 		/* Enable/Disable End Turn Button */
-		endTurnButton.Sensitive = thisPlayer == Game.GetInstance().State.CurrentPlayer;		
+		endTurnButton.Sensitive = thisPlayer == game.State.CurrentPlayer;		
 	}
-	
-	public void writeToOrderOfPlayTextBox(String a) 
-	{
-		OrderOfPlayTextBox.Buffer.Text = a;
-	}
-	
+			
 	public void writeToResourcesTextBox(String a) 
 	{
 		ResourcesTextBox.Buffer.Text = a;

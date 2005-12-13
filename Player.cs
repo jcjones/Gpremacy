@@ -13,7 +13,11 @@ class Player {
 	long money;
 	ArrayList resourceCards; // of ResourceCards
 	bool isActive;
+
 	byte colorBlue, colorRed, colorGreen;
+	
+	int numberBlindBidsLeftThisTurn;
+	bool bidIntoNextRound;
 	
 	
 	public Player (int id, string n, Gdk.Color c)
@@ -35,6 +39,9 @@ class Player {
 		availableUnits.Add(new Navy(this, Game.GetInstance().PlaceNowhere));
 		//availableUnits.Add(new Nuke(this));
 		//availableUnits.Add(new LSat(this));
+		
+		numberBlindBidsLeftThisTurn = 4;
+		bidIntoNextRound = true;
 		
 		Color = c; // use function Color
 	}
@@ -73,6 +80,16 @@ class Player {
 	{
 		get { return resourceCards; }
 	}
+	public int BlindBidsLeft
+	{
+		get { return numberBlindBidsLeftThisTurn; }
+		set { numberBlindBidsLeftThisTurn = value; }
+	}
+	public bool BidIntoNextRound
+	{
+		get { return bidIntoNextRound; }
+		set { bidIntoNextRound = value; }
+	}	
 	public int MaximumStockpile
 	{
 		get { return 12; }

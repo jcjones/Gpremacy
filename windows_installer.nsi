@@ -12,10 +12,10 @@
   !include "MUI.nsh"
 
 ; The name of the installer
-  Name "Gpremacy $(VERSION)"
+  Name "Gpremacy ${VERSION}"
 
 ; The file to write
-  OutFile "gpremacy-win.exe"
+  OutFile "Gpremacy-Windows-${VERSION}.exe"
 
 ; The default installation directory
   InstallDir $PROGRAMFILES\Gpremacy
