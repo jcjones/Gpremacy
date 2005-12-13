@@ -19,8 +19,8 @@ class Orig_Play1Upkeep : State {
 			return false;
 			
 		/* Test detonation ! */
-		Orig_AttackStrategicDetonate cmd = new Orig_AttackStrategicDetonate(target);
-		Game.GetInstance().State.Execute(cmd);
+		//Orig_AttackStrategicDetonate cmd = new Orig_AttackStrategicDetonate(target);
+		//Game.GetInstance().State.Execute(cmd);
 		/* Done testing detonation */ 
 		return true;
 	}
@@ -30,7 +30,15 @@ class Orig_Play1Upkeep : State {
 		return false;
 	}
 		
-	public override void beginPlayer(Player player)
+	public override void beginState()		
+	{
+		foreach(Player p in Game.GetInstance().Players)
+		{
+			p.BlindBidsLeft = 5;
+		}
+	}
+
+	public override void donePlayer(Player player)
 	{
 		/* No charge on turn 1 */
 		if (Game.State.TurnNumber == 1)
