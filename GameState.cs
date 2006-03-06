@@ -39,11 +39,7 @@ class GameState {
 	ArrayList states; // of State
 	IEnumerator stateList; // of State
 	IEnumerator playerList; // of Player
-	
-	/* These two objects are to implement randomized gameplay / turn */
-	ArrayList playersThisState; // of Player
-	IEnumerator playersRandomized; // of Player
-	
+		
 	State currentState;
 	State nextState;
 	Player currentPlayer;
@@ -64,11 +60,7 @@ class GameState {
 		
 		commandList = new ArrayList();
 		networkCommands = new Queue();
-		
-		// Set up randomization for players
-		playersThisState = (ArrayList)game.Players.Clone();
-		playersRandomized = playersThisState.GetEnumerator();
-		
+				
 		states = new ArrayList();
 		states.Add(new Orig_Play1Upkeep(game));
 		states.Add(new Orig_Play2Sell(game));
@@ -125,7 +117,7 @@ class GameState {
 		get { return turnNumber; }
 	}
 	
-	public Player nextPlayer() 
+	public Player changePlayer(Player nextPlayer) 
 	{
 		/* Walk forward to find the next Active player, 
 		   but if we hit the end of the list
@@ -136,20 +128,8 @@ class GameState {
 		if (game.LocalPlayers.Contains(currentPlayer))
 			currentState.donePlayer(currentPlayer);
 		
-		do
-		{
-			if ( playersRandomized.MoveNext() == false) 
-			{
-				// We've hit the end of our player list, so next state and return.
-				playersRandomized.Reset();
-				playersRandomized.MoveNext();
-				changeToNextState();				
-				return currentPlayer = (Gpremacy.Player)playersRandomized.Current; 
-			}
-			currentPlayer = (Gpremacy.Player)playersRandomized.Current;
-			
-		} while (!currentPlayer.Active);
-		
+		currentPlayer = nextPlayer;
+
 		/* Run action if this is a local player */
 		if (game.LocalPlayers.Contains(currentPlayer))
 			currentState.beginPlayer(currentPlayer);
@@ -157,36 +137,63 @@ class GameState {
 		return currentPlayer;		
 	}
 	
+	public int changeState(int nextStateID) 
+	{
+		/* Finish last state */ 
+		currentState.doneState();
+		
+		currentState = null;
+
+		foreach(State state in states) 
+		{
+			if (state.MyOrder == nextStateID) 
+			{
+				currentState = state;
+				break;
+			}
+		}		
+		
+		if (currentState == null)
+			throw new Exception("Attempted to change state to ["+nextStateID+"], which is invalid");
+		
+		/* Begin new state */
+		currentState.beginState();
+		
+		return currentState.NextOrder;
+	}
+	
 	public int changeToNextState ()
 	{	
+		throw new Exception("Not implemented now");
+		/*
 		int next = nextState.NextOrder;
 
 		/* Begin the next state ... */
-		currentState.doneState();
+		/*currentState.doneState();
 		currentState = nextState;
 		currentState.beginState();
 		
 		/* Assemble list of blind-bidded players */
-		playersThisState.Clear();
+		/*playersThisState.Clear();
 		foreach(Player p in Game.GetInstance().Players)
 		{
 			/* Players play if they're active and have bid, or if it's Phase 1.*/
-			if (p.Active && p.BlindBidsLeft > 0 && (p.BidIntoNextRound || currentState.MyOrder == 1) )
+			/*if (p.Active && p.BlindBidsLeft > 0 && (p.BidIntoNextRound || currentState.MyOrder == 1) )
 				playersThisState.Add(p);
 		}
 				
 		if (currentState.MyOrder == 1) turnNumber++;
 		
 		/* Find the next next state. */
-		if (stateList.MoveNext() == false) 
+		/*if (stateList.MoveNext() == false) 
 		{
 			/* New turn! */
-			stateList.Reset();
+			/*stateList.Reset();
 			stateList.MoveNext();			
 		}
 		
 		/* Next state in list is not the next state, so search for it. */		
-		stateList.Reset();
+		/*stateList.Reset();
 		stateList.MoveNext();
 		while ( ((State)stateList.Current).MyOrder != next )
 		{
@@ -195,12 +202,12 @@ class GameState {
 		}
 		
 		/* Set next state */		
-		nextState = (Gpremacy.State)stateList.Current;		
+		/*nextState = (Gpremacy.State)stateList.Current;		
 				
 		/* If we're here, someone wants in. Randomize them. */
-		RandomizePlayersForThisState();
+		/*RandomizePlayersForThisState();
 				
-		return next;						
+		/*return next;*/						
 	}
 	
 	public void mouseMotion(double x, double y, Territory curTerr)
@@ -313,46 +320,6 @@ class GameState {
 		game.GUI.writeToLog(str);
 		return false;
 	}
-	
-	public void RandomizePlayersForThisState() {
-		Random r = new Random();
-
-		/* Algorithm: 
-  		RandomInx : integer;
-  		TempPtr   : pointer;
-
-  		for Inx := aList.Count - 1 downto 1 do begin
-	    	RandomInx := Random(Inx + 1);
-    		if (RandomInx <> Inx) then begin
-	      		TempPtr := aList[Inx];
-	      		aList[Inx] := aList[RandomInx];
-	      		aList[RandomInx] := TempPtr;
-	    	end;
-		*/
-		
-		object TempPtr;
-		int RandomIndex;
-		int Index;
-		for (Index = playersThisState.Count - 1; Index > 0; Index--)
-		{
-			RandomIndex = r.Next() % Index;
-			if (RandomIndex != Index)
-			{
-				TempPtr = playersThisState[Index];
-				playersThisState[Index] = playersThisState[RandomIndex];
-				playersThisState[RandomIndex] = TempPtr;
-			}
-		}
-		
-		int i=0;
-		foreach(Player p in playersThisState) {
-			Game.GetInstance().GUI.writeToLog("#"+(++i)+" is " + p.Name);
-		}
-		
-		playersRandomized = playersThisState.GetEnumerator();
-		playersRandomized.Reset();
-		playersRandomized.MoveNext();	
-	}
 
 	public void Execute(Command cmd)
 	{
@@ -417,35 +384,72 @@ class GameState {
 
 }
 
+/* This command is only sent by the server. Other use is Bad Stuff. */
 [Serializable]
 class Orig_NextPlayer : Command {
-	public Orig_NextPlayer() 
-	{
-	}
-	
-	public override void Execute(Game game)
-	{
-		game.State.nextPlayer();
-		System.Console.WriteLine("Next Player: " + game.State.CurrentPlayer.Name + " in " + game.State.CurrentState.Name());
-	}
-}
-
-[Serializable]
-class Orig_BlindBidIn : Command {
 	Player a;
-	bool hasBid;
-	public Orig_BlindBidIn(Player p, bool b)
+	public Orig_NextPlayer(Player p) 
 	{
+		serverOnly = true;
 		a = p;
-		hasBid = b;
 	}
 	
 	public override void Execute(Game game)
 	{
 		a = game.GetLocalCopyOfPlayer(a);
-		a.BidIntoNextRound = hasBid;
+		game.State.changePlayer(a);
+		System.Console.WriteLine("Next Player is " + a.Name + " in " + game.State.CurrentState.Name());
+	}
+}
+
+/* This command is only sent by the server. Other use is Bad Stuff. */
+[Serializable]
+class Orig_NextState : Command {	
+	int nextStateNum;
+	public Orig_NextState(State a) 
+	{
+		nextStateNum = a.NextOrder;		
+		serverOnly = true;
+	}
+	
+	public override void Execute(Game game)
+	{
+		game.State.changeState(nextStateNum);
+	}
+}
+
+[Serializable]
+class Orig_DoneWithPhase : CommandForServer {
+	public Player player;
+	public Orig_DoneWithPhase(Player p) 
+	{
+		player = p;
+	}
+	
+	public override void Execute(Game game)
+	{
+		player = game.GetLocalCopyOfPlayer(player);
+		System.Console.WriteLine("Player: " + player.Name + " is done with phase " + game.State.CurrentState.Name());
+		// Server catches here and sends out next player
+	}
+}
+
+[Serializable]
+class Orig_BlindBidIn : CommandForServer {
+	public Player player;
+	public bool hasBid;
+	public Orig_BlindBidIn(Player p, bool b)
+	{
+		player = p;
+		hasBid = b;
+	}
+	
+	public override void Execute(Game game)
+	{
+		player = game.GetLocalCopyOfPlayer(player);
+		player.BidIntoNextRound = hasBid;
 		if (hasBid)
-			a.BlindBidsLeft--;
+			player.BlindBidsLeft--;
 	}
 }
 

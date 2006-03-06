@@ -88,8 +88,12 @@ class GameLink {
 		switch(pkt.identifier)
 		{
 		case "Command":
-			if (this is Server)
-				((Server)this).propagateCommand(pkt);
+			if (this is Server) {
+				if (pkt.obj is CommandForServer)
+					((Server)this).serverGameManager((CommandForServer)pkt.obj);
+				else
+					((Server)this).propagateCommand(pkt);
+			}
 				
 			game.State.NetworkExecuteQueue((Command)pkt.obj);
 			break;

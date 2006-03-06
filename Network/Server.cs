@@ -73,11 +73,16 @@ class Server : GameLink {
 	Thread listenJoins;
 	Thread listenData;
 	Thread sendData;
+	
+	StateManager stateManager;
 		
 	GameSetupView gsv;
 	
 	public Server (int port)
 	{
+		stateManager = new StateManager(this, Game.GetInstance().State.StateList,
+										Game.GetInstance().Players);
+	
 		gsv = Game.GetInstance().GUI.GameSetupView;
 		
 		clients = new ArrayList();
@@ -239,8 +244,11 @@ class Server : GameLink {
 	
 	public override bool sendCommand(Command cmd)
 	{
+		if (cmd is CommandForServer)
+			serverGameManager((CommandForServer)cmd);
+		
 		DataPacket pkt = new DataPacket("Command", cmd);
-		sendPacket(pkt);		
+		sendPacket(pkt);			
 		return true;
 	}
 	
@@ -281,7 +289,11 @@ class Server : GameLink {
 		
 		System.Console.WriteLine();
 		return true;
-	}	
+	}
+	
+	public virtual bool serverGameManager(CommandForServer cmd) {
+		return stateManager.parseCommand(cmd);
+	}
 
 	public void sendQueuedData()
 	{
@@ -363,11 +375,11 @@ class Server : GameLink {
 			clients.Add(client);
 			Monitor.Exit(clients);
 
-        	Gtk.Application.Invoke (delegate {
-              	sendParticipantList();
-        	});
+	        	Gtk.Application.Invoke (delegate {
+	              	sendParticipantList();
+	        	});
 
-			Thread.Sleep(10);			
+			Thread.Sleep(10);
 		}
 	}				
 	

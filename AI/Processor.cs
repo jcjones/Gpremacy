@@ -137,7 +137,7 @@ class Processor {
 					myBrain.HandleState(theGame.State.CurrentState);
 					
 					/* End our turn */
-					Orig_NextPlayer cmd = new Orig_NextPlayer();
+					Orig_DoneWithPhase cmd = new Orig_DoneWithPhase(myPlayer);
 					sendCommand(cmd);
 				}
 			}

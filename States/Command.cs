@@ -15,6 +15,7 @@ namespace Gpremacy {
 class Command {
 	string name = "Generic";
 	protected bool undoable = false;
+	protected bool serverOnly = false;
 	
 	public virtual void Execute(Game game) 
 	{
@@ -34,4 +35,9 @@ class Command {
 		get { return undoable; } 
 	}
 }
+
+[Serializable]
+class CommandForServer : Command {
+}
+
 }

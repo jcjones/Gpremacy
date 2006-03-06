@@ -32,15 +32,18 @@ class GpremacyGUI {
 	[Glade.Widget] Gtk.Table OrderOfPlayTable;
 	[Glade.Widget] Gtk.Label OrderOfPlayCurrentPlayerName;
 	[Glade.Widget] Gtk.Label OrderOfPlayTurnNumber;	
-
-	[Glade.Widget] Gtk.Label BlindBidNextStateName;
+	
 	[Glade.Widget] Gtk.Label BlindBidNumberLeft;
-	[Glade.Widget] Gtk.CheckButton BlindBidWantPlay;
 
 	/* About Dialog */
 	[Glade.Widget] Gtk.Window About;
 	[Glade.Widget] Gtk.Label AboutLabel;
 	[Glade.Widget] Gtk.Image AboutImage;
+	
+	/* Bid Dialog */
+	[Glade.Widget] Gtk.Dialog BidDialog;
+	[Glade.Widget] Gtk.Label BidDialogPhaseName;
+	[Glade.Widget] Gtk.Label BidDialogBidsRemaining;	
 		
 	/* Naval Options */	
 	[Glade.Widget] Gtk.Window LoadNavalOptions;
@@ -114,9 +117,6 @@ class GpremacyGUI {
 		MapArea.ButtonPressEvent += OnButtonPress;
 		MapArea.MotionNotifyEvent += OnMotion;
 		
-		// Default this on
-		BlindBidWantPlay.Active = true;		
-
 		// Init sub-widgets and windows
 		updateGUIStatusBoxes();			
 		deckDealer = DeckDealer.GetInstance();
@@ -314,15 +314,8 @@ class GpremacyGUI {
 		}
 		
 		/* Specify blind bid status */
-		Command cmd = new Orig_BlindBidIn(thisPlayer, BlindBidWantPlay.Active);
-		Game.GetInstance().State.Execute(cmd);
-		/* Reset the blind bid button to true if we have bids left */
-		BlindBidWantPlay.Active = (thisPlayer.BlindBidsLeft > 0);
-		
-		/* Batter up! */
-		cmd = new Orig_NextPlayer();
-		Game.GetInstance().State.Execute(cmd);
-		
+		showBidDialog();
+						
 		/* Take care of the resource card tab */
 		updateResourceCardTab();
 		/* Update the rest */		
@@ -364,7 +357,10 @@ class GpremacyGUI {
 		OrderOfPlayTable.ShowAll();
 
 		BlindBidNumberLeft.Text = thisPlayer.BlindBidsLeft.ToString();
-		OrderOfPlayCurrentPlayerName.Text = game.State.CurrentPlayer.Name;
+				
+		if (game.State.CurrentPlayer != null)
+			OrderOfPlayCurrentPlayerName.Text = game.State.CurrentPlayer.Name;
+			
 		OrderOfPlayTurnNumber.Text = game.State.TurnNumber.ToString();
 		
 		/* Enable/Disable End Turn Button */
@@ -1123,6 +1119,37 @@ class GpremacyGUI {
 		combatView.Attacker = Attacker;
 		combatView.Defender = Defender;
 		combatView.showConventionalBattle();
+	}
+
+	/* Blind Bid Dialog Support */
+	private void showBidDialog() 
+	{
+		BidDialog.ShowAll();
+		/* Reset the blind bid button to true if we have bids left */
+		//BlindBidWantPlay.Active = (thisPlayer.BlindBidsLeft > 0);
+		BidDialogPhaseName.Text = Game.GetInstance().State.NextState.Name();
+		BidDialogBidsRemaining.Text = thisPlayer.BlindBidsLeft.ToString();
+	}
+	protected void on_BidDialogYes_clicked(System.Object obj, EventArgs e) 
+	{
+		BidDialog.Hide();
+		/* Blind Bid */
+		Command cmd = new Orig_BlindBidIn(thisPlayer, true);
+		Game.GetInstance().State.Execute(cmd);
+		/* Batter up! */
+		cmd = new Orig_DoneWithPhase(thisPlayer);
+		Game.GetInstance().State.Execute(cmd);
+
+	}
+	protected void on_BidDialogNo_clicked(System.Object obj, EventArgs e) 
+	{
+		BidDialog.Hide();	
+		/* Blind Bid */
+		Command cmd = new Orig_BlindBidIn(thisPlayer, false);
+		Game.GetInstance().State.Execute(cmd);
+		/* Batter up! */
+		cmd = new Orig_DoneWithPhase(thisPlayer);
+		Game.GetInstance().State.Execute(cmd);
 	}
 			
 }

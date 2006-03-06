@@ -1,5 +1,7 @@
 // created on 09/18/2005 at 22:07
 
+// Should use System.AppDomain.CurrentDomain.BaseDirectory
+
 using System;
 
 namespace Gpremacy {
