@@ -1,6 +1,7 @@
 6 Mar 2006
 Blind bidding / player randomization
 Decoupling of Server from GUI (incomplete)
+Exception catch window now closes properly
 2 Dec 2005
 Windows installer
 17 Nov 2005

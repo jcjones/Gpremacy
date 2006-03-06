@@ -83,6 +83,10 @@ class GpremacyGUI {
 	[Glade.Widget] Gtk.Window ProspectSelection;
 	[Glade.Widget] Gtk.Table ProspectSelectionTable;
 	//[Glade.Widget] Gtk.Label ProspectSelectionLegend;
+	
+	/* Bid State */
+	bool bidThisPhase, bidNextPhase, doneThisPhase;
+	
 				
 	public GpremacyGUI(Game i)
 	{
@@ -312,14 +316,23 @@ class GpremacyGUI {
 				w.Hide();
 			}
 		}
-		
+				
 		/* Specify blind bid status */
 		showBidDialog();
+		
+		doneThisPhase = true;
 						
 		/* Take care of the resource card tab */
 		updateResourceCardTab();
 		/* Update the rest */		
 		updateGUIStatusBoxes();
+	}
+	
+	public void startNewTurn() {
+		/* Reset at start of phase */
+		bidThisPhase = bidNextPhase;
+		bidNextPhase = false;
+		doneThisPhase = false;
 	}
 	
 	public void on_strategic_attack1_activate(System.Object obj, EventArgs e)
@@ -363,8 +376,15 @@ class GpremacyGUI {
 			
 		OrderOfPlayTurnNumber.Text = game.State.TurnNumber.ToString();
 		
-		/* Enable/Disable End Turn Button */
-		endTurnButton.Sensitive = thisPlayer == game.State.CurrentPlayer;		
+		/* Ready to Proceed button logic: 
+		 *  if we bid into this round, 
+		 *     only be sensitive if we're the current player
+		 *  else
+		 *     be sensitive until we've bid on the next round
+		 */
+		endTurnButton.Sensitive = ( (bidThisPhase && thisPlayer == game.State.CurrentPlayer) ||
+		  (!bidThisPhase && !doneThisPhase) );
+		
 	}
 			
 	public void writeToResourcesTextBox(String a) 
@@ -1133,23 +1153,31 @@ class GpremacyGUI {
 	protected void on_BidDialogYes_clicked(System.Object obj, EventArgs e) 
 	{
 		BidDialog.Hide();
+		bidNextPhase = true;
 		/* Blind Bid */
 		Command cmd = new Orig_BlindBidIn(thisPlayer, true);
 		Game.GetInstance().State.Execute(cmd);
-		/* Batter up! */
-		cmd = new Orig_DoneWithPhase(thisPlayer);
-		Game.GetInstance().State.Execute(cmd);
+		
+		if (bidThisPhase) {
+			/* Batter up! */
+			cmd = new Orig_DoneWithPhase(thisPlayer);
+			Game.GetInstance().State.Execute(cmd);
+		}
 
 	}
 	protected void on_BidDialogNo_clicked(System.Object obj, EventArgs e) 
 	{
 		BidDialog.Hide();	
+		bidNextPhase = false;
 		/* Blind Bid */
 		Command cmd = new Orig_BlindBidIn(thisPlayer, false);
 		Game.GetInstance().State.Execute(cmd);
-		/* Batter up! */
-		cmd = new Orig_DoneWithPhase(thisPlayer);
-		Game.GetInstance().State.Execute(cmd);
+		
+		if (bidThisPhase) {
+			/* Batter up! */
+			cmd = new Orig_DoneWithPhase(thisPlayer);
+			Game.GetInstance().State.Execute(cmd);
+		}
 	}
 			
 }

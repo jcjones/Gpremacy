@@ -11,6 +11,7 @@ class StateManager{
 	ArrayList allPlayers; 			// of Player
 	ArrayList playersThisPhase; 		// of Player
 	ArrayList playersNextPhase;		// of Player
+	ArrayList playersWaiting;		// of Player
 	
 	ArrayList stateList; 			// of State
 	
@@ -35,7 +36,8 @@ class StateManager{
 		playersThisPhase = (ArrayList)allPlayers.Clone();
 		
 		/* Randomize players */			
-		randomizePlayersForThisPhase();		
+		randomizePlayersForThisPhase();
+		playersWaiting = (ArrayList)allPlayers.Clone();		
 		
 	}
 	
@@ -55,7 +57,7 @@ class StateManager{
 		/* Check if we're done with the list */
 		if (currentPhase.MoveNext() == false) 
 		{
-			/* New turn! Set appropriate stuff */
+			/* Entirely new turn! Set appropriate stuff */
 			newTurn();
 		}
 		
@@ -93,6 +95,26 @@ class StateManager{
 		
 		/* Randomize players */			
 		randomizePlayersForThisPhase();
+		
+		playersWaiting = (ArrayList)allPlayers.Clone();
+	}
+	
+	private void playerReady(Player readyPlayer) {
+		playersWaiting.Remove(readyPlayer);
+		
+		bool allDone = true;
+		
+		foreach(Player player in playersWaiting) {
+			if (player.Active) {
+				allDone = false;
+				break;
+			}
+		}
+		
+		System.Console.WriteLine("StateManager:PlayerReady: Player " + readyPlayer.Name + " is ready and AllDone = " + allDone + ".");
+
+		if (allDone)
+			allPlayersDoneThisPhase();
 	}
 	
 	private void playerDone(Player player) {
@@ -108,7 +130,8 @@ class StateManager{
 			/* Check if we're done with the list */
 			if (playersRandomized.MoveNext() == false) 
 			{
-				allPlayersDoneThisPhase();
+				System.Console.WriteLine("StateManager:playerDone: Done with random list, iterator over...");
+				return;
 			}
 			
 			nextPlayer = (Player)playersRandomized.Current;
@@ -118,7 +141,7 @@ class StateManager{
 				
 			System.Console.WriteLine("StateManager:playerDone: Scanning for next active player");
 		}
-			
+		
 		
 		System.Console.WriteLine("Next Player is " + nextPlayer.Name);
 		Orig_NextPlayer cmd = new Orig_NextPlayer(nextPlayer);
@@ -132,7 +155,7 @@ class StateManager{
 			/* Nastiness to get a local player copy */
 			Player player = 	Game.GetInstance().GetLocalCopyOfPlayer(((Orig_DoneWithPhase)cmd).player);
 			
-			System.Console.WriteLine("Player " + player.Name + " is done with phase");
+			System.Console.WriteLine("Player " + player.Name + " is done with phase...");
 			
 			playerDone(player);
 			
@@ -140,15 +163,17 @@ class StateManager{
 		}
 		
 		if (cmd is Orig_BlindBidIn) {			
+			/* Nastiness to get a local player copy */
+			Player player = 	Game.GetInstance().GetLocalCopyOfPlayer(((Orig_BlindBidIn)cmd).player);
+			
 			/* If they've chosen to bid into the next phase, add them to said phase */
 			if (((Orig_BlindBidIn)cmd).hasBid) {
-
-				/* Nastiness to get a local player copy */
-				Player player = 	Game.GetInstance().GetLocalCopyOfPlayer(((Orig_BlindBidIn)cmd).player);				
 				playersNextPhase.Add(player);
-				
 				System.Console.WriteLine("Player " + player.Name + " has bid into the next phase");				
 			}
+			
+			/* In either case, they're done with this phase  ... */
+			playerReady(player);
 			
 			return true;			
 		}

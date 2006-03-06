@@ -142,7 +142,7 @@ class GameState {
 		/* Finish last state */ 
 		currentState.doneState();
 		
-		currentState = null;
+		currentState = nextState = null;
 
 		foreach(State state in states) 
 		{
@@ -151,12 +151,25 @@ class GameState {
 				currentState = state;
 				break;
 			}
-		}		
+		}
 		
 		if (currentState == null)
 			throw new Exception("Attempted to change state to ["+nextStateID+"], which is invalid");
+
+		foreach(State state in states) {			
+			if (state.MyOrder == currentState.NextOrder)
+			{
+				nextState = state;
+				break;
+			}
+		}
+
+		if (nextState == null)
+			throw new Exception("Attempted to change next state to ["+currentState.NextOrder+"], which is invalid");
+
 		
 		/* Begin new state */
+		Game.GetInstance().GUI.startNewTurn();
 		currentState.beginState();
 		
 		return currentState.NextOrder;
@@ -398,7 +411,7 @@ class Orig_NextPlayer : Command {
 	{
 		a = game.GetLocalCopyOfPlayer(a);
 		game.State.changePlayer(a);
-		System.Console.WriteLine("Next Player is " + a.Name + " in " + game.State.CurrentState.Name());
+		System.Console.WriteLine("Now Player is " + a.Name + " in " + game.State.CurrentState.Name());
 	}
 }
 

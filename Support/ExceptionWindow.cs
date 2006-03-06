@@ -83,7 +83,7 @@ namespace Gpremacy
 		
 		public void onClose(System.Object obj, EventArgs e)
 		{
-			Application.Quit();
+			System.Environment.Exit(1);
 		}
 		
 	}

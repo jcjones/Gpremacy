@@ -40,7 +40,7 @@ class Player {
 		//availableUnits.Add(new Nuke(this));
 		//availableUnits.Add(new LSat(this));
 		
-		numberBlindBidsLeftThisTurn = 4;
+		numberBlindBidsLeftThisTurn = 3;
 		bidIntoNextRound = true;
 		
 		Color = c; // use function Color
