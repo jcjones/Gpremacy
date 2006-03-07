@@ -4,7 +4,7 @@
 ; (such as HKEY_LOCAL_MACHINE\SOFTWARE\Novell\Mono\1.1.9.2)
 ;--------------------------------
 
-!define VERSION "Multiplayer Release 3"
+!define VERSION "1.0 Alpha"
 
 ;--------------------------------
 ;Include Modern UI

@@ -29,7 +29,8 @@ class StateManager{
 		
 		playersRandomized = null;
 						
-		currentPhase = this.stateList.GetEnumerator();		
+		currentPhase = this.stateList.GetEnumerator();
+		currentPhase.Reset();		
 		currentPhase.MoveNext();
 
 		/* Special case: Phase 1, upkeep */

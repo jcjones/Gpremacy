@@ -33,7 +33,9 @@ class GpremacyGUI {
 	[Glade.Widget] Gtk.Label OrderOfPlayCurrentPlayerName;
 	[Glade.Widget] Gtk.Label OrderOfPlayTurnNumber;	
 	
-	[Glade.Widget] Gtk.Label BlindBidNumberLeft;
+	[Glade.Widget] Gtk.Label BlindBidsRemaining;
+	[Glade.Widget] Gtk.Label BlindBidThisPhase;
+	[Glade.Widget] Gtk.Label BlindBidNextPhase;
 
 	/* About Dialog */
 	[Glade.Widget] Gtk.Window About;
@@ -249,6 +251,11 @@ class GpremacyGUI {
 			// figure out how to renable it first, doofus!
 		}
 	}
+	protected void on_help1_activate(System.Object obj, EventArgs e)
+	{
+		// Open browser...
+		Game.OpenLink("http://gpremacy.pugsplace.net/wiki/How_To_Play");		
+	}	
 	protected void on_about1_activate(System.Object obj, EventArgs e) 
 	{
 	/* Requires GTK# 2.6 */
@@ -275,7 +282,7 @@ class GpremacyGUI {
 	
 		AboutLabel.Markup = "<span foreground=\"#FFFF00\" variant=\"smallcaps\" size=\"x-large\">Gpremacy: The Game of the Superpowers</span>\n" +
 				"<span foreground=\"#FFFF00\" size=\"large\">Version " + Game.GetInstance().VersionString +"</span>\n"+
-				"(C) 2005 J.C. \"Pug\" Jones\n" +
+				"(C) 2005-2006 J.C. \"Pug\" Jones\n" +
 				"Licensed under the GNU GPL version 2 or later\n" +
 				"<u>http://gpremacy.nongnu.org/</u>\n\n" +
 				"Dedicated to Chris Jones: oderint dum metuant.";
@@ -369,7 +376,9 @@ class GpremacyGUI {
 		}
 		OrderOfPlayTable.ShowAll();
 
-		BlindBidNumberLeft.Text = thisPlayer.BlindBidsLeft.ToString();
+		BlindBidsRemaining.Text =  thisPlayer.BlindBidsLeft.ToString();
+		BlindBidThisPhase.Text = bidThisPhase?(doneThisPhase?"Done":"Playing"):"Passing";
+		BlindBidNextPhase.Text = bidNextPhase?"Bid-In":(doneThisPhase?"Passing":"Undecided"); 
 				
 		if (game.State.CurrentPlayer != null)
 			OrderOfPlayCurrentPlayerName.Text = game.State.CurrentPlayer.Name;

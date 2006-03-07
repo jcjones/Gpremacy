@@ -20,6 +20,7 @@
 // created on 08/28/2005 at 14:54
 using Gtk;
 using System;
+using System.Diagnostics;
 using System.Collections;
 using Gpremacy.Network;
 
@@ -383,6 +384,34 @@ class Game {
 				state.Execute(cmd);
 			}
 		}
+	}
+	
+	public static bool OpenLink(string address) {
+	    try {
+	        int plat = (int) Environment.OSVersion.Platform;
+	        if ((plat != 4) && (plat != 128)) {
+	            // Use Microsoft's way of opening sites
+	            Process.Start("start "+address);
+	            return true;
+	        } else {
+	            // We're on Unix, try gnome-open (used by GNOME), then open
+	            // (used my MacOS), then Firefox or Konqueror browsers (our last
+	            // hope).
+	            string cmdline = String.Format("gnome-open {0} || open {0} || "+
+	                "firefox {0} || mozilla-firefox {0} || konqueror {0}", address);
+	            Process proc = Process.Start (cmdline);
+	 
+	            // Sleep some time to wait for the shell to return in case of error
+	            System.Threading.Thread.Sleep(250);
+	 
+	            // If the exit code is zero or the process is still running then
+	            // appearently we have been successful.
+	            return (!proc.HasExited || proc.ExitCode == 0);
+	        }
+	    } catch (Exception e) {
+	        // We don't want any surprises
+	        return false;
+	    }
 	}
 
 	public bool JustShuffledResourceCards
