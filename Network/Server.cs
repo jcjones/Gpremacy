@@ -65,6 +65,7 @@ class Server : GameLink {
 	ArrayList clients; // of ClientConnection
 	ArrayList clientsToRemove; // of ClientConnection
 	bool acceptingConnections;
+	bool acceptingData;
 	
 	Queue outboundPackets; // of OutPacket
 
@@ -89,6 +90,7 @@ class Server : GameLink {
 		clientsToRemove = new ArrayList();
 		
 		acceptingConnections = true;
+		acceptingData = true;
 		
 		gameSocket     = new Socket(System.Net.Sockets.AddressFamily.InterNetwork,System.Net.Sockets.SocketType.Stream,System.Net.Sockets.ProtocolType.Tcp);
 		IPEndPoint ip1 = new IPEndPoint(IPAddress.Any,port);
@@ -200,6 +202,11 @@ class Server : GameLink {
 	
 	public override void stop()
 	{			
+		acceptingData = false;
+		acceptingConnections = false;
+		
+		Thread.Sleep(10); // Force a context switch to allow those threads to terminate.
+		
 		if (listenJoins != null)
 			listenJoins.Abort();
 		if (listenData != null)
@@ -322,7 +329,7 @@ class Server : GameLink {
 	public void listenForData()
 	{
 		DataPacket packet = null;
-		while(true)
+		while(acceptingData)
 		{	
 			// Acquire mutex for clients
 			Monitor.Enter(clients);

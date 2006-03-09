@@ -4,7 +4,7 @@
 ; (such as HKEY_LOCAL_MACHINE\SOFTWARE\Novell\Mono\1.1.9.2)
 ;--------------------------------
 
-!define VERSION "1.0 Alpha"
+!define VERSION "0.4.0 alpha"
 
 ;--------------------------------
 ;Include Modern UI
@@ -15,7 +15,7 @@
   Name "Gpremacy ${VERSION}"
 
 ; The file to write
-  OutFile "Gpremacy-Windows-${VERSION}.exe"
+  OutFile "Gpremacy-${VERSION}-Windows-Setup.exe"
 
 ; The default installation directory
   InstallDir $PROGRAMFILES\Gpremacy

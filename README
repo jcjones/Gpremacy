@@ -1,6 +1,6 @@
 Requirements:
 
-Mono 1.1.9 or later with Gtk# 2.4.0 or later. Gpremacy will run on any system on which Mono can run, including Windows 2000, XP, Solaris, Linux and Mac OS X.
+Mono 1.1.9 or later with Gtk# 2.4.0 or later. Gpremacy will run on any system on which both Mono and Gtk# can run, including Windows 2000, XP and Linux.
 
 Compiling:
 
@@ -11,6 +11,10 @@ Running the game:
 Gpremacy requires Mono be installed. If your computer has not caught Mono, visit http://go-mono.com/ .  Once you have momo, all you need to do is run the game executable with your mono environment. An example would be:
        
 mono bin/Debug/gpremacy-mono.exe
+
+Playing the game:
+
+Look here for documentation: http://gpremacy.pugsplace.net/wiki/How_To_Play
 
 Acknowledgements:
 

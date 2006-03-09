@@ -130,6 +130,8 @@ class GpremacyGUI {
 													
 		gameSetupView = new GameSetupView(MainWindow);
 		gameSetupView.showGameSetupUI();
+		
+		bidThisPhase = true;
 				
 		Application.Run ();		
 	}
@@ -326,9 +328,7 @@ class GpremacyGUI {
 				
 		/* Specify blind bid status */
 		showBidDialog();
-		
-		doneThisPhase = true;
-						
+								
 		/* Take care of the resource card tab */
 		updateResourceCardTab();
 		/* Update the rest */		
@@ -375,10 +375,26 @@ class GpremacyGUI {
 			row++;
 		}
 		OrderOfPlayTable.ShowAll();
+		
+		/* Bid Status Text */
 
 		BlindBidsRemaining.Text =  thisPlayer.BlindBidsLeft.ToString();
-		BlindBidThisPhase.Text = bidThisPhase?(doneThisPhase?"Done":"Playing"):"Passing";
-		BlindBidNextPhase.Text = bidNextPhase?"Bid-In":(doneThisPhase?"Passing":"Undecided"); 
+		if (bidThisPhase) {		
+			if (doneThisPhase) {
+				BlindBidThisPhase.Text = "Done";
+			} else {
+				if (thisPlayer == game.State.CurrentPlayer) {
+					BlindBidThisPhase.Text = "Playing";
+				} else {
+					BlindBidThisPhase.Text = "Waiting";
+				}
+			}
+		} else {
+			BlindBidThisPhase.Text = "Passing";
+		}
+		BlindBidNextPhase.Text = bidNextPhase?"Bid-In":(doneThisPhase?"Passing":"Undecided");
+		
+		/* Done Bid Status */ 
 				
 		if (game.State.CurrentPlayer != null)
 			OrderOfPlayCurrentPlayerName.Text = game.State.CurrentPlayer.Name;
@@ -1080,19 +1096,20 @@ class GpremacyGUI {
 		uint row = 0;
 		foreach(ResourceCard card in thisPlayer.ResourceCards)
 		{
-			Gtk.Label label = new Gtk.Label(card.ToString());
+			Gtk.Label label = new Gtk.Label(card.ToString());			
 			Gtk.ToggleButton button = new Gtk.ToggleButton("VOID");
 			button.Active = card.Active;
 			button.Toggled += ResourceCardViewTableButton_toggled;
 			
 			/* Toggle */
-        	if (card.Active)
-	        	button.Label = "Operating";        	
-        	else
-        		button.Label = "Idle";
-        	if (card.Place.Owner != thisPlayer)
-        		button.Sensitive = false;
-			
+	        	if (card.Active)
+		        	button.Label = "Operating";        	
+	        	else
+	        		button.Label = "Idle";
+	        	if (card.Place.Owner != thisPlayer)
+	        		button.Sensitive = false;
+	        		
+			// Fixing these to line up properly may be a task for Gtk.AttachOptions
 			ResourceCardViewTable.Attach(label, 0, 1, row, row+1);
 			ResourceCardViewTable.Attach(button, 1, 2, row, row+1);
 			row++;
@@ -1163,6 +1180,8 @@ class GpremacyGUI {
 	{
 		BidDialog.Hide();
 		bidNextPhase = true;
+		doneThisPhase = true;
+		
 		/* Blind Bid */
 		Command cmd = new Orig_BlindBidIn(thisPlayer, true);
 		Game.GetInstance().State.Execute(cmd);
@@ -1175,9 +1194,11 @@ class GpremacyGUI {
 
 	}
 	protected void on_BidDialogNo_clicked(System.Object obj, EventArgs e) 
-	{
+	{	
 		BidDialog.Hide();	
 		bidNextPhase = false;
+		doneThisPhase = true;
+		
 		/* Blind Bid */
 		Command cmd = new Orig_BlindBidIn(thisPlayer, false);
 		Game.GetInstance().State.Execute(cmd);

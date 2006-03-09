@@ -1,6 +1,7 @@
 7 Mar 2006
 Help button which redirects to the new Wiki user manual
 Wiki user manual
+Fix client-connect lockup due to oddity in Monitor
 6 Mar 2006
 Blind bidding / player randomization
 Decoupling of Server from GUI (incomplete)

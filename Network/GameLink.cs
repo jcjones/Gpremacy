@@ -22,6 +22,7 @@ class GameLink {
 	
 	public GameLink() 
 	{
+		participants = new ArrayList();
 	}
 			
 	public virtual bool sendCommand(Command cmd)
@@ -53,7 +54,8 @@ class GameLink {
 		if ( (list != null) && (list.Count > 0) && (list[0] is GameParticipant) )
 		{
 			Monitor.Enter(participants); 
-			participants = list;
+			participants.Clear();
+			participants.AddRange(list);
 			Monitor.Exit(participants);
 		} else {
 			System.Console.WriteLine("Received a bad participant list.");

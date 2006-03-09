@@ -19,7 +19,7 @@ Conventional:
 	C: Get the Dice -- Attacker gets 1, Def gets 2, most units gets +1, most lstars gets +1
 	D: Roll Dice and Count Losses - 1 kill / 3 points on dice
 	E: Move reinforcements - First defender moves, then attacker
-	F: Defender may counterattack - Go to step A for either conventional or strategic forces
+	F: Defender may cNounterattack - Go to step A for either conventional or strategic forces
 	
 Strategic:
 	A: Identify Target of Nuclear Attack
@@ -142,6 +142,8 @@ class GameState {
 		/* Finish last state */ 
 		currentState.doneState();
 		
+		System.Console.Write("ChangeState: Old State was: " + currentState.Name() + "["+currentState.MyOrder+"]=>"+nextStateID+", "); 
+		
 		currentState = nextState = null;
 
 		foreach(State state in states) 
@@ -167,6 +169,7 @@ class GameState {
 		if (nextState == null)
 			throw new Exception("Attempted to change next state to ["+currentState.NextOrder+"], which is invalid");
 
+		System.Console.WriteLine(" new State is: " + currentState.Name() + " next is " + nextState.Name());
 		
 		/* Begin new state */
 		Game.GetInstance().GUI.startNewTurn();
@@ -417,11 +420,11 @@ class Orig_NextPlayer : Command {
 
 /* This command is only sent by the server. Other use is Bad Stuff. */
 [Serializable]
-class Orig_NextState : Command {	
+class Orig_SetNextState : Command {	
 	int nextStateNum;
-	public Orig_NextState(State a) 
+	public Orig_SetNextState(State a) 
 	{
-		nextStateNum = a.NextOrder;		
+		nextStateNum = a.MyOrder;		
 		serverOnly = true;
 	}
 	

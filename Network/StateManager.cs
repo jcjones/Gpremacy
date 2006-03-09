@@ -73,9 +73,9 @@ class StateManager{
 		
 		State nextState = (State)currentPhase.Current;
 		
-		System.Console.WriteLine("Next Phase is " + nextState.Name());
+		System.Console.WriteLine(">> Next Phase is " + nextState.Name());
 		
-		Orig_NextState cmd = new Orig_NextState(nextState);
+		Orig_SetNextState cmd = new Orig_SetNextState(nextState);
 		executeCommandEverywhere(cmd);
 		
 	}
@@ -98,6 +98,9 @@ class StateManager{
 		randomizePlayersForThisPhase();
 		
 		playersWaiting = (ArrayList)allPlayers.Clone();
+		
+		/* Notify first player */
+		alertNextPlayer(null);
 	}
 	
 	private void playerReady(Player readyPlayer) {
@@ -118,33 +121,49 @@ class StateManager{
 			allPlayersDoneThisPhase();
 	}
 	
-	private void playerDone(Player player) {
+	private void alertNextPlayer(Player player) {
 		Player nextPlayer = null;
 		
-		if ((Player)playersRandomized.Current != player) {
-			System.Console.WriteLine("Player done out of order");
-			//return;
-		}
-		
-		// If no players are active, this will be an infinite loop.
-		for (;;) {
-			/* Check if we're done with the list */
-			if (playersRandomized.MoveNext() == false) 
-			{
-				System.Console.WriteLine("StateManager:playerDone: Done with random list, iterator over...");
+		/* watch for falling exceptions */
+		try {
+			/* If player != null do this... */
+			if (player != null && (Player)playersRandomized.Current != player) {
+				System.Console.WriteLine("!! Player " + player.Name + " done out of order! Waiting on: "+((Player)playersRandomized.Current).Name);
 				return;
 			}
 			
-			nextPlayer = (Player)playersRandomized.Current;
-			
-			if (nextPlayer.Active)
-				break;
+			// If no players are active, this will be an infinite loop.
+			for (;;) {
+				/* Check if we're done with the list */
+				if (playersRandomized.MoveNext() == false) 
+				{
+					System.Console.WriteLine("StateManager:playerDone: Done with random list, iterator over...");
+					
+				}
 				
-			System.Console.WriteLine("StateManager:playerDone: Scanning for next active player");
+				nextPlayer = (Player)playersRandomized.Current;
+				
+				if (nextPlayer.Active)
+					break;
+					
+				System.Console.WriteLine("StateManager:playerDone: Scanning for next active player");
+			}
+		} catch (System.InvalidOperationException e) {
+				System.Console.WriteLine("** Setting player " + ((player != null)?player.Name:"null") + " done threw an exception in its enumerator: " + e.Message);
+					
+				System.Console.WriteLine("**PLAYERS**");
+				playersRandomized.Reset();
+				while (playersRandomized.MoveNext() != false)
+					System.Console.WriteLine("#: " + ((Player)playersRandomized.Current).Name);
+				System.Console.WriteLine("** ** ** **");
 		}
 		
+		if (nextPlayer == null) {
+			System.Console.WriteLine("!! Failed to set next player. Game's going to be screwed.");			
+			return;
+		}
 		
-		System.Console.WriteLine("Next Player is " + nextPlayer.Name);
+		System.Console.WriteLine(">> Next Player is " + nextPlayer.Name);
 		Orig_NextPlayer cmd = new Orig_NextPlayer(nextPlayer);
 		executeCommandEverywhere(cmd);
 		
@@ -158,7 +177,8 @@ class StateManager{
 			
 			System.Console.WriteLine("Player " + player.Name + " is done with phase...");
 			
-			playerDone(player);
+			/* Set player as being Done and alert next player... */
+			alertNextPlayer(player);
 			
 			return true;
 		}
